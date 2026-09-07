@@ -46,6 +46,24 @@
                 </div>
             </a>
 
+            <!-- Petugas Teknisi -->
+            <a href="{{ route('login', ['role' => 'petugas']) }}" class="group flex items-center px-4 py-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50/30 transition-all duration-200 cursor-pointer">
+                <div class="flex-shrink-0 mr-4 h-10 w-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all border border-emerald-100/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-[14px] font-bold text-gray-900 group-hover:text-emerald-900 transition-colors">Masuk sebagai Petugas Teknisi</h3>
+                    <p class="text-[12px] text-gray-500 mt-0.5">Eksekusi Perbaikan & Upload Bukti.</p>
+                </div>
+                <div class="text-gray-300 group-hover:text-emerald-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </a>
+
             <!-- Admin Sarpras -->
             <a href="{{ route('login', ['role' => 'admin']) }}" class="group flex items-center px-4 py-4 border border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200 cursor-pointer">
                 <div class="flex-shrink-0 mr-4 h-10 w-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all border border-blue-100/50">
@@ -55,27 +73,9 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="text-[14px] font-bold text-gray-900 group-hover:text-blue-900 transition-colors">Masuk sebagai Admin Sarpras</h3>
-                    <p class="text-[12px] text-gray-500 mt-0.5">Tim Manajemen Fasilitas.</p>
+                    <p class="text-[12px] text-gray-500 mt-0.5">Persetujuan RAB & Inventaris Aset.</p>
                 </div>
                 <div class="text-gray-300 group-hover:text-blue-500 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                    </svg>
-                </div>
-            </a>
-
-            <!-- Kepala Sekolah -->
-            <a href="{{ route('login', ['role' => 'kepsek']) }}" class="group flex items-center px-4 py-4 border border-gray-200 rounded-xl hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-200 cursor-pointer">
-                <div class="flex-shrink-0 mr-4 h-10 w-10 bg-[#FFF2ED] text-[#E0643D] rounded-full flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all border border-orange-100/50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-[14px] font-bold text-gray-900 group-hover:text-orange-800 transition-colors">Masuk sebagai Kepala Sekolah</h3>
-                    <p class="text-[12px] text-gray-500 mt-0.5">Monitoring & Persetujuan RAB.</p>
-                </div>
-                <div class="text-gray-300 group-hover:text-orange-500 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                     </svg>

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('deskripsi_kerusakan');
             $table->string('foto_bukti')->nullable();
             $table->boolean('is_emergency')->default(false);
+            $table->string('tingkat_urgensi')->nullable();
             $table->string('status_laporan');
             $table->timestamps();
 

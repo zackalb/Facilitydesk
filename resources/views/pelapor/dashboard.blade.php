@@ -40,8 +40,11 @@
 
         <div class="mt-auto p-6 border-t border-gray-100">
             <div class="space-y-1">
-                <a href="#" class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <a href="{{ route('settings.security') }}" class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
                     <span>Settings</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
@@ -57,30 +60,32 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Topbar -->
-        <header class="bg-white border-b border-gray-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
-            <h2 class="text-xl font-bold text-[#1e40af]">Halaman Pelapor</h2>
-            
-            <div class="flex-1 max-w-lg hidden lg:block mx-8">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                    <input type="text" class="w-full bg-gray-50/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-blue-500 placeholder-gray-400 transition-all" placeholder="Cari WO, facilities...">
-                </div>
-            </div>
+        <!-- Topbar: Konsisten seperti Admin SarPras -->
+        <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
+            <h2 class="text-xl font-extrabold text-blue-950 tracking-tight">Pelapor SarPras</h2>
 
+            <!-- Notifications & Profile -->
             <div class="flex items-center space-x-5">
-                <button class="text-gray-400 hover:text-blue-600 transition-colors relative">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                    </svg>
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white"></span>
                 </button>
-                <button class="text-gray-400 hover:text-blue-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <button class="text-slate-500 hover:text-blue-600 transition-all">
+                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                    </svg>
                 </button>
-                <div class="flex items-center space-x-3 border-l border-gray-200 pl-5">
-                    <div class="w-9 h-9 bg-[#f3e8ff] text-[#9333ea] rounded-full flex items-center justify-center font-bold text-sm">
-                        {{ strtoupper(substr($user->nama, 0, 1)) }}
+
+                <!-- Avatar Profile Info -->
+                <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Siswa / Guru' }}</p>
+                        <p class="text-[11px] text-slate-500 font-semibold">{{ (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa' }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
+                        {{ strtoupper(substr($user->nama ?? 'P', 0, 1)) }}
                     </div>
                 </div>
             </div>
@@ -97,7 +102,7 @@
                     </div>
                 @endif
                 
-                @if($errors->any())
+                @if(isset($errors) && $errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
                         <ul class="list-disc pl-5 text-sm font-medium space-y-1">
                             @foreach($errors->all() as $error)
@@ -107,22 +112,21 @@
                     </div>
                 @endif
 
-                <!-- Red Banner -->
-                <form action="{{ route('pelapor.darurat') }}" method="POST" class="mb-6">
-                    @csrf
-                    <!-- Untuk prototype, set fasilitas default atau buat modal. Kita gunakan fasilitas pertama -->
-                    <input type="hidden" name="id_fasilitas" value="{{ $facilities->first()->id_fasilitas ?? 1 }}">
-                    <input type="hidden" name="deskripsi_kerusakan" value="Laporan Darurat Butuh Penanganan Segera!">
-                    <button type="submit" class="w-full bg-[#cc0000] rounded-xl p-5 md:p-6 text-left flex items-center gap-5 hover:bg-red-700 transition shadow-md shadow-red-900/10">
-                        <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                <!-- Red Banner Button (Triggers Emergency Modal) -->
+                <div class="mb-6">
+                    <button type="button" onclick="toggleModal('modal-darurat')" class="w-full bg-[#cc0000] rounded-2xl p-5 md:p-6 text-left flex items-center gap-5 hover:bg-red-700 transition shadow-md shadow-red-900/10 cursor-pointer active:scale-[0.99]">
+                        <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm animate-pulse">
                             <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1 uppercase tracking-wider">Lapor Darurat</h2>
-                            <p class="text-red-100 text-sm font-medium">Tekan untuk melaporkan insiden kritis yang membutuhkan penanganan segera (Perbaikan Berat, Keamanan, Medis).</p>
+                            <h2 class="text-2xl font-bold text-white mb-1 uppercase tracking-wider flex items-center gap-2">
+                                <span>Lapor Darurat</span>
+                                <span class="text-xs bg-white/20 text-white px-2.5 py-0.5 rounded-full font-bold">Fast-Track</span>
+                            </h2>
+                            <p class="text-red-100 text-sm font-medium">Tekan untuk melaporkan insiden kritis yang membutuhkan penanganan segera (Korsleting, Pipa Pecah, Bahaya).</p>
                         </div>
                     </button>
-                </form>
+                </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Left Column: Form -->
@@ -145,13 +149,13 @@
                                         <input type="text" value="{{ $user->nama }}" readonly class="w-full bg-blue-50/50 border-none rounded-xl py-3 px-4 text-sm text-blue-900 font-medium focus:ring-0">
                                     </div>
                                     <div>
-                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Tingkat Urgensi (Opsional)</label>
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Tingkat Urgensi <span class="text-red-500">*</span></label>
                                         <div class="relative">
-                                            <select name="tingkat_urgensi" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                                            <select name="tingkat_urgensi" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                                                 <option value="" disabled selected>Pilih tingkat urgensi</option>
-                                                <option value="rendah">Rendah (Dapat ditunda)</option>
-                                                <option value="sedang">Sedang (Mengganggu kenyamanan)</option>
-                                                <option value="tinggi">Tinggi (Mengganggu kegiatan)</option>
+                                                <option value="rendah">Rendah (Dapat ditunda - Langsung Proses)</option>
+                                                <option value="sedang">Sedang (Mengganggu kenyamanan - Langsung Proses)</option>
+                                                <option value="tinggi">Tinggi (Kritis / Butuh Pengajuan RAB Sarpras)</option>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -160,18 +164,41 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Lokasi Kejadian</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Kategori Kerusakan <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                            </div>
+                                            <select name="category_id" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                                                <option value="" disabled selected>Pilih Kategori Kerusakan</option>
+                                                @foreach($categories as $cat)
+                                                    <option value="{{ $cat->id }}">{{ $cat->name }} (Spesialisasi Teknisi {{ $cat->name }})</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
                                         </div>
-                                        <select name="id_fasilitas" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
-                                            <option value="" disabled selected>Pilih Fasilitas / Ruangan</option>
-                                            @foreach($facilities as $fac)
-                                                <option value="{{ $fac->id_fasilitas }}">{{ $fac->nama_fasilitas }} ({{ $fac->lokasi_detail }})</option>
-                                            @endforeach
-                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Lokasi Fasilitas <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            </div>
+                                            <select name="id_fasilitas" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                                                <option value="" disabled selected>{{ $facilities->isEmpty() ? 'Tidak ada fasilitas yang berstatus Baik saat ini' : 'Pilih Fasilitas / Ruangan' }}</option>
+                                                @forelse($facilities as $fac)
+                                                    <option value="{{ $fac->id_fasilitas }}">{{ $fac->nama_fasilitas }} ({{ $fac->lokasi_detail }})</option>
+                                                @empty
+                                                @endforelse
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -277,7 +304,8 @@
                                                             $statusColor = match($report->status_laporan) {
                                                                 'selesai' => 'bg-green-100 text-green-700',
                                                                 'darurat' => 'bg-red-100 text-red-700',
-                                                                'diproses' => 'bg-yellow-100 text-yellow-700',
+                                                                'proses', 'proses_perbaikan', 'diproses' => 'bg-blue-100 text-blue-700',
+                                                                'menunggu_rab' => 'bg-amber-100 text-amber-700',
                                                                 default => 'bg-[#FFEDE1] text-[#E0643D]'
                                                             };
                                                         @endphp
@@ -404,8 +432,10 @@
                 statusEl.className += 'bg-green-100 text-green-700';
             } else if (data.status_laporan === 'darurat') {
                 statusEl.className += 'bg-red-100 text-red-700';
-            } else if (data.status_laporan === 'diproses') {
-                statusEl.className += 'bg-yellow-100 text-yellow-700';
+            } else if (data.status_laporan === 'proses_perbaikan' || data.status_laporan === 'proses' || data.status_laporan === 'diproses') {
+                statusEl.className += 'bg-blue-100 text-blue-700';
+            } else if (data.status_laporan === 'menunggu_rab') {
+                statusEl.className += 'bg-amber-100 text-amber-700';
             } else {
                 statusEl.className += 'bg-[#FFEDE1] text-[#E0643D]';
             }
@@ -497,6 +527,81 @@
             document.getElementById('file-name').innerText = "";
             document.getElementById('hover-file-name').innerText = "";
         }
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.toggle('hidden');
+            }
+        }
     </script>
+
+    <!-- Modal Lapor Darurat Cepat -->
+    <div id="modal-darurat" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4 transition-all">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 lg:p-7 shadow-2xl border border-red-100 animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Kirim Panggilan Darurat</h3>
+                        <p class="text-xs text-slate-500 font-medium">Tim Sarpras akan langsung menerima peringatan siaga.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="toggleModal('modal-darurat')" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form action="{{ route('pelapor.darurat') }}" method="POST" class="space-y-4">
+                @csrf
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">1. Pilih Lokasi / Fasilitas Darurat</label>
+                    <select name="id_fasilitas" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
+                        <option value="" disabled selected>Pilih Lokasi Kejadian...</option>
+                        @foreach($facilities as $fac)
+                            <option value="{{ $fac->id_fasilitas }}">{{ $fac->nama_fasilitas }} ({{ $fac->lokasi_detail }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">2. Kategori Insiden</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
+                            <input type="radio" name="incident_type" value="Korsleting Listrik / Asap" checked onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
+                            <span>⚡ Korsleting / Asap</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
+                            <input type="radio" name="incident_type" value="Pipa Pecah / Banjir" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
+                            <span>💧 Pipa Pecah / Banjir</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
+                            <input type="radio" name="incident_type" value="Kaca Pecah / Bahaya Fisik" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
+                            <span>🚪 Kaca / Pintu Rusak</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
+                            <input type="radio" name="incident_type" value="Darurat Kritis Lainnya" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
+                            <span>⚠️ Bahaya Lainnya</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">3. Deskripsi Singkat Kejadian</label>
+                    <textarea name="deskripsi_kerusakan" id="emergency-desc" rows="2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 resize-none">Korsleting Listrik / Asap</textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3">
+                    <button type="button" onclick="toggleModal('modal-darurat')" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">Batal</button>
+                    <button type="submit" class="bg-[#cc0000] hover:bg-red-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Kirim Sinyal Darurat</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

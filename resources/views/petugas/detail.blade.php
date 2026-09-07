@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Tugas - FacilityDesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] antialiased text-slate-800 flex flex-col h-screen overflow-hidden">
+
+    <!-- Red Warning Banner for Emergency Reports -->
+    @if($hasEmergency)
+        <div class="bg-[#cc0000] text-white text-center py-2.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 animate-pulse">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <span>PERINGATAN: Laporan Darurat Baru Masuk!</span>
+        </div>
+    @endif
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-slate-100 flex flex-col h-full hidden md:flex shrink-0">
+            <div class="p-6">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 mb-8">
+                    <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
+                    <div>
+                        <h1 class="text-sm font-bold text-slate-900 leading-tight">facility management</h1>
+                        <p class="text-[10px] text-slate-500 font-medium">Petugas Teknisi</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="space-y-1.5">
+                    <a href="{{ route('petugas.dashboard') }}" class="flex items-center space-x-3 px-4 py-2.5 bg-blue-50/50 text-blue-700 rounded-xl text-sm font-semibold border-l-2 border-blue-600 transition-all">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        <span>Tugas Perbaikan</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer / Settings & Logout -->
+            <div class="mt-auto p-6 border-t border-slate-100">
+                <div class="space-y-1.5">
+                    <a href="{{ route('settings.security') }}" class="flex items-center space-x-3 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl text-sm font-medium transition-all">
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Topbar: Konsisten seperti Admin SarPras -->
+            <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
+                <h2 class="text-xl font-extrabold text-blue-950 tracking-tight">Petugas Teknisi</h2>
+
+                <!-- Notifications & Profile -->
+                <div class="flex items-center space-x-5">
+                    <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+                        <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                        @if($hasEmergency ?? false)
+                            <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white animate-pulse"></span>
+                        @endif
+                    </button>
+                    <button class="text-slate-500 hover:text-blue-600 transition-all">
+                        <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Avatar Profile Info -->
+                    <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Andi Saputra' }}</p>
+                            <p class="text-[11px] text-slate-500 font-semibold">{{ $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi' }}</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
+                            {{ strtoupper(substr($user->nama ?? 'T', 0, 1)) }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Page Content -->
+            <div class="flex-1 overflow-auto p-8">
+                <div class="max-w-6xl mx-auto space-y-6">
+
+                    <!-- Flash Message -->
+                    @if(session('success'))
+                        <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                    @endif
+
+                    <!-- Back Button & Page Title -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <a href="{{ route('petugas.dashboard') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 bg-white border border-slate-200/80 px-3.5 py-2 rounded-xl transition-all shadow-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                                <span>Kembali</span>
+                            </a>
+                            <h3 class="text-2xl font-bold text-slate-900">
+                                Instruksi Kerja #@if($report->verification && $report->verification->workOrder)WO-{{ $report->tanggal_waktu->format('Y') }}-{{ str_pad($report->verification->workOrder->id_wo, 3, '0', STR_PAD_LEFT) }}@else TKT-{{ $report->tanggal_waktu->format('Y') }}-{{ str_pad($report->id_laporan, 3, '0', STR_PAD_LEFT) }}@endif
+                            </h3>
+                            
+                            @if($report->status_laporan === 'darurat')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                                    Darurat
+                                </span>
+                            @elseif($report->status_laporan === 'menunggu')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                    Inspeksi
+                                </span>
+                            @elseif($report->status_laporan === 'proses')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    Perbaikan
+                                </span>
+                            @elseif($report->status_laporan === 'selesai')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
+                                    Selesai
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Split Layout Content -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        
+                        <!-- Left Column: Report Card Detail -->
+                        <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                            <!-- Image section -->
+                            <div class="relative h-64 bg-slate-100 flex items-center justify-center overflow-hidden">
+                                @if($report->foto_bukti)
+                                    <img src="{{ asset('storage/' . $report->foto_bukti) }}" alt="Foto Before" class="w-full h-full object-cover">
+                                @else
+                                    <div class="text-center text-slate-400 p-6">
+                                        <svg class="w-16 h-16 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <p class="text-xs font-semibold">Tidak ada Lampiran Foto Sebelum</p>
+                                    </div>
+                                @endif
+                                <div class="absolute top-4 left-4 bg-red-600/90 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full tracking-wider uppercase">
+                                    Foto 'Before'
+                                </div>
+                            </div>
+
+                            <!-- Text Details -->
+                            <div class="p-6 space-y-6">
+                                <div>
+                                    <h4 class="text-xl font-bold text-slate-900 mb-2">{{ $report->facility->nama_fasilitas }}</h4>
+                                    <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                                        {{ $report->deskripsi_kerusakan }}
+                                    </p>
+                                </div>
+
+                                <div class="border-t border-slate-50 pt-5 space-y-4 text-sm font-semibold text-slate-700">
+                                    <!-- Location Info -->
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-0.5">Lokasi</div>
+                                            <div class="text-slate-800">{{ $report->facility->lokasi_detail }}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Date Info -->
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-0.5">Tanggal Dilaporkan</div>
+                                            <div class="text-slate-800">{{ $report->tanggal_waktu->format('d F Y, H:i') }} WIB</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reporter Info -->
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-0.5">Pelapor</div>
+                                            <div class="text-slate-800">{{ $report->user->nama }} ({{ ucfirst($report->user->status) }})</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Urgency Info -->
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-xl {{ $report->tingkat_urgensi === 'tinggi' || $report->is_emergency ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600' }} flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-0.5">Tingkat Urgensi</div>
+                                            <div class="{{ $report->tingkat_urgensi === 'tinggi' || $report->is_emergency ? 'text-red-600 font-bold' : 'text-slate-800' }}">
+                                                {{ ucfirst($report->tingkat_urgensi ?? 'Sedang') }} {{ $report->is_emergency ? '(Panggilan Darurat)' : '' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Verification & Action Form -->
+                        <div class="lg:col-span-7 space-y-6">
+
+                            @php
+                                $proposal = $report->verification ? $report->verification->budgetProposal : null;
+                                $isEmergency = ($report->is_emergency || $report->status_laporan === 'darurat' || $report->tingkat_urgensi === 'darurat');
+                                // Pengajuan RAB HANYA untuk laporan berurgensi TINGGI (BUKAN DARURAT)
+                                $needRab = ($report->tingkat_urgensi === 'tinggi' && !$isEmergency);
+                            @endphp
+
+                            <!-- Banner Fast-Track: Khusus Insiden Darurat (Langsung Eksekusi Tanpa RAB) -->
+                            @if($isEmergency)
+                                <div class="bg-gradient-to-r from-red-600 to-rose-600 rounded-3xl p-6 shadow-md text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 animate-pulse backdrop-blur-xs">
+                                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="inline-block text-[11px] font-extrabold uppercase tracking-wider bg-white/25 px-3 py-0.5 rounded-full mb-1">
+                                                Fast-Track Eksekusi Lapangan
+                                            </div>
+                                            <h4 class="text-base font-bold text-white">Insiden Darurat: Langsung Eksekusi Perbaikan!</h4>
+                                            <p class="text-xs text-red-100 mt-0.5">Kondisi darurat tidak memerlukan pengajuan RAB. Segera lakukan penanganan perbaikan di bawah.</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-3.5 py-1.5 bg-white text-red-600 text-xs font-bold rounded-xl shadow-xs shrink-0 self-start md:self-auto">
+                                        Langsung Eksekusi (Tanpa RAB)
+                                    </span>
+                                </div>
+                            @endif
+
+                            <!-- Section RAB: Khusus jika Urgensi Tinggi (Non-Darurat) -->
+                            @if($needRab)
+                                <div class="bg-white rounded-3xl border {{ $proposal ? 'border-slate-100' : 'border-amber-200 bg-amber-50/10' }} shadow-sm p-8 flex flex-col">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
+                                        <div>
+                                            <h4 class="text-lg font-bold text-slate-900">Pengajuan Anggaran & Suku Cadang (RAB)</h4>
+                                            <p class="text-xs text-slate-500 mt-0.5">Laporan berurgensi Tinggi memerlukan estimasi biaya pengadaan material ke Admin Sarpras.</p>
+                                        </div>
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            Wajib RAB
+                                        </span>
+                                    </div>
+
+                                    @if($proposal)
+                                        <!-- State: RAB Sudah Diajukan -->
+                                        <div class="space-y-4">
+                                            <!-- Status Approval Banner -->
+                                            @if($proposal->status_persetujuan === 'menunggu_persetujuan')
+                                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-4">
+                                                    <div>
+                                                        <span class="text-xs font-bold text-amber-800 uppercase tracking-wide">Status Pengajuan</span>
+                                                        <h5 class="text-sm font-bold text-amber-900 mt-0.5">Menunggu Persetujuan Admin Sarpras</h5>
+                                                        <p class="text-xs text-amber-700 mt-0.5">Total Estimasi: <span class="font-bold">Rp {{ number_format($proposal->estimasi_biaya, 0, ',', '.') }}</span></p>
+                                                    </div>
+                                                    <span class="px-3 py-1 bg-amber-200/70 text-amber-900 font-bold text-xs rounded-xl">Diproses</span>
+                                                </div>
+                                            @elseif($proposal->status_persetujuan === 'disetujui')
+                                                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-4">
+                                                    <div>
+                                                        <span class="text-xs font-bold text-emerald-800 uppercase tracking-wide">Status Pengajuan</span>
+                                                        <h5 class="text-sm font-bold text-emerald-900 mt-0.5">RAB Disetujui Admin Sarpras</h5>
+                                                        <p class="text-xs text-emerald-700 mt-0.5">Anggaran Disetujui: <span class="font-bold">Rp {{ number_format($proposal->estimasi_biaya, 0, ',', '.') }}</span></p>
+                                                    </div>
+                                                    <span class="px-3 py-1 bg-emerald-200 text-emerald-900 font-bold text-xs rounded-xl">Disetujui</span>
+                                                </div>
+                                            @else
+                                                <!-- State: RAB Ditolak Admin -->
+                                                <div class="space-y-3">
+                                                    <div class="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between gap-4">
+                                                        <div>
+                                                            <span class="text-xs font-bold text-red-800 uppercase tracking-wide">Status Pengajuan</span>
+                                                            <h5 class="text-sm font-bold text-red-900 mt-0.5">RAB Ditolak / Butuh Revisi</h5>
+                                                        </div>
+                                                        <span class="px-3 py-1 bg-red-200 text-red-900 font-bold text-xs rounded-xl">Ditolak</span>
+                                                    </div>
+
+                                                    <!-- Catatan Evaluasi / Alasan Penolakan dari Admin -->
+                                                    <div class="p-3.5 bg-red-50/60 border border-red-200/80 rounded-xl text-xs">
+                                                        <div class="flex items-center gap-1.5 font-bold text-red-900 mb-1">
+                                                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                            <span>Catatan Evaluasi Admin SarPras:</span>
+                                                        </div>
+                                                        <p class="text-slate-800 font-medium pl-5">
+                                                            {{ $report->verification && $report->verification->catatan_inspeksi ? $report->verification->catatan_inspeksi : 'Estimasi biaya belum disetujui. Silakan revisi rincian barang/harga atau lakukan penanganan dengan suku cadang internal.' }}
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Tombol Buka Form Revisi -->
+                                                    <div class="flex items-center justify-between pt-1">
+                                                        <p class="text-xs text-slate-500 font-medium">Teknisi dapat merevisi biaya pengadaan:</p>
+                                                        <button type="button" onclick="toggleReviseForm()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                            <span>✏️ Ajukan Revisi RAB</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Table of Submitted Items (Ditampilkan jika tidak sedang mode revisi) -->
+                                            <div id="submitted-items-table" class="border border-slate-100 rounded-2xl overflow-hidden">
+                                                <table class="w-full text-left text-xs">
+                                                    <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
+                                                        <tr>
+                                                            <th class="px-4 py-3">Nama Sarana / Suku Cadang</th>
+                                                            <th class="px-4 py-3 text-center">Qty</th>
+                                                            <th class="px-4 py-3 text-right">Harga Satuan</th>
+                                                            <th class="px-4 py-3 text-right">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-slate-100">
+                                                        @foreach($proposal->items as $item)
+                                                            <tr>
+                                                                <td class="px-4 py-3 font-semibold text-slate-800">{{ $item->nama_sarana_jasa }}</td>
+                                                                <td class="px-4 py-3 text-center text-slate-600">{{ $item->qty }} {{ $item->satuan }}</td>
+                                                                <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                                                                <td class="px-4 py-3 text-right font-bold text-slate-800">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!-- Form Revisi RAB (Awalnya tersembunyi, muncul saat klik Ajukan Revisi) -->
+                                            @if($proposal->status_persetujuan === 'ditolak')
+                                                <div id="revise-rab-container" class="hidden mt-4 pt-4 border-t border-slate-200">
+                                                    <h5 class="text-xs font-bold text-slate-900 mb-3 uppercase tracking-wider">Formulir Revisi Anggaran (RAB Baru)</h5>
+                                                    <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4">
+                                                        @csrf
+                                                        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 p-3 space-y-3">
+                                                            <div id="revise-items-container" class="space-y-2.5">
+                                                                @foreach($proposal->items as $idx => $it)
+                                                                    <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                                                                        <div class="col-span-5">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                                                                            <input type="text" name="items[{{ $idx }}][nama]" value="{{ $it->nama_sarana_jasa }}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                                                        </div>
+                                                                        <div class="col-span-2">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
+                                                                            <input type="number" min="1" name="items[{{ $idx }}][qty]" value="{{ $it->qty }}" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                                                                        </div>
+                                                                        <div class="col-span-2">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
+                                                                            <input type="text" name="items[{{ $idx }}][satuan]" value="{{ $it->satuan }}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                                                        </div>
+                                                                        <div class="col-span-3">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
+                                                                            <input type="number" min="0" name="items[{{ $idx }}][harga]" value="{{ (int)$it->harga_satuan }}" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+
+                                                            <div class="flex items-center justify-between pt-2">
+                                                                <button type="button" onclick="addReviseRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer">
+                                                                    <span>+ Tambah Komponen</span>
+                                                                </button>
+                                                                <div class="text-right">
+                                                                    <span class="text-xs text-slate-500 font-medium">Total Estimasi Revisi:</span>
+                                                                    <span class="text-sm font-bold text-blue-900 ml-1.5" id="revise-grand-total">Rp {{ number_format($proposal->estimasi_biaya, 0, ',', '.') }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Catatan Penjelasan Perubahan / Revisi</label>
+                                                            <textarea name="catatan_kebutuhan" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Jelaskan penyesuaian harga atau penggantian item suku cadang yang telah dilakukan..."></textarea>
+                                                        </div>
+
+                                                        <div class="flex items-center justify-end gap-3 pt-2">
+                                                            <button type="button" onclick="toggleReviseForm()" class="text-xs font-bold text-slate-400 hover:text-slate-600">
+                                                                Batal
+                                                            </button>
+                                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer">
+                                                                <span>Kirim Ulang Proposal RAB (Revisi)</span>
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <!-- Form Input RAB Baru -->
+                                        <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4">
+                                            @csrf
+                                            
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Daftar Komponen & Suku Cadang yang Dibutuhkan</label>
+                                                <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 p-3 space-y-3">
+                                                    <div id="rab-items-container" class="space-y-2.5">
+                                                        <!-- Initial Row -->
+                                                        <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                                                            <div class="col-span-5">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                                                                <input type="text" name="items[0][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: Kompresor AC 1PK">
+                                                            </div>
+                                                            <div class="col-span-2">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
+                                                                <input type="number" min="1" name="items[0][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                                                            </div>
+                                                            <div class="col-span-2">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
+                                                                <input type="text" name="items[0][satuan]" value="Unit" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                                            </div>
+                                                            <div class="col-span-3">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
+                                                                <input type="number" min="0" name="items[0][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between pt-2">
+                                                        <button type="button" onclick="addRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer">
+                                                            <span>+ Tambah Komponen Material</span>
+                                                        </button>
+                                                        <div class="text-right">
+                                                            <span class="text-xs text-slate-500 font-medium">Total Estimasi:</span>
+                                                            <span class="text-sm font-bold text-slate-900 ml-1.5" id="rab-grand-total">Rp 0</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label for="catatan_kebutuhan" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Keterangan Teknis & Alasan Pengajuan (Opsional)</label>
+                                                <textarea name="catatan_kebutuhan" id="catatan_kebutuhan" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400" placeholder="Jelaskan mengapa komponen perlu diganti baru..."></textarea>
+                                            </div>
+
+                                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                                <span>Kirim Pengajuan RAB ke Admin</span>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <!-- Formulir Eksekusi & Bukti Pengerjaan -->
+                            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 flex flex-col">
+                                <div class="flex items-center gap-3 border-b border-slate-50 pb-6 mb-6">
+                                    <h4 class="text-lg font-bold text-slate-900">Formulir Eksekusi Perbaikan Lapangan</h4>
+                                </div>
+
+                                <!-- Start Process Quick Action (If not yet in progress) -->
+                                @if(!in_array($report->status_laporan, ['proses', 'proses_perbaikan', 'selesai']))
+                                    <div class="mb-6 p-4 bg-blue-50/70 border border-blue-100 rounded-2xl flex items-center justify-between gap-4">
+                                        <div>
+                                            <h5 class="text-sm font-bold text-blue-900">Mulai Pengerjaan Lapangan</h5>
+                                            <p class="text-xs text-blue-700 mt-0.5">Ubah status tiket ke "Sedang Dikerjakan" untuk menginformasikan bahwa Anda sudah di lokasi.</p>
+                                        </div>
+                                        <form action="{{ route('petugas.tasks.start', $report->id_laporan) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer">
+                                                Mulai Pengerjaan
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+
+                                @if($report->status_laporan === 'selesai')
+                                    <!-- Already Completed State -->
+                                    @php
+                                        $wo = $report->verification ? $report->verification->workOrder : null;
+                                    @endphp
+                                    <div class="space-y-6">
+                                        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900">
+                                            <div class="flex items-center gap-2 text-sm font-bold">
+                                                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                <span>Tugas perbaikan ini telah selesai dikerjakan!</span>
+                                            </div>
+                                            <p class="text-xs text-emerald-700 mt-1">Status fasilitas otomatis kembali menjadi "Baik" di sistem.</p>
+                                        </div>
+
+                                        @if($wo && $wo->foto_after)
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Foto Hasil Perbaikan (After)</label>
+                                                <div class="rounded-2xl overflow-hidden border border-slate-100 aspect-video max-h-72">
+                                                    <img src="{{ asset('storage/' . $wo->foto_after) }}" class="w-full h-full object-cover" alt="Foto After Selesai">
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if($report->verification && $report->verification->catatan_inspeksi)
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Catatan Teknis Teknisi</label>
+                                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-700">
+                                                    {{ $report->verification->catatan_inspeksi }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <!-- Complete Task Form -->
+                                    <form action="{{ route('petugas.tasks.complete', $report->id_laporan) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                                        @csrf
+
+                                        <!-- 1. Unggah Foto 'After' -->
+                                        <div>
+                                            <label class="block text-sm font-bold text-slate-700 mb-2">1. Unggah Bukti Foto 'After' (Hasil Perbaikan)</label>
+                                            <div onclick="document.getElementById('file-upload-after').click()" class="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex items-center justify-center text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/10 transition-all relative overflow-hidden group">
+                                                <input type="file" name="foto_after" id="file-upload-after" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                                
+                                                <!-- Default State UI -->
+                                                <div id="upload-default-state" class="space-y-1.5 p-6">
+                                                    <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto shadow-xs group-hover:scale-105 transition-all">
+                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    </div>
+                                                    <p class="text-sm font-bold text-blue-600 hover:text-blue-700">Klik untuk unggah foto hasil perbaikan</p>
+                                                    <p class="text-xs text-slate-400 font-medium">atau seret dan lepas file di sini (PNG, JPG hingga 5MB)</p>
+                                                </div>
+
+                                                <!-- Preview State UI -->
+                                                <img id="image-preview" src="#" alt="Preview" class="hidden absolute inset-0 w-full h-full object-cover">
+                                                
+                                                <div id="upload-preview-state" class="hidden absolute inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span class="bg-white/90 text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-sm">Ganti Foto</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2. Catatan Perbaikan Teknis -->
+                                        <div>
+                                            <label for="catatan_perbaikan" class="block text-sm font-bold text-slate-700 mb-2">2. Catatan Pengerjaan Teknis (Opsional)</label>
+                                            <textarea name="catatan_perbaikan" id="catatan_perbaikan" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400 transition-all" placeholder="Misal: Telah dilakukan penggantian MCB 16A dan penataan kabel grounding. AC kembali berfungsi dengan normal."></textarea>
+                                        </div>
+
+                                        <!-- Submit Button (Gaya Admin Sarpras) -->
+                                        <div class="border-t border-slate-50 pt-6 flex items-center justify-end">
+                                            <button type="submit" class="bg-[#0f172a] hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-sm shadow-sm transition-all flex items-center gap-2 font-semibold cursor-pointer active:scale-98">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>Simpan & Selesaikan Perbaikan</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                @endif
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let rowIndex = 1;
+
+        function addRabRow() {
+            const container = document.getElementById('rab-items-container');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative';
+            row.innerHTML = `
+                <div class="col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                    <input type="text" name="items[${rowIndex}][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: Freon R32">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
+                    <input type="number" min="1" name="items[${rowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
+                    <input type="text" name="items[${rowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="col-span-3">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
+                    <input type="number" min="0" name="items[${rowIndex}][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                </div>
+            `;
+            container.appendChild(row);
+            rowIndex++;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const rows = document.querySelectorAll('.rab-row');
+            rows.forEach(row => {
+                const qtyInput = row.querySelector('.rab-qty');
+                const priceInput = row.querySelector('.rab-price');
+                if (qtyInput && priceInput) {
+                    const qty = parseFloat(qtyInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    total += (qty * price);
+                }
+            });
+            const grandTotalEl = document.getElementById('rab-grand-total');
+            if (grandTotalEl) {
+                grandTotalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+        }
+
+        function toggleReviseForm() {
+            const container = document.getElementById('revise-rab-container');
+            const table = document.getElementById('submitted-items-table');
+            if (container) {
+                container.classList.toggle('hidden');
+            }
+        }
+
+        let reviseRowIndex = 100;
+        function addReviseRabRow() {
+            const container = document.getElementById('revise-items-container');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative';
+            row.innerHTML = `
+                <div class="col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                    <input type="text" name="items[${reviseRowIndex}][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Item baru">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
+                    <input type="number" min="1" name="items[${reviseRowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
+                    <input type="text" name="items[${reviseRowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="col-span-3">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
+                    <input type="number" min="0" name="items[${reviseRowIndex}][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                </div>
+            `;
+            container.appendChild(row);
+            reviseRowIndex++;
+            calculateReviseTotal();
+        }
+
+        function calculateReviseTotal() {
+            let total = 0;
+            const container = document.getElementById('revise-items-container');
+            if (container) {
+                const rows = container.querySelectorAll('.rab-row');
+                rows.forEach(row => {
+                    const qtyInput = row.querySelector('.rab-qty');
+                    const priceInput = row.querySelector('.rab-price');
+                    if (qtyInput && priceInput) {
+                        const qty = parseFloat(qtyInput.value) || 0;
+                        const price = parseFloat(priceInput.value) || 0;
+                        total += (qty * price);
+                    }
+                });
+            }
+            const grandTotalEl = document.getElementById('revise-grand-total');
+            if (grandTotalEl) {
+                grandTotalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('upload-default-state').classList.add('hidden');
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('upload-preview-state').classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

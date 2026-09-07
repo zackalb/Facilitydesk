@@ -12,39 +12,57 @@ class FacilitySeeder extends Seeder
     {
         $facilities = [
             [
-                'nama_fasilitas' => 'Listrik & Lampu Lab A',
+                'nama_fasilitas' => 'AC Daikin 2PK',
+                'lokasi_detail'  => 'Gedung A, R.302',
+                'kategori_area'  => 'Elektronik',
+                'kondisi'        => 'Baik',
+            ],
+            [
+                'nama_fasilitas' => 'Kursi Kuliah Informa',
+                'lokasi_detail'  => 'Gedung B, Aula Utama',
+                'kategori_area'  => 'Furnitur',
+                'kondisi'        => 'Rusak',
+            ],
+            [
+                'nama_fasilitas' => 'Proyektor Epson EB-X500',
+                'lokasi_detail'  => 'Gedung C, Lab Komputer',
+                'kategori_area'  => 'Elektronik',
+                'kondisi'        => 'Dalam Perbaikan',
+            ],
+            [
+                'nama_fasilitas' => 'Pintu Kaca Utama',
+                'lokasi_detail'  => 'Gedung D, Lobi',
+                'kategori_area'  => 'Struktur Gedung',
+                'kondisi'        => 'Baik',
+            ],
+            [
+                'nama_fasilitas' => 'Listrik & Stop Kontak Lab',
                 'lokasi_detail'  => 'Gedung A, Lantai 1, Lab Komputer A',
-                'kategori_area'  => 'Laboratorium',
-                'kondisi'        => 'Rusak Ringan',
+                'kategori_area'  => 'Elektronik',
+                'kondisi'        => 'Baik',
             ],
             [
-                'nama_fasilitas' => 'Wastafel Lt 2',
+                'nama_fasilitas' => 'Wastafel Otomatis',
                 'lokasi_detail'  => 'Gedung B, Lantai 2, Toilet Pria',
-                'kategori_area'  => 'Sanitasi / Toilet',
-                'kondisi'        => 'Bocor',
+                'kategori_area'  => 'Sanitasi',
+                'kondisi'        => 'Rusak',
             ],
             [
-                'nama_fasilitas' => 'AC Ruang Kelas 304',
-                'lokasi_detail'  => 'Gedung A, Lantai 3, Ruang 304',
-                'kategori_area'  => 'Ruang Kelas',
-                'kondisi'        => 'Tidak Dingin',
+                'nama_fasilitas' => 'Meja Rapat Oval',
+                'lokasi_detail'  => 'Gedung A, Ruang Rapat Pimpinan',
+                'kategori_area'  => 'Furnitur',
+                'kondisi'        => 'Baik',
             ],
             [
-                'nama_fasilitas' => 'Proyektor Ruang Pertemuan',
-                'lokasi_detail'  => 'Gedung C, Lantai 1, Aula Utama',
-                'kategori_area'  => 'Aula / Fasilitas Umum',
-                'kondisi'        => 'Mati Total',
-            ],
-            [
-                'nama_fasilitas' => 'Pintu Kaca Perpustakaan',
-                'lokasi_detail'  => 'Gedung D, Lantai 1, Perpustakaan',
-                'kategori_area'  => 'Fasilitas Umum',
-                'kondisi'        => 'Engsel Longgar',
+                'nama_fasilitas' => 'Sound System Portable',
+                'lokasi_detail'  => 'Gedung C, Ruang Kesenian',
+                'kategori_area'  => 'Elektronik',
+                'kondisi'        => 'Baik',
             ],
         ];
 
         foreach ($facilities as $facility) {
-            Facility::firstOrCreate(['nama_fasilitas' => $facility['nama_fasilitas']], $facility);
+            Facility::updateOrCreate(['nama_fasilitas' => $facility['nama_fasilitas']], $facility);
         }
     }
 }

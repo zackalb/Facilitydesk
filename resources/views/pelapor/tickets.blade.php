@@ -39,8 +39,11 @@
 
         <div class="mt-auto p-6 border-t border-gray-100">
             <div class="space-y-1">
-                <a href="#" class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <a href="{{ route('settings.security') }}" class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
                     <span>Settings</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
@@ -56,21 +59,32 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Topbar -->
-        <header class="bg-white border-b border-gray-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
-            <h2 class="text-xl font-bold text-[#1e40af]">Halaman Ticket</h2>
-            
+        <!-- Topbar: Konsisten seperti Admin SarPras -->
+        <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
+            <h2 class="text-xl font-extrabold text-blue-950 tracking-tight">Pelapor SarPras</h2>
+
+            <!-- Notifications & Profile -->
             <div class="flex items-center space-x-5">
-                <button class="text-gray-400 hover:text-blue-600 transition-colors relative">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                    </svg>
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white"></span>
                 </button>
-                <button class="text-gray-400 hover:text-blue-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <button class="text-slate-500 hover:text-blue-600 transition-all">
+                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                    </svg>
                 </button>
-                <div class="flex items-center space-x-3 border-l border-gray-200 pl-5">
-                    <div class="w-9 h-9 bg-[#f3e8ff] text-[#9333ea] rounded-full flex items-center justify-center font-bold text-sm">
-                        {{ strtoupper(substr($user->nama, 0, 1)) }}
+
+                <!-- Avatar Profile Info -->
+                <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Siswa / Guru' }}</p>
+                        <p class="text-[11px] text-slate-500 font-semibold">{{ (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa' }}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
+                        {{ strtoupper(substr($user->nama ?? 'P', 0, 1)) }}
                     </div>
                 </div>
             </div>
@@ -118,18 +132,36 @@
                                 @php
                                     $statusColors = [
                                         'menunggu' => 'bg-[#FFEDE1] text-[#E0643D]',
+                                        'proses' => 'bg-blue-50 text-blue-700',
+                                        'proses_perbaikan' => 'bg-blue-50 text-blue-700',
                                         'diproses' => 'bg-blue-50 text-blue-700',
+                                        'menunggu_rab' => 'bg-amber-50 text-amber-700',
                                         'selesai' => 'bg-green-50 text-green-700',
                                         'darurat' => 'bg-red-50 text-red-700'
                                     ];
                                     $statusColor = $statusColors[$ticket->status_laporan] ?? 'bg-gray-100 text-gray-700';
                                 @endphp
                                 <span class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider {{ $statusColor }}">
-                                    {{ ucfirst($ticket->status_laporan) }}
+                                    {{ str_replace('_', ' ', ucfirst($ticket->status_laporan)) }}
                                 </span>
                             </div>
                             <h3 class="font-bold text-gray-900 text-base mb-1 truncate">{{ $ticket->facility->nama_fasilitas ?? 'Fasilitas' }}</h3>
                             <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">{{ $ticket->deskripsi_kerusakan }}</p>
+
+                            @if($ticket->category || $ticket->technician)
+                                <div class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 text-xs">
+                                    @if($ticket->category)
+                                        <span class="bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                                            {{ $ticket->category->name }}
+                                        </span>
+                                    @endif
+                                    @if($ticket->technician)
+                                        <span class="text-gray-500 text-[11px] truncate">
+                                            Teknisi: <strong class="text-gray-700">{{ $ticket->technician->nama }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Ticket Body -->
@@ -286,7 +318,9 @@
                 const status = card.getAttribute('data-status');
                 const searchData = card.getAttribute('data-search');
                 
-                const matchesStatus = currentFilter === 'Semua' || status.toLowerCase() === currentFilter.toLowerCase();
+                const matchesStatus = currentFilter === 'Semua' 
+                    || status.toLowerCase() === currentFilter.toLowerCase()
+                    || (currentFilter.toLowerCase() === 'diproses' && (status === 'proses' || status === 'proses_perbaikan' || status === 'menunggu_rab'));
                 const matchesSearch = searchData.includes(searchTerm);
 
                 if (matchesStatus && matchesSearch) {
@@ -323,12 +357,16 @@
             // Set status badge
             const statusColors = {
                 'menunggu': 'bg-[#FFEDE1] text-[#E0643D]',
+                'proses': 'bg-blue-50 text-blue-700',
+                'proses_perbaikan': 'bg-blue-50 text-blue-700',
                 'diproses': 'bg-blue-50 text-blue-700',
+                'menunggu_rab': 'bg-amber-50 text-amber-700',
                 'selesai': 'bg-green-50 text-green-700',
                 'darurat': 'bg-red-50 text-red-700'
             };
             const statusBadge = document.getElementById('modal-status');
-            statusBadge.textContent = ticket.status_laporan.charAt(0).toUpperCase() + ticket.status_laporan.slice(1);
+            const cleanStatus = (ticket.status_laporan || '').replace('_', ' ');
+            statusBadge.textContent = cleanStatus.charAt(0).toUpperCase() + cleanStatus.slice(1);
             statusBadge.className = `text-sm font-bold px-3 py-1 rounded-full ${statusColors[ticket.status_laporan] || 'bg-gray-100 text-gray-700'}`;
 
             // Set reporter info
