@@ -23,10 +23,13 @@ Dokumen ini berisi seluruh kredensial akun bawaan (*default seeder*) yang dapat 
 Setiap teknisi memiliki **spesialisasi kategori** masing-masing. Ketika pelapor membuat laporan kerusakan dengan kategori tertentu, tiket akan **otomatis ditugaskan (*auto-assign*)** ke teknisi dengan spesialisasi yang cocok.
 
 | No | Nama Teknisi | Email Login | Password | Kategori Spesialisasi | Kategori ID 
- 1  **Andi Saputra** | `petugas@sekolah.com` | `password123` | **Listrik** | `1` 
+ 1  **Andi Saputra** | `andi.petugas@sekolah.com` | `password123` | **Listrik** | `1` 
  2  **Budi Pratama** | `budi.petugas@sekolah.com` | `password123` | **Air (Plumbing)** | `2` 
  3  **Joko Susilo** | `joko.petugas@sekolah.com` | `password123` | **Bangunan (Fasilitas Fisik)** | `3` 
- 4 **Deni Kurniawan** | `deni.petugas@sekolah.com` | `password123` | **IT & Elektronik** | `4` 
+ 4 **Deni Kurniawan** | `deni.petugas@sekolah.com` | `password123` | **IT & Elektronik** | `4`
+ 5 **ZAJA S.KOM** | `zaja.petugas@sekolah.com` | `password123` | **Jaringan** | `5` 
+ 6 **Bayu S.T** | `Bayu.petugas@sekolah.com` | `password123` | **Jaringan** | `6` 
+ 
 
 **Akses & Alur Kerja Teknisi:**
 - Dashboard Tugas: `/petugas/dashboard`

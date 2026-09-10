@@ -14,15 +14,7 @@
 </head>
 <body class="bg-[#f8fafc] antialiased text-slate-800 flex flex-col h-screen overflow-hidden">
 
-    <!-- Red Warning Banner for Emergency Reports -->
-    @if($hasEmergency)
-        <div class="bg-[#cc0000] text-white text-center py-2.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 animate-pulse">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-            <span>PERINGATAN: Laporan Darurat Baru Masuk!</span>
-        </div>
-    @endif
+
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
@@ -172,14 +164,6 @@
                             <button onclick="toggleModal('modal-tambah')" class="bg-[#0f172a] hover:bg-slate-800 text-white px-4.5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-95">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                                 <span>Tambah Aset</span>
-                            </button>
-                            <button onclick="exportData()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/90 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-95">
-                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                <span>Export Excel</span>
-                            </button>
-                            <button onclick="window.print()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/90 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-95">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                <span>Cetak / PDF</span>
                             </button>
                         </div>
                     </div>
@@ -451,15 +435,10 @@
                         </div>
 
                         <!-- Table Footer / Pagination -->
-                        <div class="bg-slate-50/75 border-t border-slate-200/80 px-6 py-3.5 flex items-center justify-between">
-                            <span class="text-xs font-semibold text-slate-500" id="row-count-display">Menampilkan <span id="visible-count">{{ $inventory->count() }}</span> dari {{ $inventory->count() }} aset</span>
-                            <div class="flex gap-1.5">
-                                <button class="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors shadow-xs disabled:opacity-50 cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                                </button>
-                                <button class="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors shadow-xs disabled:opacity-50 cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                </button>
+                        <div class="bg-slate-50/75 border-t border-slate-200/80 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <span class="text-xs font-semibold text-slate-500" id="row-count-display">Menampilkan 0 aset</span>
+                            <div id="inventoryPagination" class="flex items-center gap-1.5">
+                                <!-- Tombol navigasi halaman (‹ 1 2 3 ›) digenerate secara dinamis -->
                             </div>
                         </div>
                     </div>
@@ -645,13 +624,20 @@
             }
         }
 
-        function filterInventory() {
+        const PAGE_SIZE = 10;
+        let currentInvPage = 1;
+
+        function filterInventory(resetPage = true) {
+            if (resetPage) {
+                currentInvPage = 1;
+            }
+
             const query = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
             const kategori = document.getElementById('filter-kategori')?.value || '';
             const status = document.getElementById('filter-status')?.value || '';
             
-            const rows = document.querySelectorAll('.inventory-row');
-            let visible = 0;
+            const rows = Array.from(document.querySelectorAll('.inventory-row'));
+            const matchedRows = [];
 
             rows.forEach(row => {
                 const kode = row.getAttribute('data-kode').toLowerCase();
@@ -665,50 +651,132 @@
                 const matchesStatus = !status || stat === status;
 
                 if (matchesQuery && matchesKategori && matchesStatus) {
-                    row.classList.remove('hidden');
-                    visible++;
+                    matchedRows.push(row);
                 } else {
                     row.classList.add('hidden');
                 }
             });
 
+            const totalMatched = matchedRows.length;
+            const totalPages = Math.max(1, Math.ceil(totalMatched / PAGE_SIZE));
+
+            if (currentInvPage > totalPages) currentInvPage = totalPages;
+            if (currentInvPage < 1) currentInvPage = 1;
+
+            // Sembunyikan semua baris yang cocok, lalu tampilkan hanya slice halaman aktif (maks 10 baris)
+            matchedRows.forEach(r => r.classList.add('hidden'));
+
+            const startIdx = (currentInvPage - 1) * PAGE_SIZE;
+            const endIdx = startIdx + PAGE_SIZE;
+            const pageRows = matchedRows.slice(startIdx, endIdx);
+            pageRows.forEach(r => r.classList.remove('hidden'));
+
             // Handle empty state
             const noResults = document.getElementById('no-search-results');
             if (noResults) {
-                if (visible === 0 && rows.length > 0) {
+                if (totalMatched === 0 && rows.length > 0) {
                     noResults.classList.remove('hidden');
                 } else {
                     noResults.classList.add('hidden');
                 }
             }
 
-            const visibleCountEl = document.getElementById('visible-count');
-            if (visibleCountEl) visibleCountEl.innerText = visible;
-        }
-
-        function exportData() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Kode Aset,Nama Fasilitas,Kategori,Lokasi,Status\n";
-            
-            document.querySelectorAll('.inventory-row').forEach(row => {
-                if (!row.classList.contains('hidden')) {
-                    const kode = row.getAttribute('data-kode');
-                    const nama = row.querySelector('.font-bold.text-slate-900').innerText;
-                    const kat = row.getAttribute('data-kategori');
-                    const lokasi = row.getAttribute('data-lokasi');
-                    const stat = row.getAttribute('data-status');
-                    csvContent += `"${kode}","${nama}","${kat}","${lokasi}","${stat}"\n`;
+            // Update informasi entri
+            const countDisplay = document.getElementById('row-count-display');
+            if (countDisplay) {
+                if (totalMatched === 0) {
+                    countDisplay.innerText = 'Menampilkan 0 aset';
+                } else {
+                    const from = startIdx + 1;
+                    const to = startIdx + pageRows.length;
+                    countDisplay.innerText = `Menampilkan ${from} hingga ${to} dari ${totalMatched} aset`;
                 }
-            });
+            }
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "katalog_inventaris_" + new Date().toISOString().slice(0,10) + ".csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Render tombol paginasi (‹ 1 2 3 ›)
+            renderInventoryPaginationButtons('inventoryPagination', totalPages, currentInvPage, function(newPage) {
+                currentInvPage = newPage;
+                filterInventory(false);
+            });
         }
+
+        function renderInventoryPaginationButtons(containerId, totalPages, current, onPageChange) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            // Tombol Prev (‹)
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === 1 ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            prevBtn.innerHTML = '‹';
+            prevBtn.disabled = current === 1;
+            prevBtn.onclick = () => { if (current > 1) onPageChange(current - 1); };
+            container.appendChild(prevBtn);
+
+            // Nomor Halaman
+            let startPage = Math.max(1, current - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            if (startPage > 1) {
+                container.appendChild(createInvPageBtn(1, current === 1, onPageChange));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                container.appendChild(createInvPageBtn(p, p === current, onPageChange));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+                container.appendChild(createInvPageBtn(totalPages, current === totalPages, onPageChange));
+            }
+
+            // Tombol Next (›)
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === totalPages ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            nextBtn.innerHTML = '›';
+            nextBtn.disabled = current === totalPages;
+            nextBtn.onclick = () => { if (current < totalPages) onPageChange(current + 1); };
+            container.appendChild(nextBtn);
+        }
+
+        function createInvPageBtn(page, isActive, onPageChange) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            if (isActive) {
+                btn.className = 'w-8 h-8 rounded-lg bg-[#1e3a8a] text-white font-bold flex items-center justify-center text-xs shadow-xs';
+            } else {
+                btn.className = 'w-8 h-8 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center text-xs transition-all cursor-pointer';
+            }
+            btn.innerText = page;
+            btn.onclick = () => onPageChange(page);
+            return btn;
+        }
+
+        // Inisialisasi awal tabel inventaris saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            filterInventory(true);
+        });
+        filterInventory(true);
     </script>
 </body>
 </html>

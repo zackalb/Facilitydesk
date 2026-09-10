@@ -166,34 +166,37 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div>
-                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Kategori Kerusakan <span class="text-red-500">*</span></label>
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Pilih Teknisi / Bidang Keahlian <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                             </div>
-                                            <select name="category_id" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
-                                                <option value="" disabled selected>Pilih Kategori Kerusakan</option>
-                                                @foreach($categories as $cat)
-                                                    <option value="{{ $cat->id }}">{{ $cat->name }} (Spesialisasi Teknisi {{ $cat->name }})</option>
+                                            <select name="technician_id" id="form-technician" required onchange="onFormTechnicianChange(this)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
+                                                <option value="" disabled selected>Pilih Teknisi Terlebih Dahulu...</option>
+                                                @foreach($emergencyTechnicians as $tech)
+                                                    @php
+                                                        $cleanName = trim(preg_replace('/\s*\([^)]*Teknisi[^)]*\)/i', '', $tech->nama));
+                                                        $catName = $tech->category->name ?? 'Umum';
+                                                    @endphp
+                                                    <option value="{{ $tech->id_user }}" data-category-id="{{ $tech->category_id }}" data-category-name="{{ $catName }}">
+                                                        {{ $cleanName }} (Teknisi {{ $catName }})
+                                                    </option>
                                                 @endforeach
                                             </select>
+                                            <input type="hidden" name="category_id" id="form-category-id" value="">
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Lokasi Fasilitas <span class="text-red-500">*</span></label>
+                                        <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Lokasi Fasilitas & Ruangan <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                             </div>
-                                            <select name="id_fasilitas" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
-                                                <option value="" disabled selected>{{ $facilities->isEmpty() ? 'Tidak ada fasilitas yang berstatus Baik saat ini' : 'Pilih Fasilitas / Ruangan' }}</option>
-                                                @forelse($facilities as $fac)
-                                                    <option value="{{ $fac->id_fasilitas }}">{{ $fac->nama_fasilitas }} ({{ $fac->lokasi_detail }})</option>
-                                                @empty
-                                                @endforelse
+                                            <select name="id_fasilitas" id="form-facility" required disabled class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                                                <option value="" disabled selected>-- Pilih Teknisi terlebih dahulu --</option>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -210,13 +213,13 @@
                                 <div>
                                     <label class="block text-[13px] font-bold text-gray-700 mb-1.5">Lampiran Bukti (Opsional)</label>
                                     <div onclick="document.getElementById('file-upload').click()" class="border-2 border-dashed border-gray-200 rounded-xl h-48 flex items-center justify-center text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all relative overflow-hidden group">
-                                        <input type="file" name="foto_bukti" id="file-upload" class="hidden" accept="image/*,application/pdf" onchange="previewImage(this)">
+                                        <input type="file" name="foto_bukti" id="file-upload" class="hidden" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onchange="previewImage(this)">
                                         
                                         <!-- Default State UI -->
                                         <div id="upload-default-state" class="space-y-1 p-6">
                                             <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             <p class="text-sm font-bold text-gray-600">Klik untuk unggah foto</p>
-                                            <p class="text-xs text-gray-400 font-medium">Maks. 5MB (JPG, PNG, PDF)</p>
+                                            <p class="text-xs text-gray-400 font-medium">Maks. 5MB (Hanya format JPG dan PNG)</p>
                                         </div>
 
                                         <!-- Preview State UI -->
@@ -254,19 +257,25 @@
                         <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
                             <div class="p-5 border-b border-gray-100 flex items-center gap-2">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                <h3 class="font-bold text-gray-900 text-base">Lacak WO</h3>
+                                <h3 class="font-bold text-gray-900 text-base">Lacak Tiket</h3>
                             </div>
                             
                             <div class="p-5">
-                                <p class="text-[13px] text-gray-500 font-medium mb-4 leading-relaxed">Masukkan ID WO Anda untuk melihat status penanganan terkini.</p>
+                                <p class="text-[13px] text-gray-500 font-medium mb-4 leading-relaxed">Masukkan ID Tiket Anda untuk melihat status penanganan terkini.</p>
                                 
                                 <form action="{{ route('pelapor.track') }}" method="POST" class="flex gap-2">
                                     @csrf
-                                    <input type="text" name="ticket_id" placeholder="CTH: WO-2023-08X" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase">
-                                    <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition">
+                                    <input type="text" name="ticket_id" placeholder="CTH: TKT 0600" required class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase">
+                                    <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition cursor-pointer">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </button>
                                 </form>
+
+                                @if(session('track_error'))
+                                    <div class="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+                                        {{ session('track_error') }}
+                                    </div>
+                                @endif
 
                                 @if(session('tracked_ticket'))
                                     @php $tracked = session('tracked_ticket'); @endphp
@@ -275,7 +284,7 @@
                                             <img src="{{ asset('storage/' . $tracked->foto_bukti) }}" class="w-full h-32 object-cover rounded-lg mb-3">
                                         @endif
                                         <div class="flex justify-between items-start mb-2">
-                                            <span class="text-xs font-bold text-blue-800 bg-blue-200 px-2.5 py-0.5 rounded-full">TKT-{{ str_pad($tracked->id_laporan, 4, '0', STR_PAD_LEFT) }}</span>
+                                            <span class="text-xs font-bold text-blue-800 bg-blue-200 px-2.5 py-0.5 rounded-full">TKT {{ str_pad($tracked->id_laporan, 4, '0', STR_PAD_LEFT) }}</span>
                                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest bg-blue-100 text-blue-700">{{ $tracked->status_laporan }}</span>
                                         </div>
                                         <h4 class="font-bold text-sm text-gray-900 line-clamp-1 truncate">{{ $tracked->facility->nama_fasilitas ?? 'Fasilitas' }}</h4>
@@ -475,8 +484,64 @@
             document.getElementById('reportModal').classList.add('hidden');
         }
 
+        const allFacilities = @json($facilities);
+
+        function filterFacilitiesByCategoryId(catId, selectEl, defaultText) {
+            if (!selectEl) return;
+            selectEl.innerHTML = '';
+            
+            if (!catId) {
+                selectEl.disabled = true;
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.disabled = true;
+                opt.selected = true;
+                opt.textContent = '-- Pilih Teknisi terlebih dahulu --';
+                selectEl.appendChild(opt);
+                return;
+            }
+
+            // Filter facilities matching category_id
+            const matched = allFacilities.filter(f => String(f.category_id) === String(catId));
+            selectEl.disabled = false;
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.disabled = true;
+            defaultOpt.selected = true;
+            defaultOpt.textContent = defaultText || 'Pilih Fasilitas / Ruangan...';
+            selectEl.appendChild(defaultOpt);
+
+            if (matched.length === 0) {
+                const emptyOpt = document.createElement('option');
+                emptyOpt.value = '';
+                emptyOpt.disabled = true;
+                emptyOpt.textContent = 'Semua fasilitas untuk bidang ini sedang dalam penanganan perbaikan';
+                selectEl.appendChild(emptyOpt);
+            } else {
+                matched.forEach(fac => {
+                    const opt = document.createElement('option');
+                    opt.value = fac.id_fasilitas;
+                    opt.textContent = `${fac.nama_fasilitas} (${fac.lokasi_detail || fac.kategori_area})`;
+                    selectEl.appendChild(opt);
+                });
+            }
+        }
+
+        function onFormTechnicianChange(select) {
+            const opt = select.options[select.selectedIndex];
+            const catId = opt.getAttribute('data-category-id');
+            const catName = opt.getAttribute('data-category-name');
+            
+            const catIdInput = document.getElementById('form-category-id');
+            if (catIdInput) catIdInput.value = catId || '';
+
+            const facSelect = document.getElementById('form-facility');
+            filterFacilitiesByCategoryId(catId, facSelect, `Pilih Fasilitas (${catName})...`);
+        }
+
         function previewImage(input) {
-            const file = input.files[0];
+            const file = input.files && input.files[0];
             const defaultState = document.getElementById('upload-default-state');
             const previewState = document.getElementById('upload-preview-state');
             const imagePreview = document.getElementById('image-preview');
@@ -485,28 +550,35 @@
             const hoverFileName = document.getElementById('hover-file-name');
 
             if (file) {
-                // Tampilkan nama file
+                const fName = file.name.toLowerCase();
+                const isValidExt = fName.endsWith('.jpg') || fName.endsWith('.jpeg') || fName.endsWith('.png');
+                const isValidMime = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg';
+
+                if (!isValidExt || !isValidMime) {
+                    alert('Format file tidak sesuai! Bukti lampiran hanya diperbolehkan format JPG dan PNG.');
+                    resetImagePreview();
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal ukuran file adalah 5MB.');
+                    resetImagePreview();
+                    return;
+                }
+
                 if (fileName) fileName.innerText = file.name;
                 if (hoverFileName) hoverFileName.innerText = file.name;
                 
-                // Ubah status visibilitas
                 defaultState.classList.add('hidden');
                 previewState.classList.remove('hidden');
 
-                // Jika image, tampilkan previewnya
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
-                        pdfIcon.classList.add('hidden');
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    // PDF or other documents
-                    imagePreview.classList.add('hidden');
-                    pdfIcon.classList.remove('hidden');
-                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    if (pdfIcon) pdfIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
             } else {
                 resetImagePreview();
             }
@@ -514,7 +586,7 @@
 
         function resetImagePreview() {
             const input = document.getElementById('file-upload');
-            if (input) input.value = ""; // clear input file
+            if (input) input.value = "";
             
             document.getElementById('upload-default-state').classList.remove('hidden');
             document.getElementById('upload-preview-state').classList.add('hidden');
@@ -523,15 +595,36 @@
             imagePreview.src = "#";
             imagePreview.classList.add('hidden');
             
-            document.getElementById('pdf-preview-icon').classList.add('hidden');
-            document.getElementById('file-name').innerText = "";
-            document.getElementById('hover-file-name').innerText = "";
+            const pdfIcon = document.getElementById('pdf-preview-icon');
+            if (pdfIcon) pdfIcon.classList.add('hidden');
+            const nameEl = document.getElementById('file-name');
+            if (nameEl) nameEl.innerText = "";
+            const hoverNameEl = document.getElementById('hover-file-name');
+            if (hoverNameEl) hoverNameEl.innerText = "";
         }
+
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.classList.toggle('hidden');
             }
+        }
+
+        function onEmergencyTechnicianChange(select) {
+            const opt = select.options[select.selectedIndex];
+            const cat = opt.getAttribute('data-category') || '';
+            const catId = opt.getAttribute('data-category-id') || '';
+
+            const catIdInput = document.getElementById('emergency-category-id');
+            if (catIdInput) catIdInput.value = catId;
+
+            const descEl = document.getElementById('emergency-desc');
+            if (descEl && (!descEl.value || descEl.value.startsWith('Insiden Darurat:'))) {
+                descEl.value = 'Insiden Darurat: ' + cat;
+            }
+
+            const facSelect = document.getElementById('emergency-facility');
+            filterFacilitiesByCategoryId(catId, facSelect, `Pilih Lokasi Kejadian (${cat})...`);
         }
     </script>
 
@@ -545,7 +638,7 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-slate-900">Kirim Panggilan Darurat</h3>
-                        <p class="text-xs text-slate-500 font-medium">Tim Sarpras akan langsung menerima peringatan siaga.</p>
+                        <p class="text-xs text-slate-500 font-medium">Petugas teknisi terkait akan langsung menerima peringatan siaga.</p>
                     </div>
                 </div>
                 <button type="button" onclick="toggleModal('modal-darurat')" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -556,41 +649,36 @@
             <form action="{{ route('pelapor.darurat') }}" method="POST" class="space-y-4">
                 @csrf
                 
+                <!-- 1. Pilih Teknisi / Kategori Insiden Terlebih Dahulu -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">1. Pilih Lokasi / Fasilitas Darurat</label>
-                    <select name="id_fasilitas" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
-                        <option value="" disabled selected>Pilih Lokasi Kejadian...</option>
-                        @foreach($facilities as $fac)
-                            <option value="{{ $fac->id_fasilitas }}">{{ $fac->nama_fasilitas }} ({{ $fac->lokasi_detail }})</option>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">1. Pilih Kategori Insiden / Petugas Penanganan</label>
+                    <select name="technician_id" id="emergency-technician" required onchange="onEmergencyTechnicianChange(this)" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 cursor-pointer">
+                        <option value="" disabled selected>Pilih Kategori Insiden / Petugas...</option>
+                        @foreach($emergencyTechnicians as $tech)
+                            @php
+                                $cleanName = trim(preg_replace('/\s*\([^)]*Teknisi[^)]*\)/i', '', $tech->nama));
+                                $catName = $tech->category->name ?? 'Umum';
+                            @endphp
+                            <option value="{{ $tech->id_user }}" data-category-id="{{ $tech->category_id }}" data-category="{{ $catName }}">
+                                {{ $catName }} — {{ $cleanName }}
+                            </option>
                         @endforeach
+                    </select>
+                    <input type="hidden" name="category_id" id="emergency-category-id" value="">
+                </div>
+
+                <!-- 2. Pilih Fasilitas Sesuai Kategori Teknisi -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">2. Pilih Lokasi / Fasilitas Darurat</label>
+                    <select name="id_fasilitas" id="emergency-facility" required disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">
+                        <option value="" disabled selected>-- Pilih Petugas / Teknisi terlebih dahulu --</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">2. Kategori Insiden</label>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
-                            <input type="radio" name="incident_type" value="Korsleting Listrik / Asap" checked onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
-                            <span>⚡ Korsleting / Asap</span>
-                        </label>
-                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
-                            <input type="radio" name="incident_type" value="Pipa Pecah / Banjir" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
-                            <span>💧 Pipa Pecah / Banjir</span>
-                        </label>
-                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
-                            <input type="radio" name="incident_type" value="Kaca Pecah / Bahaya Fisik" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
-                            <span>🚪 Kaca / Pintu Rusak</span>
-                        </label>
-                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:border-red-300 hover:bg-red-50/40 transition-all font-semibold text-slate-700">
-                            <input type="radio" name="incident_type" value="Darurat Kritis Lainnya" onchange="document.getElementById('emergency-desc').value = this.value" class="text-red-600 focus:ring-red-500">
-                            <span>⚠️ Bahaya Lainnya</span>
-                        </label>
-                    </div>
-                </div>
-
+                <!-- 3. Deskripsi Singkat -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">3. Deskripsi Singkat Kejadian</label>
-                    <textarea name="deskripsi_kerusakan" id="emergency-desc" rows="2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 resize-none">Korsleting Listrik / Asap</textarea>
+                    <textarea name="deskripsi_kerusakan" id="emergency-desc" rows="2" required placeholder="Jelaskan secara singkat kondisi darurat yang terjadi..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 resize-none"></textarea>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3">

@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\PetugasController::class, 'dashboard'])->name('dashboard');
         Route::get('/tasks/{id}', [\App\Http\Controllers\PetugasController::class, 'showTask'])->name('tasks.show');
         Route::post('/tasks/{id}/start', [\App\Http\Controllers\PetugasController::class, 'startTask'])->name('tasks.start');
+        Route::post('/tasks/{id}/pause', [\App\Http\Controllers\PetugasController::class, 'pauseTask'])->name('tasks.pause');
         Route::post('/tasks/{id}/complete', [\App\Http\Controllers\PetugasController::class, 'completeTask'])->name('tasks.complete');
         Route::post('/tasks/{id}/rab', [\App\Http\Controllers\PetugasController::class, 'submitRab'])->name('tasks.rab');
     });

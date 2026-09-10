@@ -195,22 +195,6 @@
                         <option value="ringan">Ringan</option>
                     </select>
                 </div>
-
-                <!-- Export Buttons Group -->
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="exportWoToExcel()" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer border border-emerald-200 shadow-xs">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <span>Export Excel</span>
-                    </button>
-                    <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer border border-blue-200 shadow-xs">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                        </svg>
-                        <span>Cetak / PDF</span>
-                    </button>
-                </div>
             </div>
 
             <!-- Print Header Dokumen Resmi (Hanya Muncul Saat Print/PDF) -->
@@ -240,6 +224,7 @@
                                 <th class="py-3 px-3">Fasilitas</th>
                                 <th class="py-3 px-3 text-center">Prioritas</th>
                                 <th class="py-3 px-3 text-center">Status</th>
+                                <th class="py-3 px-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50" id="woTableBody">
@@ -277,12 +262,10 @@
                                         $statusClass = 'bg-indigo-50 text-indigo-700 border border-indigo-100';
                                     }
                                 @endphp
-                                <tr class="hover:bg-slate-50/60 transition-colors">
+                                <tr class="wo-row hover:bg-slate-50/60 transition-colors">
                                     <!-- No work order -->
-                                    <td class="py-3.5 px-3 font-bold text-blue-700">
-                                        <a href="{{ route('admin.work-orders.show', $rep->id_laporan) }}" class="hover:underline">
-                                            {{ $ticketCode }}
-                                        </a>
+                                    <td class="py-3.5 px-3 font-bold text-slate-800 tracking-tight">
+                                        {{ $ticketCode }}
                                     </td>
 
                                     <!-- Tanggal -->
@@ -318,39 +301,39 @@
                                             {{ $statusLabel }}
                                         </span>
                                     </td>
+
+                                    <!-- Aksi -->
+                                    <td class="py-3.5 px-3 text-center">
+                                        <a href="{{ route('admin.work-orders.show', $rep->id_laporan) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] text-xs font-bold rounded-lg transition-colors border border-blue-100 shadow-2xs">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            <span>Detail</span>
+                                        </a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-slate-400 font-medium">
+                                    <td colspan="8" class="py-8 text-center text-slate-400 font-medium">
                                         Belum ada data work order.
                                     </td>
                                 </tr>
                             @endforelse
+                            <tr id="wo-no-results" style="display: none;">
+                                <td colspan="8" class="py-8 text-center text-slate-400 font-medium">
+                                    Tidak ada data work order yang sesuai dengan filter pencarian.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Footer Pagination & Entry Count (Screenshot 1) -->
+                <!-- Footer Pagination & Entry Count -->
                 <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
-                    <p>Menampilkan 1 hingga {{ min(count($allReports), 10) }} dari {{ $totalWo }} entri</p>
-                    
-                    <div class="flex items-center gap-1.5">
-                        <button class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-all">
-                            ‹
-                        </button>
-                        <button class="w-7 h-7 rounded-lg bg-[#1e3a8a] text-white font-bold flex items-center justify-center shadow-xs">
-                            1
-                        </button>
-                        <button class="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-all">
-                            2
-                        </button>
-                        <button class="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-all">
-                            3
-                        </button>
-                        <button class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
-                            ›
-                        </button>
+                    <p id="woEntryInfo">Menampilkan 0 entri</p>
+                    <div id="woPagination" class="flex items-center gap-1.5">
+                        <!-- Tombol navigasi halaman (‹ 1 2 3 ›) digenerate secara dinamis -->
                     </div>
+                </div>
+
                 <!-- Footer Tanda Tangan Resmi (Hanya Muncul Saat Cetak / Export PDF) -->
                 <div class="hidden print:flex justify-between items-end mt-12 pt-8 text-xs font-semibold">
                     <div class="space-y-1">
@@ -368,19 +351,29 @@
         </div>
     </main>
 
-    <!-- Client-side filter & Export helper -->
+    <!-- Client-side filter & Pagination helper -->
     <script>
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const priorityFilter = document.getElementById('priorityFilter');
         const tableBody = document.getElementById('woTableBody');
 
-        function filterTable() {
-            const query = searchInput.value.toLowerCase();
-            const statusVal = statusFilter.value.toLowerCase();
-            const prioVal = priorityFilter.value.toLowerCase();
+        const PAGE_SIZE = 10;
+        let currentPage = 1;
 
-            const rows = tableBody.getElementsByTagName('tr');
+        function filterTable() {
+            currentPage = 1;
+            renderTableWithPagination();
+        }
+
+        function renderTableWithPagination() {
+            const query = (searchInput.value || '').toLowerCase().trim();
+            const statusVal = (statusFilter.value || '').toLowerCase().trim();
+            const prioVal = (priorityFilter.value || '').toLowerCase().trim();
+
+            const rows = Array.from(tableBody.querySelectorAll('tr.wo-row'));
+            const matchedRows = [];
+
             for (let row of rows) {
                 const text = row.innerText.toLowerCase();
                 const matchQuery = !query || text.includes(query);
@@ -388,48 +381,133 @@
                 const matchPrio = !prioVal || text.includes(prioVal);
 
                 if (matchQuery && matchStatus && matchPrio) {
-                    row.style.display = '';
+                    matchedRows.push(row);
                 } else {
                     row.style.display = 'none';
                 }
             }
+
+            const totalMatched = matchedRows.length;
+            const totalPages = Math.max(1, Math.ceil(totalMatched / PAGE_SIZE));
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            // Sembunyikan semua baris yang cocok terlebih dahulu
+            matchedRows.forEach(r => r.style.display = 'none');
+
+            // Tampilkan hanya baris halaman aktif (maksimal 10 baris)
+            const startIdx = (currentPage - 1) * PAGE_SIZE;
+            const endIdx = startIdx + PAGE_SIZE;
+            const pageRows = matchedRows.slice(startIdx, endIdx);
+            pageRows.forEach(r => r.style.display = '');
+
+            // Handle pesan jika tidak ada data yang cocok
+            const noResultsRow = document.getElementById('wo-no-results');
+            if (noResultsRow) {
+                noResultsRow.style.display = (totalMatched === 0 && rows.length > 0) ? '' : 'none';
+            }
+
+            // Update teks informasi entri
+            const entryInfo = document.getElementById('woEntryInfo');
+            if (entryInfo) {
+                if (totalMatched === 0) {
+                    entryInfo.innerText = 'Menampilkan 0 entri';
+                } else {
+                    const from = startIdx + 1;
+                    const to = startIdx + pageRows.length;
+                    entryInfo.innerText = `Menampilkan ${from} hingga ${to} dari ${totalMatched} entri`;
+                }
+            }
+
+            // Render pagination buttons (‹ 1 2 3 ›)
+            renderPaginationButtons('woPagination', totalPages, currentPage, function(newPage) {
+                currentPage = newPage;
+                renderTableWithPagination();
+            });
+        }
+
+        function renderPaginationButtons(containerId, totalPages, current, onPageChange) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            // Tombol Prev (‹)
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === 1 ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            prevBtn.innerHTML = '‹';
+            prevBtn.disabled = current === 1;
+            prevBtn.onclick = () => { if (current > 1) onPageChange(current - 1); };
+            container.appendChild(prevBtn);
+
+            // Tampilkan nomor halaman
+            let startPage = Math.max(1, current - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            if (startPage > 1) {
+                container.appendChild(createPageBtn(1, current === 1, onPageChange));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                container.appendChild(createPageBtn(p, p === current, onPageChange));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+                container.appendChild(createPageBtn(totalPages, current === totalPages, onPageChange));
+            }
+
+            // Tombol Next (›)
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === totalPages ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            nextBtn.innerHTML = '›';
+            nextBtn.disabled = current === totalPages;
+            nextBtn.onclick = () => { if (current < totalPages) onPageChange(current + 1); };
+            container.appendChild(nextBtn);
+        }
+
+        function createPageBtn(page, isActive, onPageChange) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            if (isActive) {
+                btn.className = 'w-8 h-8 rounded-lg bg-[#1e3a8a] text-white font-bold flex items-center justify-center text-xs shadow-xs';
+            } else {
+                btn.className = 'w-8 h-8 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center text-xs transition-all cursor-pointer';
+            }
+            btn.innerText = page;
+            btn.onclick = () => onPageChange(page);
+            return btn;
         }
 
         searchInput.addEventListener('input', filterTable);
         statusFilter.addEventListener('change', filterTable);
         priorityFilter.addEventListener('change', filterTable);
 
-        function exportWoToExcel() {
-            let csv = [];
-            csv.push(['NO WORK ORDER', 'TANGGAL', 'PELAPOR', 'LOKASI', 'FASILITAS', 'PRIORITAS', 'STATUS'].join(','));
-
-            const rows = tableBody.getElementsByTagName('tr');
-            for (let row of rows) {
-                if (row.style.display !== 'none') {
-                    const cols = row.querySelectorAll('td');
-                    if (cols.length >= 7) {
-                        const rowData = [
-                            `"${cols[0].innerText.trim()}"`,
-                            `"${cols[1].innerText.trim()}"`,
-                            `"${cols[2].innerText.trim()}"`,
-                            `"${cols[3].innerText.trim()}"`,
-                            `"${cols[4].innerText.trim()}"`,
-                            `"${cols[5].innerText.trim()}"`,
-                            `"${cols[6].innerText.trim()}"`
-                        ];
-                        csv.push(rowData.join(','));
-                    }
-                }
-            }
-
-            const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv.join('\n'));
-            const downloadLink = document.createElement('a');
-            downloadLink.setAttribute('href', csvContent);
-            downloadLink.setAttribute('download', 'Rekapitulasi_Work_Orders_' + new Date().toISOString().slice(0, 10) + '.csv');
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        }
+        // Inisialisasi awal tabel & paginasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTableWithPagination();
+        });
+        renderTableWithPagination();
     </script>
 </body>
 </html>

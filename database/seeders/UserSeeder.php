@@ -45,9 +45,9 @@ class UserSeeder extends Seeder
         // Akun Petugas Sarpras (Teknisi Lapangan dengan Spesialisasi Kategori)
         // 1. Teknisi Listrik
         User::updateOrCreate(
-            ['email' => 'petugas@sekolah.com'],
+            ['email' => 'andi.petugas@sekolah.com'],
             [
-                'nama'        => 'Andi Saputra (Teknisi Listrik)',
+                'nama'        => 'Andi Saputra',
                 'password'    => Hash::make('password123'),
                 'status'      => 'petugas',
                 'role'        => 'petugas',
@@ -59,7 +59,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'budi.petugas@sekolah.com'],
             [
-                'nama'        => 'Budi Pratama (Teknisi Air)',
+                'nama'        => 'Budi Pratama',
                 'password'    => Hash::make('password123'),
                 'status'      => 'petugas',
                 'role'        => 'petugas',
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'joko.petugas@sekolah.com'],
             [
-                'nama'        => 'Joko Susilo (Teknisi Bangunan)',
+                'nama'        => 'Joko Susilo',
                 'password'    => Hash::make('password123'),
                 'status'      => 'petugas',
                 'role'        => 'petugas',
@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'deni.petugas@sekolah.com'],
             [
-                'nama'        => 'Deni Kurniawan (Teknisi IT)',
+                'nama'        => 'Deni Kurniawan',
                 'password'    => Hash::make('password123'),
                 'status'      => 'petugas',
                 'role'        => 'petugas',

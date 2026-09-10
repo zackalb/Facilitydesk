@@ -106,7 +106,7 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" id="searchInput" placeholder="Cari ID tiket atau kata kunci..." class="w-full bg-gray-50/50 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 placeholder-gray-400" onkeyup="filterTickets()">
+                        <input type="text" id="searchInput" placeholder="Cari ID tiket (Cth: TKT 0600) atau kata kunci..." class="w-full bg-gray-50/50 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 placeholder-gray-400" onkeyup="filterTickets()">
                     </div>
                     <div class="flex gap-2 overflow-x-auto">
                         <button onclick="filterByStatus('Semua')" class="filter-btn active px-4 py-2.5 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors whitespace-nowrap">Semua</button>
@@ -120,15 +120,14 @@
                 <div id="ticketsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     
                     @forelse($tickets as $ticket)
-                    <div class="ticket-card bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer" 
+                    <div class="ticket-card bg-white rounded-xl border border-gray-100 overflow-hidden shadow-xs select-none" 
                          data-status="{{ $ticket->status_laporan }}"
-                         data-search="{{ strtolower($ticket->facility->nama_fasilitas . ' ' . $ticket->deskripsi_kerusakan) }}"
-                         onclick="openTicketDetail({{ json_encode($ticket->load('facility', 'user')) }})">
+                         data-search="{{ strtolower('tkt ' . str_pad($ticket->id_laporan, 4, '0', STR_PAD_LEFT) . ' tkt-' . str_pad($ticket->id_laporan, 4, '0', STR_PAD_LEFT) . ' ' . $ticket->id_laporan . ' ' . ($ticket->facility->nama_fasilitas ?? '') . ' ' . $ticket->deskripsi_kerusakan) }}">
                         
                         <!-- Ticket Header -->
                         <div class="p-4 border-b border-gray-100">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-md">#TKT-{{ str_pad($ticket->id_laporan, 4, '0', STR_PAD_LEFT) }}</span>
+                                <span class="text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">TKT {{ str_pad($ticket->id_laporan, 4, '0', STR_PAD_LEFT) }}</span>
                                 @php
                                     $statusColors = [
                                         'menunggu' => 'bg-[#FFEDE1] text-[#E0643D]',

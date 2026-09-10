@@ -26,18 +26,22 @@ class PelaporController extends Controller
             return redirect()->route('petugas.dashboard');
         }
 
-        // Hanya tampilkan fasilitas yang kondisinya Baik dan tidak sedang dalam penanganan laporan aktif
-        $facilities = Facility::where(function ($query) {
-                $query->where('kondisi', 'Baik')
-                      ->orWhere('kondisi', 'Normal');
-            })
-            ->whereDoesntHave('damageReports', function ($query) {
-                $query->whereIn('status_laporan', ['menunggu', 'darurat', 'proses', 'proses_perbaikan', 'menunggu_rab']);
+        // Hanya tampilkan fasilitas yang saat ini TIDAK memiliki laporan aktif (status_laporan != 'selesai')
+        $facilities = Facility::whereDoesntHave('damageReports', function ($query) {
+                $query->where('status_laporan', '!=', 'selesai');
             })
             ->orderBy('nama_fasilitas')
             ->get();
 
         $categories = Category::orderBy('name')->get();
+
+        // Ambil daftar petugas teknisi untuk dropdown insiden darurat
+        $emergencyTechnicians = User::where(function ($q) {
+                $q->where('role', 'petugas')->orWhere('status', 'petugas');
+            })
+            ->with('category')
+            ->orderBy('nama')
+            ->get();
 
         $myReports = DamageReport::where('id_user', $user->id_user)
             ->with(['facility', 'category', 'technician'])
@@ -45,7 +49,7 @@ class PelaporController extends Controller
             ->take(5)
             ->get();
 
-        return view('pelapor.dashboard', compact('user', 'facilities', 'categories', 'myReports'));
+        return view('pelapor.dashboard', compact('user', 'facilities', 'categories', 'myReports', 'emergencyTechnicians'));
     }
 
     /**
@@ -55,16 +59,18 @@ class PelaporController extends Controller
     {
         $request->validate([
             'id_fasilitas'        => 'required|exists:facilities,id_fasilitas',
-            'category_id'         => 'required|exists:categories,id',
+            'technician_id'       => 'nullable|exists:users,id_user',
+            'category_id'         => 'nullable|exists:categories,id',
             'tingkat_urgensi'     => 'required|string|in:rendah,sedang,tinggi,darurat,Rendah,Sedang,Tinggi,Darurat',
             'deskripsi_kerusakan' => 'required|string|min:10',
-            'foto_bukti'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'foto_bukti'          => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ], [
             'id_fasilitas.required'        => 'Lokasi fasilitas harus dipilih.',
-            'category_id.required'         => 'Kategori kerusakan harus dipilih.',
             'tingkat_urgensi.required'     => 'Tingkat urgensi harus dipilih.',
             'deskripsi_kerusakan.required' => 'Deskripsi masalah wajib diisi.',
             'deskripsi_kerusakan.min'      => 'Deskripsi minimal 10 karakter.',
+            'foto_bukti.mimes'             => 'Format file tidak sesuai! Lampiran bukti harus berformat JPG atau PNG.',
+            'foto_bukti.max'               => 'Ukuran file lampiran maksimal 5MB.',
         ]);
 
         $fotoPath = null;
@@ -72,32 +78,64 @@ class PelaporController extends Controller
             $fotoPath = $request->file('foto_bukti')->store('bukti-laporan', 'public');
         }
 
+        // Validasi: Fasilitas tidak boleh dilaporkan jika sedang dalam penanganan aktif
+        $activeReport = DamageReport::where('id_fasilitas', $request->id_fasilitas)
+            ->where('status_laporan', '!=', 'selesai')
+            ->first();
+
+        if ($activeReport) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Fasilitas atau ruangan ini sedang dalam penanganan perbaikan dan belum dapat dilaporkan kembali.');
+        }
+
         $urgensi = strtolower(trim($request->tingkat_urgensi));
 
-        // 1. Pencarian teknisi otomatis: cari user dengan role = 'petugas' yang category_id cocok
-        $technician = User::where(function ($q) {
-                $q->where('role', 'petugas')->orWhere('status', 'petugas');
-            })
-            ->where('category_id', $request->category_id)
-            ->first();
+        // 1. Tentukan teknisi dan kategori
+        $technician = null;
+        $categoryId = $request->category_id;
+
+        if ($request->filled('technician_id')) {
+            $technician = User::find($request->technician_id);
+            if ($technician && $technician->category_id) {
+                $categoryId = $technician->category_id;
+            }
+        } elseif ($categoryId) {
+            $technician = User::where(function ($q) {
+                    $q->where('role', 'petugas')->orWhere('status', 'petugas');
+                })
+                ->where('category_id', $categoryId)
+                ->first();
+        } else {
+            // Coba ambil dari kategori fasilitas
+            $facility = Facility::find($request->id_fasilitas);
+            if ($facility && $facility->category_id) {
+                $categoryId = $facility->category_id;
+                $technician = User::where(function ($q) {
+                        $q->where('role', 'petugas')->orWhere('status', 'petugas');
+                    })
+                    ->where('category_id', $categoryId)
+                    ->first();
+            }
+        }
 
         // 2. Tentukan status laporan:
         // - Jika Darurat -> status 'darurat' (Fast-Track: langsung eksekusi perbaikan tanpa RAB)
-        // - Jika urgensi Rendah / Sedang -> status 'proses_perbaikan' (langsung eksekusi perbaikan)
         // - Jika urgensi Tinggi -> status 'menunggu_rab' (KHUSUS Tinggi yang butuh pengajuan RAB ke Admin Sarpras)
+        // - Jika urgensi Rendah / Sedang -> status 'menunggu' (menunggu konfirmasi petugas menekan sedang dikerjakan)
         if ($urgensi === 'darurat') {
             $statusLaporan = 'darurat';
-        } elseif (in_array($urgensi, ['rendah', 'sedang'])) {
-            $statusLaporan = 'proses_perbaikan';
-        } else {
+        } elseif ($urgensi === 'tinggi') {
             $statusLaporan = 'menunggu_rab';
+        } else {
+            $statusLaporan = 'menunggu';
         }
 
         DamageReport::create([
             'id_user'             => Auth::id() ?: Auth::user()->id_user,
             'technician_id'       => $technician ? $technician->id_user : null,
             'id_fasilitas'        => $request->id_fasilitas,
-            'category_id'         => $request->category_id,
+            'category_id'         => $categoryId,
             'tanggal_waktu'       => now(),
             'deskripsi_kerusakan' => $request->deskripsi_kerusakan,
             'foto_bukti'          => $fotoPath,
@@ -116,10 +154,10 @@ class PelaporController extends Controller
         $techName = $technician ? $technician->nama : 'Petugas Sarpras';
         if ($statusLaporan === 'darurat') {
             $statusMsg = 'Laporan Darurat: Langsung eksekusi perbaikan di lapangan tanpa syarat RAB.';
-        } elseif ($statusLaporan === 'proses_perbaikan') {
-            $statusMsg = 'Status langsung: Proses Perbaikan.';
+        } elseif ($statusLaporan === 'menunggu_rab') {
+            $statusMsg = 'Laporan Urgensi Tinggi: Menunggu teknisi mengajukan form RAB ke Admin Sarpras.';
         } else {
-            $statusMsg = 'Menunggu teknisi mengajukan form RAB ke Admin Sarpras.';
+            $statusMsg = 'Laporan berhasil dibuat. Menunggu konfirmasi petugas teknisi untuk memulai pengerjaan.';
         }
 
         return redirect()->route('pelapor.dashboard')
@@ -133,14 +171,31 @@ class PelaporController extends Controller
     {
         $request->validate([
             'id_fasilitas'        => 'required|exists:facilities,id_fasilitas',
+            'technician_id'       => 'nullable|exists:users,id_user',
             'category_id'         => 'nullable|exists:categories,id',
-            'deskripsi_kerusakan' => 'required|string|min:5',
+            'deskripsi_kerusakan' => 'required|string|min:3',
         ]);
 
-        // Auto assign teknisi jika kategori dipilih, atau cari teknisi pertama
-        $categoryId = $request->category_id;
+        // Validasi: Fasilitas tidak boleh dilaporkan jika sedang dalam penanganan aktif
+        $activeReport = DamageReport::where('id_fasilitas', $request->id_fasilitas)
+            ->where('status_laporan', '!=', 'selesai')
+            ->first();
+
+        if ($activeReport) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Fasilitas atau ruangan ini sedang dalam penanganan perbaikan dan belum dapat dilaporkan kembali.');
+        }
+
         $technician = null;
-        if ($categoryId) {
+        $categoryId = $request->category_id;
+
+        if ($request->filled('technician_id')) {
+            $technician = User::find($request->technician_id);
+            if ($technician && $technician->category_id) {
+                $categoryId = $technician->category_id;
+            }
+        } elseif ($categoryId) {
             $technician = User::where(function ($q) {
                     $q->where('role', 'petugas')->orWhere('status', 'petugas');
                 })
@@ -150,6 +205,9 @@ class PelaporController extends Controller
             $technician = User::where(function ($q) {
                 $q->where('role', 'petugas')->orWhere('status', 'petugas');
             })->first();
+            if ($technician) {
+                $categoryId = $technician->category_id;
+            }
         }
 
         DamageReport::create([
@@ -172,22 +230,33 @@ class PelaporController extends Controller
             $facility->save();
         }
 
+        $techName = $technician ? $technician->nama : 'Petugas';
         return redirect()->route('pelapor.dashboard')
-                         ->with('success', 'Laporan Darurat berhasil dikirim! Tim teknisi akan segera merespons.');
+                         ->with('success', "Panggilan Darurat berhasil dikirim langsung ke {$techName}! Petugas sedang disiagakan.");
     }
 
     /**
-     * Cari tiket berdasarkan ID (format TKT-XXXX).
+     * Cari tiket berdasarkan ID (format TKT 0600 / TKT-XXXX / CTH: TKT 0600).
      */
     public function trackTicket(Request $request)
     {
         $request->validate(['ticket_id' => 'required|string']);
 
-        $id     = ltrim(str_replace('TKT-', '', strtoupper($request->ticket_id)));
-        $report = DamageReport::where('id_laporan', $id)
-                    ->where('id_user', Auth::user()->id_user)
-                    ->with(['facility', 'category', 'technician'])
-                    ->first();
+        $rawId = trim($request->ticket_id);
+        $clean = preg_replace('/[^0-9]/', '', $rawId);
+        $id = intval($clean);
+
+        $report = null;
+        if ($id > 0) {
+            $report = DamageReport::where('id_laporan', $id)
+                        ->where('id_user', Auth::user()->id_user)
+                        ->with(['facility', 'category', 'technician'])
+                        ->first();
+        }
+
+        if (!$report) {
+            return back()->with('track_error', "Tiket '" . htmlspecialchars($rawId) . "' tidak ditemukan dalam riwayat akun Anda.");
+        }
 
         return back()->with('tracked_ticket', $report);
     }

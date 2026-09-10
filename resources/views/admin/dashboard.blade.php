@@ -142,7 +142,7 @@
                         <p class="text-xs font-bold text-slate-500">Total Tiket Aktif</p>
                         <h3 class="text-3xl font-black text-slate-900 mt-2 tracking-tight">{{ $totalActiveTickets }}</h3>
                         <p class="text-xs text-blue-600 font-bold mt-2 flex items-center gap-0.5">
-                            <span>↑ {{ $percentageChange }}% dari bulan lalu</span>
+                            <span>↑ {{ $percentageChange }}%  bulan lalu</span>
                         </p>
                     </div>
                     <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">

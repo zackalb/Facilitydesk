@@ -44,14 +44,14 @@ class ReportController extends Controller
 
         // 2. Tentukan status laporan:
         // - Jika Darurat -> status 'darurat' (Fast-Track: langsung eksekusi perbaikan tanpa RAB)
-        // - Jika urgensi Rendah / Sedang -> status 'proses_perbaikan' (langsung eksekusi perbaikan)
         // - Jika urgensi Tinggi -> status 'menunggu_rab' (KHUSUS Tinggi yang butuh pengajuan RAB ke Admin Sarpras)
+        // - Jika urgensi Rendah / Sedang -> status 'menunggu' (menunggu konfirmasi petugas menekan sedang dikerjakan)
         if ($urgensi === 'darurat') {
             $statusLaporan = 'darurat';
-        } elseif (in_array($urgensi, ['rendah', 'sedang'])) {
-            $statusLaporan = 'proses_perbaikan';
-        } else {
+        } elseif ($urgensi === 'tinggi') {
             $statusLaporan = 'menunggu_rab';
+        } else {
+            $statusLaporan = 'menunggu';
         }
 
         $report = DamageReport::create([
@@ -77,10 +77,10 @@ class ReportController extends Controller
         $techName = $technician ? $technician->nama : 'Petugas Sarpras';
         if ($statusLaporan === 'darurat') {
             $statusMsg = 'Laporan Darurat: Langsung eksekusi perbaikan di lapangan tanpa syarat RAB.';
-        } elseif ($statusLaporan === 'proses_perbaikan') {
-            $statusMsg = 'Status langsung: Proses Perbaikan.';
+        } elseif ($statusLaporan === 'menunggu_rab') {
+            $statusMsg = 'Laporan Urgensi Tinggi: Menunggu pengajuan & persetujuan RAB material ke Admin Sarpras.';
         } else {
-            $statusMsg = 'Menunggu teknisi mengajukan form RAB ke Admin Sarpras.';
+            $statusMsg = 'Laporan berhasil dibuat. Menunggu konfirmasi petugas teknisi untuk memulai pengerjaan.';
         }
 
         return redirect()->route('pelapor.dashboard')

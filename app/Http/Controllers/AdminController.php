@@ -109,10 +109,8 @@ class AdminController extends Controller
 
         $percentageChange = 12;
 
-        // Cek Notifikasi Darurat
-        $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'menunggu', 'proses', 'proses_perbaikan', 'menunggu_rab'])
-            ->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         // 3. Data Fasilitas Sering Rusak Riil dari Database
         $categoriesList = Category::all();
@@ -262,10 +260,8 @@ class AdminController extends Controller
             return redirect()->route('pelapor.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman Admin.');
         }
 
-        // 1. Cek apakah ada Laporan Darurat Masuk (Belum selesai)
-        $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'menunggu', 'proses', 'proses_perbaikan', 'menunggu_rab'])
-            ->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         // 2. Metrik Work Order sesuai Screenshot 1
         $dbTotal = DamageReport::count();
@@ -530,13 +526,11 @@ class AdminController extends Controller
         }
 
         $user = Auth::user();
-        $report = DamageReport::with(['facility', 'user', 'verification.workOrder.technicianVendor'])->findOrFail($id);
+        $report = DamageReport::with(['facility', 'user', 'technician.category', 'verification.workOrder.technicianVendor'])->findOrFail($id);
         $technicians = TechnicianVendor::orderBy('nama_teknisi')->get();
 
-        // Cari tahu apakah ada laporan darurat untuk banner atas
-        $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'menunggu', 'proses', 'proses_perbaikan', 'menunggu_rab'])
-            ->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         return view('admin.detail', compact('user', 'report', 'technicians', 'hasEmergency'));
     }
@@ -568,15 +562,24 @@ class AdminController extends Controller
             ]
         );
 
-        // 2. Buat atau perbarui Work Order (Hanya jika status proses atau selesai DAN bukan Berat)
-        if (in_array($request->status_laporan, ['proses', 'selesai']) && $request->tingkat_kerusakan !== 'Berat') {
+        // 2. Buat atau perbarui Work Order (Hanya jika status proses atau selesai)
+        if (in_array($request->status_laporan, ['proses', 'selesai'])) {
             $fotoAfterPath = null;
             if ($request->hasFile('foto_after')) {
                 $fotoAfterPath = $request->file('foto_after')->store('bukti-selesai', 'public');
             }
 
+            // Fallback id_teknisi jika belum diisi di form tapi ada di teknisi laporan
+            $techId = $request->id_teknisi;
+            if (!$techId && $report->technician_id) {
+                $tvMatch = TechnicianVendor::where('nama_teknisi', 'like', '%' . explode(' ', $report->technician->nama ?? '')[0] . '%')->first();
+                if ($tvMatch) {
+                    $techId = $tvMatch->id_teknisi;
+                }
+            }
+
             $workOrderData = [
-                'id_teknisi' => $request->id_teknisi,
+                'id_teknisi' => $techId ?? TechnicianVendor::first()->id_teknisi,
                 'prioritas'  => $request->tingkat_kerusakan,
             ];
 
@@ -601,11 +604,24 @@ class AdminController extends Controller
                 $workOrderData
             );
         } else {
-            // Jika status dikembalikan ke 'menunggu' atau tingkat kerusakan berat, hapus WorkOrder (jika ada) agar konsisten
+            // Jika status dikembalikan ke 'menunggu', hapus WorkOrder (jika ada) agar konsisten
             WorkOrder::where('id_verifikasi', $verification->id_verifikasi)->delete();
         }
 
-        // 3. Perbarui status di DamageReport
+        // 3. Perbarui status dan sinkronkan technician_id di DamageReport
+        if ($request->filled('id_teknisi')) {
+            $selectedTv = TechnicianVendor::find($request->id_teknisi);
+            if ($selectedTv) {
+                $matchingUser = User::whereIn('status', ['petugas', 'teknisi'])
+                    ->where(function($q) use ($selectedTv) {
+                        $firstName = explode(' ', trim($selectedTv->nama_teknisi))[0];
+                        $q->where('nama', 'like', "%{$firstName}%");
+                    })->first();
+                if ($matchingUser) {
+                    $report->technician_id = $matchingUser->id_user;
+                }
+            }
+        }
         $report->status_laporan = $request->status_laporan;
         $report->save();
 
@@ -658,10 +674,8 @@ class AdminController extends Controller
             }
         }
 
-        // Cari tahu apakah ada laporan darurat untuk banner atas
-        $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'menunggu', 'proses'])
-            ->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         return view('admin.inventory', compact('user', 'inventory', 'totalAset', 'kondisiBaik', 'perluPerhatian', 'hasEmergency'));
     }
@@ -685,10 +699,8 @@ class AdminController extends Controller
             ]);
         }
 
-        // Cari tahu apakah ada laporan darurat untuk banner atas
-        $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'menunggu', 'proses'])
-            ->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         return view('admin.rab_form', compact('user', 'report', 'hasEmergency'));
     }
@@ -893,10 +905,8 @@ class AdminController extends Controller
                 ->count();
         }
 
-        $hasEmergency = DamageReport::where(function($q) {
-            $q->where('tingkat_urgensi', 'darurat')
-              ->orWhere('is_emergency', true);
-        })->where('status_laporan', '!=', 'selesai')->exists();
+        // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
+        $hasEmergency = false;
 
         return view('admin.technicians', compact(
             'user',
@@ -947,6 +957,13 @@ class AdminController extends Controller
             'status'      => 'petugas',
             'role'        => 'petugas',
             'category_id' => $category->id,
+        ]);
+
+        TechnicianVendor::firstOrCreate([
+            'nama_teknisi' => $request->nama,
+        ], [
+            'jenis_teknisi' => 'Teknisi ' . $category->name,
+            'kontak' => '08' . rand(1000000000, 9999999999),
         ]);
 
         return redirect()->route('admin.technicians.index')->with('success', 'Petugas teknisi baru berhasil ditambahkan dengan spesialisasi ' . $category->name . '!');

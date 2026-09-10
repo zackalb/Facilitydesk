@@ -14,15 +14,7 @@
 </head>
 <body class="bg-[#f8fafc] antialiased text-slate-800 flex flex-col h-screen overflow-hidden">
 
-    <!-- Red Warning Banner for Emergency Reports -->
-    @if($hasEmergency)
-        <div class="bg-[#cc0000] text-white text-center py-2.5 px-4 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 animate-pulse">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-            <span>PERINGATAN: Laporan Darurat Baru Masuk!</span>
-        </div>
-    @endif
+
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
@@ -137,9 +129,9 @@
 
                     <!-- Back Button & Page Header -->
                     <div class="space-y-2">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline gap-1.5 transition-all">
+                        <a href="{{ route('admin.work-orders.index') }}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline gap-1.5 transition-all">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                            <span>Kembali ke Daftar Tiket</span>
+                            <span>Kembali ke Daftar Work Orders</span>
                         </a>
 
                         <div class="flex items-center gap-4">
@@ -266,7 +258,21 @@
                                 $wo = $report->verification ? $report->verification->workOrder : null;
                                 $hasFotoAfter = $wo && $wo->foto_after;
                                 $hasRab = $report->verification && $report->verification->budgetProposal;
-                                $assignedTeknisi = $wo ? $wo->id_teknisi : '';
+                                
+                                // Cari penugasan teknisi yang sesuai
+                                $assignedTeknisi = $wo ? $wo->id_teknisi : null;
+                                if (!$assignedTeknisi && $report->technician) {
+                                    $uName = strtolower(trim($report->technician->nama));
+                                    $uFirst = explode(' ', $uName)[0];
+                                    $matchingTv = $technicians->first(function($t) use ($uName, $uFirst) {
+                                        $tName = strtolower(trim($t->nama_teknisi));
+                                        $tFirst = explode(' ', $tName)[0];
+                                        return $tName === $uName || $tFirst === $uFirst;
+                                    });
+                                    if ($matchingTv) {
+                                        $assignedTeknisi = $matchingTv->id_teknisi;
+                                    }
+                                }
                                 
                                 $currentPriority = 'Sedang';
                                 if ($wo && $wo->prioritas) {
@@ -282,8 +288,16 @@
                             <div class="p-5 bg-slate-50/80 border border-slate-200/70 rounded-2xl space-y-4">
                                 <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                                     <span>Laporan Lapangan dari Petugas Teknisi</span>
-                                    @if($wo && $wo->teknisi)
-                                        <span class="text-blue-700 normal-case font-semibold">Petugas: {{ $wo->teknisi->nama_teknisi }} ({{ $wo->teknisi->jenis_teknisi }})</span>
+                                    @php
+                                        $techDisplay = null;
+                                        if ($wo && $wo->technicianVendor) {
+                                            $techDisplay = $wo->technicianVendor->nama_teknisi . ' (' . $wo->technicianVendor->jenis_teknisi . ')';
+                                        } elseif ($report->technician) {
+                                            $techDisplay = $report->technician->nama;
+                                        }
+                                    @endphp
+                                    @if($techDisplay)
+                                        <span class="text-blue-700 normal-case font-semibold">Petugas: {{ $techDisplay }}</span>
                                     @else
                                         <span class="text-amber-600 normal-case font-semibold">Belum Ada Petugas Ditugaskan</span>
                                     @endif
@@ -329,95 +343,133 @@
                                 </div>
                             </div>
 
-                            <!-- Formulir Penugasan & Tindakan Administrator Sarpras -->
-                            <form id="form-work-order" action="{{ route('admin.work-orders.update', $report->id_laporan) }}" method="POST" class="space-y-6">
-                                @csrf
+                            <!-- Informasi Detail Penugasan & Tindakan (Viewing Saja) -->
+                            <div class="space-y-6">
 
-                                <!-- 1. Prioritas Work Order -->
+                                <!-- 1. Prioritas Work Order (Viewing Saja) -->
                                 <div>
                                     <label class="block text-sm font-bold text-slate-800 mb-2.5">1. Tingkat Prioritas Penanganan</label>
                                     <div class="grid grid-cols-3 gap-3">
                                         <!-- Ringan -->
-                                        <label class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all cursor-pointer {{ $currentPriority === 'Ringan' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white hover:border-slate-300' }}">
-                                            <input type="radio" name="tingkat_kerusakan" value="Ringan" class="hidden" {{ $currentPriority === 'Ringan' ? 'checked' : '' }}>
-                                            <div class="font-bold text-slate-900 text-xs">Ringan</div>
+                                        <div class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all {{ $currentPriority === 'Ringan' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white opacity-60' }}">
+                                            <div class="font-bold text-slate-900 text-xs flex items-center justify-between">
+                                                <span>Ringan</span>
+                                                @if($currentPriority === 'Ringan')
+                                                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                                @endif
+                                            </div>
                                             <p class="text-[10px] text-slate-500 font-medium mt-1">Penanganan rutin &lt; 1 hari</p>
-                                        </label>
+                                        </div>
 
                                         <!-- Sedang -->
-                                        <label class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all cursor-pointer {{ $currentPriority === 'Sedang' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white hover:border-slate-300' }}">
-                                            <input type="radio" name="tingkat_kerusakan" value="Sedang" class="hidden" {{ $currentPriority === 'Sedang' ? 'checked' : '' }}>
-                                            <div class="font-bold text-slate-900 text-xs">Sedang</div>
+                                        <div class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all {{ $currentPriority === 'Sedang' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white opacity-60' }}">
+                                            <div class="font-bold text-slate-900 text-xs flex items-center justify-between">
+                                                <span>Sedang</span>
+                                                @if($currentPriority === 'Sedang')
+                                                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                                @endif
+                                            </div>
                                             <p class="text-[10px] text-slate-500 font-medium mt-1">Perlu perbaikan khusus</p>
-                                        </label>
+                                        </div>
 
                                         <!-- Berat -->
-                                        <label class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all cursor-pointer {{ $currentPriority === 'Berat' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white hover:border-slate-300' }}">
-                                            <input type="radio" name="tingkat_kerusakan" value="Berat" class="hidden" {{ $currentPriority === 'Berat' ? 'checked' : '' }}>
-                                            <div class="font-bold text-slate-900 text-xs">Berat</div>
+                                        <div class="border-2 rounded-2xl p-3 flex flex-col justify-between transition-all {{ $currentPriority === 'Berat' ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 bg-white opacity-60' }}">
+                                            <div class="font-bold text-slate-900 text-xs flex items-center justify-between">
+                                                <span>Berat</span>
+                                                @if($currentPriority === 'Berat')
+                                                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                                @endif
+                                            </div>
                                             <p class="text-[10px] text-slate-500 font-medium mt-1">Butuh RAB / Penggantian</p>
-                                        </label>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <!-- 2. Tugaskan Petugas Teknisi -->
+                                    <!-- 2. Nama Petugas Teknisi (Viewing Saja) -->
                                     <div>
-                                        <label for="id_teknisi" class="block text-sm font-bold text-slate-800 mb-2">2. Tugaskan Petugas Teknisi</label>
-                                        <div class="relative">
-                                            <select name="id_teknisi" id="id_teknisi" onchange="updateTechContact()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
-                                                <option value="" disabled {{ !$assignedTeknisi ? 'selected' : '' }}>Pilih Petugas Teknisi...</option>
-                                                @foreach($technicians as $tech)
-                                                    <option value="{{ $tech->id_teknisi }}" data-kontak="{{ $tech->kontak }}" data-nama="{{ $tech->nama_teknisi }}" data-jenis="{{ $tech->jenis_teknisi }}" {{ $assignedTeknisi == $tech->id_teknisi ? 'selected' : '' }}>
-                                                        {{ $tech->nama_teknisi }} ({{ $tech->jenis_teknisi }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </div>
-                                        </div>
+                                        <label class="block text-sm font-bold text-slate-800 mb-2">2. Nama Petugas Teknisi</label>
+                                        
+                                        @php
+                                            $techObj = null;
+                                            if ($assignedTeknisi) {
+                                                $techObj = $technicians->firstWhere('id_teknisi', $assignedTeknisi);
+                                            }
+                                            $namaTeknisiDisplay = $techObj ? $techObj->nama_teknisi : ($report->technician->nama ?? 'Belum Ditugaskan');
+                                            $jenisTeknisiDisplay = $techObj ? $techObj->jenis_teknisi : ($report->technician->category->name ?? ($report->technician ? 'Petugas Teknisi' : ''));
+                                        @endphp
 
-                                        <!-- Quick WhatsApp Contact Box -->
-                                        <div id="tech-contact-box" class="hidden mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between transition-all">
-                                            <div>
-                                                <p class="text-[10px] font-bold uppercase text-emerald-800 tracking-wider">Kontak Petugas</p>
-                                                <p class="text-xs font-semibold text-emerald-950 mt-0.5" id="tech-contact-number">-</p>
+                                        <div class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 flex items-center justify-between min-h-[44px]">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                <div class="w-7 h-7 rounded-lg bg-blue-100/80 text-blue-700 flex items-center justify-center shrink-0">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="truncate">
+                                                    <div class="text-xs font-bold text-slate-800 truncate">{{ $namaTeknisiDisplay }}</div>
+                                                    @if($jenisTeknisiDisplay)
+                                                        <div class="text-[10px] text-slate-500 font-medium truncate">{{ $jenisTeknisiDisplay }}</div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                            <a id="tech-wa-btn" href="#" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs">
-                                                <span>WA</span>
-                                            </a>
                                         </div>
                                     </div>
 
-                                    <!-- 3. Status Work Order -->
+                                    <!-- 3. Status Work Order (Viewing Saja) -->
                                     <div>
-                                        <label for="status_laporan" class="block text-sm font-bold text-slate-800 mb-2">3. Status Work Order</label>
-                                        <div class="relative">
-                                            <select name="status_laporan" id="status_laporan" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
-                                                <option value="menunggu" {{ $report->status_laporan === 'menunggu' ? 'selected' : '' }}>Inspeksi (Menunggu)</option>
-                                                <option value="proses" {{ $report->status_laporan === 'proses' ? 'selected' : '' }}>Perbaikan (Sedang Dikerjakan)</option>
-                                                <option value="selesai" {{ $report->status_laporan === 'selesai' ? 'selected' : '' }}>Selesai (Tuntas)</option>
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        <label class="block text-sm font-bold text-slate-800 mb-2">3. Status Work Order</label>
+
+                                        <div class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 flex items-center justify-between min-h-[44px]">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                @if($report->status_laporan === 'selesai')
+                                                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                    </div>
+                                                    <div class="truncate">
+                                                        <div class="text-xs font-bold text-emerald-800 truncate">Selesai (Tuntas)</div>
+                                                        <div class="text-[10px] text-emerald-600 font-medium truncate">Pekerjaan telah diselesaikan teknisi</div>
+                                                    </div>
+                                                @elseif($report->status_laporan === 'proses' || $report->status_laporan === 'proses_perbaikan')
+                                                    <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                    </div>
+                                                    <div class="truncate">
+                                                        <div class="text-xs font-bold text-indigo-900 truncate">Perbaikan (Sedang Dikerjakan)</div>
+                                                        <div class="text-[10px] text-indigo-600 font-medium truncate">Sedang ditangani oleh teknisi</div>
+                                                    </div>
+                                                @elseif($report->status_laporan === 'darurat')
+                                                    <div class="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                    </div>
+                                                    <div class="truncate">
+                                                        <div class="text-xs font-bold text-red-800 truncate">Darurat</div>
+                                                        <div class="text-[10px] text-red-600 font-medium truncate">Penanganan segera dibutuhkan</div>
+                                                    </div>
+                                                @else
+                                                    <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    </div>
+                                                    <div class="truncate">
+                                                        <div class="text-xs font-bold text-amber-900 truncate">Inspeksi (Menunggu)</div>
+                                                        <div class="text-[10px] text-amber-600 font-medium truncate">Menunggu konfirmasi tindakan</div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Form Actions -->
-                                <div class="border-t border-slate-100 pt-5 flex items-center justify-end gap-4">
-                                    <a href="{{ route('admin.work-orders.index') }}" class="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
-                                        Kembali
+                                <!-- Actions -->
+                                <div class="border-t border-slate-100 pt-5 flex items-center justify-between">
+                                    <span class="text-xs text-slate-400 font-medium">Mode Tampilan Informasi (Read-Only)</span>
+                                    <a href="{{ route('admin.work-orders.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-all shadow-sm active:scale-95">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                        <span>Kembali ke Daftar Work Orders</span>
                                     </a>
-                                    <button type="submit" class="bg-[#0f172a] hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                        <span>Perbarui Penugasan & Status</span>
-                                    </button>
                                 </div>
 
-                            </form>
+                            </div>
                         </div>
 
                     </div>
@@ -427,196 +479,6 @@
         </main>
     </div>
 
-    <!-- JavaScript block for interactive form actions -->
-    <script>
-        const isFormLocked = {{ isset($isLocked) && $isLocked ? 'true' : 'false' }};
-        const isEmergency = {{ ($report->is_emergency || $report->status_laporan === 'darurat' || $report->tingkat_urgensi === 'darurat') ? 'true' : 'false' }};
-        const namaFasilitas = @json($report->facility->nama_fasilitas ?? 'Fasilitas');
-        const lokasiFasilitas = @json($report->facility->lokasi_detail ?? 'Sekolah');
-        const deskripsiKerusakan = @json($report->deskripsi_kerusakan ?? '');
-
-        function selectTingkat(val) {
-            if (isFormLocked) return;
-            document.querySelectorAll('.tingkat-card').forEach(card => {
-                card.classList.remove('border-blue-600', 'bg-blue-50/50');
-                card.classList.add('border-slate-200', 'bg-white');
-            });
-            const selectedCard = document.getElementById('card-' + val.toLowerCase());
-            if (selectedCard) {
-                selectedCard.classList.remove('border-slate-200', 'bg-white');
-                selectedCard.classList.add('border-blue-600', 'bg-blue-50/50');
-            }
-            
-            // Trigger UI update dynamically
-            updateFormUI();
-        }
-
-        function updateTechContact() {
-            const techSelect = document.getElementById('id_teknisi');
-            const contactBox = document.getElementById('tech-contact-box');
-            const contactNumberEl = document.getElementById('tech-contact-number');
-            const waBtn = document.getElementById('tech-wa-btn');
-
-            if (!techSelect || !contactBox) return;
-
-            const selectedOption = techSelect.options[techSelect.selectedIndex];
-            const kontak = selectedOption ? selectedOption.getAttribute('data-kontak') : null;
-            const nama = selectedOption ? selectedOption.getAttribute('data-nama') : null;
-
-            if (kontak && techSelect.value) {
-                contactBox.classList.remove('hidden');
-                if (contactNumberEl) {
-                    contactNumberEl.innerText = `${nama} • ${kontak}`;
-                }
-
-                // Format standard phone number for Indonesian WA (replace 08 with 628)
-                let cleanPhone = kontak.replace(/[^0-9]/g, '');
-                if (cleanPhone.startsWith('0')) {
-                    cleanPhone = '62' + cleanPhone.substring(1);
-                }
-
-                const msg = isEmergency 
-                    ? `Halo ${nama}, ada PANGGILAN DARURAT dari Sarpras untuk ${namaFasilitas} di ${lokasiFasilitas}. Deskripsi: "${deskripsiKerusakan}". Mohon segera menuju lokasi.`
-                    : `Halo ${nama}, ada penugasan perbaikan ${namaFasilitas} di ${lokasiFasilitas}. Deskripsi: "${deskripsiKerusakan}".`;
-
-                if (waBtn) {
-                    waBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-                }
-            } else {
-                contactBox.classList.add('hidden');
-            }
-        }
-
-        function updateFormUI() {
-            // Get currently selected priority (Tingkat Kerusakan)
-            const priorityInput = document.querySelector('input[name="tingkat_kerusakan"]:checked') || document.getElementById('hidden_tingkat');
-            const priority = priorityInput ? priorityInput.value : 'Ringan';
-
-            // Get currently selected status
-            const statusSelect = document.getElementById('status_laporan');
-            const status = statusSelect ? statusSelect.value : 'menunggu';
-
-            // Get the submit button elements
-            const submitBtn = document.getElementById('submit-button');
-            const btnText = document.getElementById('submit-button-text');
-            const btnIcon = document.getElementById('submit-button-icon');
-
-            // Get the technician select element
-            const techSelect = document.getElementById('id_teknisi');
-
-            if (priority === 'Berat') {
-                // Style as Orange button "Buat Pengajuan RAB"
-                if (submitBtn) {
-                    submitBtn.className = "bg-[#c2410c] hover:bg-orange-800 text-white font-bold py-3 px-6 rounded-xl text-sm shadow-sm transition-all flex items-center gap-2 font-semibold";
-                }
-                if (btnText) btnText.innerText = "Buat Pengajuan RAB";
-                if (btnIcon) {
-                    btnIcon.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`;
-                }
-
-                // Lock/disable technician vendor input
-                if (techSelect) {
-                    techSelect.disabled = true;
-                    if (!isFormLocked) {
-                        techSelect.value = "";
-                    }
-                    techSelect.classList.add('bg-slate-100', 'text-slate-400');
-                    techSelect.classList.remove('bg-slate-50', 'text-slate-700');
-                }
-                updateTechContact();
-            } else {
-                // Style as default Dark Slate button
-                if (submitBtn) {
-                    if (isEmergency && status === 'proses') {
-                        submitBtn.className = "bg-[#cc0000] hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl text-sm shadow-sm transition-all flex items-center gap-2 font-semibold";
-                    } else {
-                        submitBtn.className = "bg-[#0f172a] hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-sm shadow-sm transition-all flex items-center gap-2 font-semibold";
-                    }
-                }
-                if (btnIcon) {
-                    btnIcon.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>`;
-                }
-                
-                // Button text dynamically based on status:
-                let text = "Simpan Hasil Inspeksi";
-                if (status === 'proses') {
-                    text = isEmergency ? "⚡ Tugaskan Teknisi Darurat" : "Simpan Perbaikan";
-                } else if (status === 'selesai') {
-                    text = "Simpan Selesai";
-                }
-                if (btnText) btnText.innerText = text;
-
-                // Unlock/enable technician vendor input if NOT locked
-                if (techSelect && !isFormLocked) {
-                    techSelect.disabled = false;
-                    techSelect.classList.remove('bg-slate-100', 'text-slate-400', 'opacity-60', 'cursor-not-allowed');
-                    techSelect.classList.add('bg-slate-50', 'text-slate-700');
-                }
-                updateTechContact();
-            }
-        }
-
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('upload-default-state').classList.add('hidden');
-                    document.getElementById('image-preview').src = e.target.result;
-                    document.getElementById('image-preview').classList.remove('hidden');
-                    document.getElementById('upload-preview-state').classList.remove('hidden');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function quickDispatchEmergency() {
-            // 1. Set priority to Sedang
-            selectTingkat('Sedang');
-            
-            // 2. Set status to proses
-            const statusSelect = document.getElementById('status_laporan');
-            if (statusSelect) {
-                statusSelect.value = 'proses';
-            }
-            
-            // 3. Ensure a technician is selected
-            const techSelect = document.getElementById('id_teknisi');
-            if (techSelect && !techSelect.value && techSelect.options.length > 1) {
-                techSelect.selectedIndex = 1;
-            }
-            updateTechContact();
-            updateFormUI();
-
-            // 4. Buka WhatsApp teknisi di tab baru jika nomor tersedia
-            const waBtn = document.getElementById('tech-wa-btn');
-            if (waBtn && waBtn.href && waBtn.href !== '#' && waBtn.href !== window.location.href) {
-                window.open(waBtn.href, '_blank');
-            }
-
-            // 5. Submit form
-            document.getElementById('form-work-order').submit();
-        }
-
-        function quickResolveEmergency() {
-            selectTingkat('Ringan');
-            const statusSelect = document.getElementById('status_laporan');
-            if (statusSelect) {
-                statusSelect.value = 'selesai';
-            }
-            updateFormUI();
-            document.getElementById('form-work-order').submit();
-        }
-
-        // Run on page load and listen to status changes
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusSelect = document.getElementById('status_laporan');
-            if (statusSelect) {
-                statusSelect.addEventListener('change', updateFormUI);
-            }
-            updateFormUI();
-            updateTechContact();
-        });
-    </script>
 
 </body>
 </html>

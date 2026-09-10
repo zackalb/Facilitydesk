@@ -137,20 +137,28 @@
                             </h3>
                             
                             @if($report->status_laporan === 'darurat')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100 animate-pulse">
                                     Darurat
                                 </span>
                             @elseif($report->status_laporan === 'menunggu')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                                    Inspeksi
+                                    Perlu Ditangani
                                 </span>
-                            @elseif($report->status_laporan === 'proses')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                    Perbaikan
+                            @elseif($report->status_laporan === 'menunggu_rab')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                                    Menunggu Persetujuan RAB
+                                </span>
+                            @elseif(in_array($report->status_laporan, ['proses', 'proses_perbaikan']))
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span> Sedang Dikerjakan
                                 </span>
                             @elseif($report->status_laporan === 'selesai')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
                                     Selesai
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-700 border border-slate-200">
+                                    {{ ucfirst(str_replace('_', ' ', $report->status_laporan)) }}
                                 </span>
                             @endif
                         </div>
@@ -266,16 +274,16 @@
                                 </div>
                             @endif
 
-                            <!-- Section RAB: Khusus jika Urgensi Tinggi (Non-Darurat) -->
-                            @if($needRab)
+                            <!-- Section RAB: Khusus Hanya Untuk Urgensi Tinggi -->
+                            @if(($needRab || $proposal) && $report->tingkat_urgensi === 'tinggi')
                                 <div class="bg-white rounded-3xl border {{ $proposal ? 'border-slate-100' : 'border-amber-200 bg-amber-50/10' }} shadow-sm p-8 flex flex-col">
                                     <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
                                         <div>
                                             <h4 class="text-lg font-bold text-slate-900">Pengajuan Anggaran & Suku Cadang (RAB)</h4>
-                                            <p class="text-xs text-slate-500 mt-0.5">Laporan berurgensi Tinggi memerlukan estimasi biaya pengadaan material ke Admin Sarpras.</p>
+                                            <p class="text-xs text-slate-500 mt-0.5">Estimasi biaya pengadaan material dan suku cadang ke Admin Sarpras.</p>
                                         </div>
-                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                            Wajib RAB
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ $needRab ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }}">
+                                            {{ $needRab ? 'Wajib RAB' : 'RAB Material' }}
                                         </span>
                                     </div>
 
@@ -473,21 +481,50 @@
 
                             <!-- Formulir Eksekusi & Bukti Pengerjaan -->
                             <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 flex flex-col">
-                                <div class="flex items-center gap-3 border-b border-slate-50 pb-6 mb-6">
+                                <div class="border-b border-slate-50 pb-6 mb-6">
                                     <h4 class="text-lg font-bold text-slate-900">Formulir Eksekusi Perbaikan Lapangan</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">Kelola progres dan selesaikan perbaikan fasilitas sekolah</p>
                                 </div>
 
-                                <!-- Start Process Quick Action (If not yet in progress) -->
-                                @if(!in_array($report->status_laporan, ['proses', 'proses_perbaikan', 'selesai']))
-                                    <div class="mb-6 p-4 bg-blue-50/70 border border-blue-100 rounded-2xl flex items-center justify-between gap-4">
-                                        <div>
-                                            <h5 class="text-sm font-bold text-blue-900">Mulai Pengerjaan Lapangan</h5>
-                                            <p class="text-xs text-blue-700 mt-0.5">Ubah status tiket ke "Sedang Dikerjakan" untuk menginformasikan bahwa Anda sudah di lokasi.</p>
+                                <!-- Status Banner Aktif -->
+                                @if(in_array($report->status_laporan, ['proses', 'proses_perbaikan']))
+                                    <div class="mb-6 p-4.5 bg-indigo-50/70 border border-indigo-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div class="flex items-center gap-3.5">
+                                            <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <h5 class="text-sm font-bold text-indigo-950">Status: Sedang Dikerjakan di Lapangan</h5>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-200/80 text-indigo-900">Aktif</span>
+                                                </div>
+                                                <p class="text-xs text-indigo-700 mt-0.5">Tiket ini dalam proses penanganan. Silakan lengkapi bukti foto 'After' dan catatan di bawah untuk menyelesaikan perbaikan.</p>
+                                            </div>
                                         </div>
-                                        <form action="{{ route('petugas.tasks.start', $report->id_laporan) }}" method="POST">
+                                        <form action="{{ route('petugas.tasks.pause', $report->id_laporan) }}" method="POST" class="shrink-0">
                                             @csrf
-                                            <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer">
-                                                Mulai Pengerjaan
+                                            <button type="submit" class="w-full sm:w-auto px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <span>Tunda Pengerjaan</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @elseif(!in_array($report->status_laporan, ['selesai']))
+                                    <div class="mb-6 p-4.5 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div class="flex items-center gap-3.5">
+                                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-sm font-bold text-amber-950">Status: Belum Dimulai (Perlu Ditangani)</h5>
+                                                <p class="text-xs text-amber-800 mt-0.5">Ubah status ke "Sedang Dikerjakan" untuk menginformasikan bahwa Anda sudah berada di lokasi fasilitas.</p>
+                                            </div>
+                                        </div>
+                                        <form action="{{ route('petugas.tasks.start', $report->id_laporan) }}" method="POST" class="shrink-0">
+                                            @csrf
+                                            <button type="submit" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <span>Mulai Pengerjaan</span>
                                             </button>
                                         </form>
                                     </div>
@@ -683,6 +720,7 @@
                 grandTotalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
             }
         }
+
 
         function previewImage(input) {
             if (input.files && input.files[0]) {

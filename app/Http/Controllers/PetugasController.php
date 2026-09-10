@@ -68,9 +68,18 @@ class PetugasController extends Controller
         $pending       = $allTasks->whereIn('status_laporan', ['menunggu', 'menunggu_rab'])->count();
         $completed     = $allTasks->where('status_laporan', 'selesai')->count();
 
-        // Notifikasi darurat
+        // Notifikasi darurat HANYA untuk petugas tertentu yang ditugaskan
         $hasEmergency = DamageReport::where('is_emergency', true)
             ->whereIn('status_laporan', ['darurat', 'proses', 'proses_perbaikan'])
+            ->where(function ($q) use ($user) {
+                $q->where('technician_id', $user->id_user);
+                if ($user->category_id) {
+                    $q->orWhere(function ($sub) use ($user) {
+                        $sub->whereNull('technician_id')
+                            ->where('category_id', $user->category_id);
+                    });
+                }
+            })
             ->exists();
 
         return view('petugas.dashboard', compact('user', 'allTasks', 'totalAssigned', 'inProgress', 'pending', 'completed', 'hasEmergency'));
@@ -94,7 +103,16 @@ class PetugasController extends Controller
         ])->findOrFail($id);
 
         $hasEmergency = DamageReport::where('is_emergency', true)
-            ->whereIn('status_laporan', ['darurat', 'proses'])
+            ->whereIn('status_laporan', ['darurat', 'proses', 'proses_perbaikan'])
+            ->where(function ($q) use ($user) {
+                $q->where('technician_id', $user->id_user);
+                if ($user->category_id) {
+                    $q->orWhere(function ($sub) use ($user) {
+                        $sub->whereNull('technician_id')
+                            ->where('category_id', $user->category_id);
+                    });
+                }
+            })
             ->exists();
 
         return view('petugas.detail', compact('user', 'report', 'hasEmergency'));
@@ -136,12 +154,9 @@ class PetugasController extends Controller
             // 2. Pastikan ada WorkOrder
             $wo = $verification->workOrder;
             if (!$wo) {
-                $tech = TechnicianVendor::where('nama_teknisi', 'like', '%' . explode(' ', Auth::user()->nama)[0] . '%')->first();
-                $techId = $tech ? $tech->id_teknisi : 1;
-
                 $wo = WorkOrder::create([
                     'id_verifikasi'   => $verification->id_verifikasi,
-                    'id_teknisi'      => $techId,
+                    'id_teknisi'      => $this->resolveTechnicianId(),
                     'prioritas'       => 'Berat',
                     'tanggal_mulai'   => now(),
                     'tanggal_selesai' => null,
@@ -225,12 +240,9 @@ class PetugasController extends Controller
         // 2. Buat atau perbarui WorkOrder
         $wo = $verification->workOrder;
         if (!$wo) {
-            $tech = TechnicianVendor::where('nama_teknisi', 'like', '%' . explode(' ', Auth::user()->nama)[0] . '%')->first();
-            $techId = $tech ? $tech->id_teknisi : 1;
-
             $wo = WorkOrder::create([
                 'id_verifikasi'   => $verification->id_verifikasi,
-                'id_teknisi'      => $techId,
+                'id_teknisi'      => $this->resolveTechnicianId(),
                 'prioritas'       => $report->tingkat_urgensi === 'tinggi' ? 'Berat' : 'Sedang',
                 'tanggal_mulai'   => now(),
                 'tanggal_selesai' => null,
@@ -242,6 +254,22 @@ class PetugasController extends Controller
         }
 
         return back()->with('success', 'Status perbaikan berhasil diubah: Sedang Dikerjakan di Lapangan.');
+    }
+
+    /**
+     * Petugas menunda pengerjaan perbaikan (status dikembalikan ke 'menunggu').
+     */
+    public function pauseTask($id)
+    {
+        if (!$this->checkPetugasAccess()) {
+            return redirect()->route('dashboard');
+        }
+
+        $report = DamageReport::findOrFail($id);
+        $report->status_laporan = 'menunggu';
+        $report->save();
+
+        return back()->with('success', 'Status pengerjaan berhasil ditunda (status kembali: Perlu Ditangani).');
     }
 
     /**
@@ -284,12 +312,12 @@ class PetugasController extends Controller
         $wo = $verification->workOrder;
         if (!$wo) {
             $wo = WorkOrder::create([
-                'id_verifikasi' => $verification->id_verifikasi,
-                'id_teknisi' => 1,
-                'prioritas' => $report->tingkat_urgensi === 'tinggi' ? 'Berat' : 'Sedang',
-                'tanggal_mulai' => now(),
+                'id_verifikasi'   => $verification->id_verifikasi,
+                'id_teknisi'      => $this->resolveTechnicianId(),
+                'prioritas'       => $report->tingkat_urgensi === 'tinggi' ? 'Berat' : 'Sedang',
+                'tanggal_mulai'   => now(),
                 'tanggal_selesai' => now(),
-                'foto_after' => $fotoAfterPath,
+                'foto_after'      => $fotoAfterPath,
             ]);
         } else {
             if ($fotoAfterPath) {
@@ -311,5 +339,49 @@ class PetugasController extends Controller
 
         return redirect()->route('petugas.dashboard')
             ->with('success', 'Perbaikan berhasil diselesaikan! Fasilitas telah kembali ke kondisi Baik.');
+    }
+
+    /**
+     * Dapatkan id_teknisi yang valid dari technician_vendors untuk user petugas saat ini.
+     */
+    private function resolveTechnicianId(): int
+    {
+        $user = Auth::user();
+        if ($user) {
+            // 1. Cek kecocokan nama depan di tabel technician_vendors
+            $firstName = explode(' ', trim($user->nama))[0];
+            $tech = TechnicianVendor::where('nama_teknisi', 'like', '%' . $firstName . '%')->first();
+            if ($tech) {
+                return $tech->id_teknisi;
+            }
+
+            // 2. Jika belum ada di technician_vendors, buatkan otomatis sesuai profil petugas
+            $newTech = TechnicianVendor::firstOrCreate(
+                ['nama_teknisi' => $user->nama],
+                [
+                    'jenis_teknisi' => 'Teknisi ' . ($user->category->name ?? 'Fasilitas Sekolah'),
+                    'kontak'        => '08' . str_pad((string)$user->id_user, 9, '0', STR_PAD_LEFT),
+                ]
+            );
+
+            if ($newTech && $newTech->id_teknisi) {
+                return $newTech->id_teknisi;
+            }
+        }
+
+        // 3. Fallback ke teknisi pertama yang tersedia di database
+        $firstTech = TechnicianVendor::first();
+        if ($firstTech) {
+            return $firstTech->id_teknisi;
+        }
+
+        // 4. Jika tabel kosong sama sekali, buatkan satu teknisi default
+        $defaultTech = TechnicianVendor::create([
+            'nama_teknisi'  => 'Teknisi Sekolah',
+            'jenis_teknisi' => 'Teknisi Umum',
+            'kontak'        => '081234567890',
+        ]);
+
+        return $defaultTech->id_teknisi;
     }
 }

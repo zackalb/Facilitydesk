@@ -184,12 +184,6 @@
                     <p class="text-xs text-slate-500 font-medium mt-1">Tinjauan komprehensif alokasi dan realisasi pengeluaran anggaran fasilitas sekolah secara *real-time*.</p>
                 </div>
                 <div class="flex items-center gap-2.5">
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-white hover:bg-slate-50 text-blue-700 border border-blue-600 font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Export PDF</span>
-                    </button>
                     <button type="button" onclick="exportAnalyticsToExcel()" class="px-4 py-2 bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

@@ -250,15 +250,23 @@
                                                 </span>
                                             @elseif($task->status_laporan === 'menunggu')
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                                                    Inspeksi
+                                                    Perlu Ditangani
                                                 </span>
-                                            @elseif($task->status_laporan === 'proses')
+                                            @elseif($task->status_laporan === 'menunggu_rab')
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                                                    Menunggu RAB
+                                                </span>
+                                            @elseif(in_array($task->status_laporan, ['proses', 'proses_perbaikan']))
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                                    Perbaikan
+                                                    Sedang Dikerjakan
                                                 </span>
                                             @elseif($task->status_laporan === 'selesai')
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
                                                     Selesai
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-700 border border-slate-200">
+                                                    {{ ucfirst(str_replace('_', ' ', $task->status_laporan)) }}
                                                 </span>
                                             @endif
                                         </td>
@@ -311,13 +319,13 @@
                 if (status === 'all') {
                     row.classList.remove('hidden');
                 } else if (status === 'menunggu') {
-                    if (rowStatus === 'menunggu') row.classList.remove('hidden');
+                    if (rowStatus === 'menunggu' || rowStatus === 'menunggu_rab') row.classList.remove('hidden');
                     else row.classList.add('hidden');
                 } else if (status === 'darurat') {
                     if (rowStatus === 'darurat') row.classList.remove('hidden');
                     else row.classList.add('hidden');
                 } else if (status === 'proses') {
-                    if (rowStatus === 'proses') row.classList.remove('hidden');
+                    if (rowStatus === 'proses' || rowStatus === 'proses_perbaikan') row.classList.remove('hidden');
                     else row.classList.add('hidden');
                 } else if (status === 'selesai') {
                     if (rowStatus === 'selesai') row.classList.remove('hidden');

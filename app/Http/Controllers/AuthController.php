@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Rules\TurnstileRule;
 
 class AuthController extends Controller
 {
@@ -29,9 +30,19 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
+        $rules = [
             'identity' => 'required|string',
             'password' => 'required|string',
+        ];
+
+        if (!empty(config('services.turnstile.secret_key'))) {
+            $rules['cf-turnstile-response'] = ['required', new TurnstileRule()];
+        }
+
+        $request->validate($rules, [
+            'identity.required'              => 'Email atau identitas wajib diisi.',
+            'password.required'              => 'Kata sandi wajib diisi.',
+            'cf-turnstile-response.required' => 'Silakan selesaikan verifikasi Cloudflare Turnstile terlebih dahulu.',
         ]);
 
         // Key rate limiter unik berdasarkan input identity & alamat IP
@@ -126,12 +137,19 @@ class AuthController extends Controller
      */
     public function sendResetLink(Request $request)
     {
-        $request->validate([
+        $rules = [
             'email' => 'required|email|exists:users,email',
-        ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email'    => 'Format email tidak valid.',
-            'email.exists'   => 'Email tidak terdaftar dalam sistem.',
+        ];
+
+        if (!empty(config('services.turnstile.secret_key'))) {
+            $rules['cf-turnstile-response'] = ['required', new TurnstileRule()];
+        }
+
+        $request->validate($rules, [
+            'email.required'                 => 'Email wajib diisi.',
+            'email.email'                    => 'Format email tidak valid.',
+            'email.exists'                   => 'Email tidak terdaftar dalam sistem.',
+            'cf-turnstile-response.required' => 'Silakan selesaikan verifikasi Cloudflare Turnstile terlebih dahulu.',
         ]);
 
         $token = Str::random(60);

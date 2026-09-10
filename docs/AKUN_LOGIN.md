@@ -29,7 +29,7 @@ Setiap teknisi memiliki **spesialisasi kategori** masing-masing. Ketika pelapor 
 
 | No | Nama Teknisi | Email Login | Password | Kategori Spesialisasi | Kategori ID |
 |:--:|:---|:---|:---|:---|:--:|
-| 1 | **Andi Saputra** | `petugas@sekolah.com` | `password123` | **Listrik** | `1` |
+| 1 | **Andi Saputra** | `andi.petugas@sekolah.com` | `password123` | **Listrik** | `1` |
 | 2 | **Budi Pratama** | `budi.petugas@sekolah.com` | `password123` | **Air (Plumbing)** | `2` |
 | 3 | **Joko Susilo** | `joko.petugas@sekolah.com` | `password123` | **Bangunan (Fasilitas Fisik)** | `3` |
 | 4 | **Deni Kurniawan** | `deni.petugas@sekolah.com` | `password123` | **IT & Elektronik** | `4` |

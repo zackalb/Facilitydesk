@@ -11,6 +11,9 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
+    @if(config('services.turnstile.site_key'))
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 antialiased">
 
@@ -93,9 +96,22 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end">
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }} class="w-4 h-4 text-[#0B3A82] border-gray-300 rounded focus:ring-[#0B3A82] cursor-pointer">
+                            <span class="text-[12px] font-medium text-gray-600">Ingat Saya</span>
+                        </label>
                         <a href="{{ route('password.request') }}" class="text-[12px] font-semibold text-[#0B3A82] hover:text-blue-800 transition-colors">Lupa Kata Sandi?</a>
                     </div>
+
+                    @if(config('services.turnstile.site_key'))
+                        <div class="py-1 flex flex-col items-center justify-center">
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
+                            @error('cf-turnstile-response')
+                                <p class="text-xs text-red-600 font-semibold mt-1 text-center">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
 
                     <button type="submit" class="w-full bg-[#0B3A82] text-white py-3 rounded-xl hover:bg-blue-800 transition-colors font-semibold shadow-md shadow-blue-900/10 text-sm cursor-pointer">
                         Masuk
