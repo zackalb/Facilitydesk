@@ -194,12 +194,11 @@
                             <div class="relative">
                                 <select id="filter-kategori" onchange="filterInventory()" class="bg-slate-50/70 border border-slate-200/80 rounded-xl py-2.5 pl-3.5 pr-8 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 min-w-[160px] appearance-none cursor-pointer">
                                     <option value="">Semua Kategori</option>
-                                    <option value="Elektronik">Elektronik</option>
-                                    <option value="Furnitur">Furnitur</option>
-                                    <option value="Sanitasi">Sanitasi</option>
-                                    <option value="Struktur Gedung">Struktur Gedung</option>
-                                    <option value="Laboratorium">Laboratorium</option>
-                                    <option value="Fasilitas Umum">Fasilitas Umum</option>
+                                    @if(isset($facilityCategories))
+                                        @foreach($facilityCategories as $fCat)
+                                            <option value="{{ $fCat->name }}">{{ $fCat->name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -384,11 +383,7 @@
                                                 </button>
                                                 
                                                 <!-- Action Dropdown Menu -->
-                                                <div id="menu-{{ $item->id_fasilitas }}" class="hidden absolute right-6 top-10 w-44 bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-20 text-left">
-                                                    <a href="{{ route('admin.work-orders.index') }}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors">
-                                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                        Lihat Work Order
-                                                    </a>
+                                                <div id="menu-{{ $item->id_fasilitas }}" class="hidden absolute right-6 top-10 w-40 bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-20 text-left">
                                                     <button type="button" onclick="openEditModal({{ json_encode($item) }})" class="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left cursor-pointer">
                                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                         Edit Aset
@@ -487,16 +482,44 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kategori</label>
-                        <select name="kategori_area" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                            <option value="Elektronik">Elektronik</option>
-                            <option value="Furnitur">Furnitur</option>
-                            <option value="Sanitasi">Sanitasi</option>
-                            <option value="Struktur Gedung">Struktur Gedung</option>
-                            <option value="Laboratorium">Laboratorium</option>
-                            <option value="Fasilitas Umum">Fasilitas Umum</option>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Kategori Fasilitas</label>
+                            <button type="button" onclick="openTambahKategoriModal('tambah')" class="text-[11px] text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>+ Baru</span>
+                            </button>
+                        </div>
+                        <select name="kategori_area" id="tambah-kategori" onchange="onCategoryAreaChange('tambah')" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer">
+                            @if(isset($facilityCategories))
+                                @foreach($facilityCategories as $fCat)
+                                    <option value="{{ $fCat->name }}" data-category-id="{{ $fCat->category_id }}" data-category-name="{{ $fCat->category->name ?? 'Umum' }}">
+                                        {{ $fCat->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                            <option value="__ADD_NEW__" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>
                         </select>
                     </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Bidang Teknisi</label>
+                            <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1" title="Bidang teknisi otomatis ditentukan oleh kategori fasilitas">
+                                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                Terkunci
+                            </span>
+                        </div>
+                        <select id="tambah-category-id-display" disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-600 cursor-not-allowed">
+                            @if(isset($categories))
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <input type="hidden" name="category_id" id="tambah-category-id" value="">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kondisi Awal</label>
                         <select name="kondisi" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
@@ -505,11 +528,10 @@
                             <option value="Dalam Perbaikan">Dalam Perbaikan</option>
                         </select>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lokasi Detail</label>
-                    <input type="text" name="lokasi_detail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Misal: Gedung A, Ruang 302">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lokasi Detail</label>
+                        <input type="text" name="lokasi_detail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" placeholder="Misal: Gedung A, Ruang 302">
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3">
@@ -548,16 +570,44 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kategori</label>
-                        <select name="kategori_area" id="edit-kategori" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                            <option value="Elektronik">Elektronik</option>
-                            <option value="Furnitur">Furnitur</option>
-                            <option value="Sanitasi">Sanitasi</option>
-                            <option value="Struktur Gedung">Struktur Gedung</option>
-                            <option value="Laboratorium">Laboratorium</option>
-                            <option value="Fasilitas Umum">Fasilitas Umum</option>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Kategori Fasilitas</label>
+                            <button type="button" onclick="openTambahKategoriModal('edit')" class="text-[11px] text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>+ Baru</span>
+                            </button>
+                        </div>
+                        <select name="kategori_area" id="edit-kategori" onchange="onCategoryAreaChange('edit')" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer">
+                            @if(isset($facilityCategories))
+                                @foreach($facilityCategories as $fCat)
+                                    <option value="{{ $fCat->name }}" data-category-id="{{ $fCat->category_id }}" data-category-name="{{ $fCat->category->name ?? 'Umum' }}">
+                                        {{ $fCat->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                            <option value="__ADD_NEW__" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>
                         </select>
                     </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Bidang Teknisi</label>
+                            <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1" title="Bidang teknisi otomatis ditentukan oleh kategori fasilitas">
+                                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                Terkunci
+                            </span>
+                        </div>
+                        <select id="edit-category-id-display" disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-600 cursor-not-allowed">
+                            @if(isset($categories))
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <input type="hidden" name="category_id" id="edit-category-id" value="">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kondisi</label>
                         <select name="kondisi" id="edit-kondisi" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
@@ -566,16 +616,65 @@
                             <option value="Dalam Perbaikan">Dalam Perbaikan</option>
                         </select>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lokasi Detail</label>
-                    <input type="text" name="lokasi_detail" id="edit-lokasi" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lokasi Detail</label>
+                        <input type="text" name="lokasi_detail" id="edit-lokasi" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" onclick="toggleModal('modal-edit')" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">Batal</button>
                     <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer">Perbarui Aset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Kategori Fasilitas Baru Dinamis -->
+    <div id="modal-tambah-kategori" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-60 hidden flex items-center justify-center p-4 transition-all">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Tambah Kategori Fasilitas</h3>
+                        <p class="text-xs text-slate-500">Pasangkan kategori fasilitas dengan bidang teknisinya.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="toggleModal('modal-tambah-kategori')" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="form-tambah-kategori" onsubmit="submitNewFacilityCategory(event)" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Kategori Fasilitas <span class="text-red-500">*</span></label>
+                    <input type="text" id="new-category-name" required placeholder="Misal: Kendaraan Operasional, Audio Sound" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Pasangkan ke Bidang Teknisi <span class="text-red-500">*</span></label>
+                    <select id="new-category-target" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer">
+                        <option value="" disabled selected>Pilih Bidang Teknisi...</option>
+                        @if(isset($categories))
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <p class="text-[11px] text-slate-400 mt-1">Aset dalam kategori ini nantinya otomatis ditangani oleh teknisi di bidang tersebut.</p>
+                </div>
+
+                <div id="category-error-msg" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 font-semibold"></div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-2">
+                    <button type="button" onclick="toggleModal('modal-tambah-kategori')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer">Batal</button>
+                    <button type="submit" id="btn-save-category" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer flex items-center gap-1.5">
+                        <span>Simpan Kategori</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -604,17 +703,168 @@
             document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
         });
 
+        let callerModalContext = 'tambah'; // 'tambah' or 'edit'
+
+        function openTambahKategoriModal(context = 'tambah') {
+            callerModalContext = context;
+            const nameEl = document.getElementById('new-category-name');
+            const targetEl = document.getElementById('new-category-target');
+            const errEl = document.getElementById('category-error-msg');
+            if (nameEl) nameEl.value = '';
+            if (targetEl) targetEl.selectedIndex = 0;
+            if (errEl) errEl.classList.add('hidden');
+            toggleModal('modal-tambah-kategori');
+        }
+
+        function onCategoryAreaChange(context) {
+            const select = document.getElementById(`${context}-kategori`);
+            if (!select) return;
+
+            if (select.value === '__ADD_NEW__') {
+                select.selectedIndex = 0;
+                openTambahKategoriModal(context);
+                return;
+            }
+
+            const selectedOption = select.options[select.selectedIndex];
+            if (!selectedOption) return;
+
+            const catId = selectedOption.getAttribute('data-category-id');
+
+            const hiddenInput = document.getElementById(`${context}-category-id`);
+            const displaySelect = document.getElementById(`${context}-category-id-display`);
+
+            if (hiddenInput && catId) {
+                hiddenInput.value = catId;
+            }
+            if (displaySelect && catId) {
+                displaySelect.value = catId;
+            }
+        }
+
+        async function submitNewFacilityCategory(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('new-category-name');
+            const targetSelect = document.getElementById('new-category-target');
+            const errorMsg = document.getElementById('category-error-msg');
+            const btn = document.getElementById('btn-save-category');
+
+            const name = nameInput.value.trim();
+            const categoryId = targetSelect.value;
+
+            if (!name || !categoryId) {
+                if (errorMsg) {
+                    errorMsg.textContent = 'Harap lengkapi semua kolom.';
+                    errorMsg.classList.remove('hidden');
+                }
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Menyimpan...</span>';
+
+            try {
+                const response = await fetch("{{ route('admin.inventory.categories.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        category_id: categoryId
+                    })
+                });
+
+                const res = await response.json();
+
+                if (res.success) {
+                    // Masukkan option baru ke dropdown kategori di form Tambah dan Edit
+                    ['tambah-kategori', 'edit-kategori'].forEach(id => {
+                        const sel = document.getElementById(id);
+                        if (sel) {
+                            const opt = document.createElement('option');
+                            opt.value = res.data.name;
+                            opt.setAttribute('data-category-id', res.data.category_id);
+                            opt.setAttribute('data-category-name', res.data.category_name);
+                            opt.textContent = res.data.name;
+
+                            // Sisipkan sebelum option terakhir (+ Tambah Kategori Baru...)
+                            const lastOpt = sel.options[sel.options.length - 1];
+                            sel.insertBefore(opt, lastOpt);
+
+                            if (id.startsWith(callerModalContext)) {
+                                sel.value = res.data.name;
+                                onCategoryAreaChange(callerModalContext);
+                            }
+                        }
+                    });
+
+                    // Update juga dropdown filter kategori di atas tabel inventaris
+                    const filterSel = document.getElementById('filter-kategori');
+                    if (filterSel) {
+                        const optFilter = document.createElement('option');
+                        optFilter.value = res.data.name;
+                        optFilter.textContent = res.data.name;
+                        filterSel.appendChild(optFilter);
+                    }
+
+                    toggleModal('modal-tambah-kategori');
+                } else {
+                    if (errorMsg) {
+                        errorMsg.textContent = res.message || 'Gagal menambahkan kategori fasilitas.';
+                        errorMsg.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                console.error('Error adding category:', err);
+                if (errorMsg) {
+                    errorMsg.textContent = 'Terjadi kesalahan sistem atau nama kategori sudah ada.';
+                    errorMsg.classList.remove('hidden');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Simpan Kategori</span>';
+            }
+        }
+
         function openEditModal(item) {
             document.getElementById('edit-nama').value = item.nama_fasilitas;
-            document.getElementById('edit-kategori').value = item.kategori_area;
             document.getElementById('edit-kondisi').value = item.kondisi;
             document.getElementById('edit-lokasi').value = item.lokasi_detail;
             
+            const katSelect = document.getElementById('edit-kategori');
+            if (katSelect) {
+                let found = false;
+                for (let i = 0; i < katSelect.options.length; i++) {
+                    if (katSelect.options[i].value === item.kategori_area) {
+                        katSelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && item.kategori_area) {
+                    const opt = document.createElement('option');
+                    opt.value = item.kategori_area;
+                    opt.setAttribute('data-category-id', item.category_id || '1');
+                    opt.textContent = item.kategori_area;
+                    katSelect.insertBefore(opt, katSelect.options[katSelect.options.length - 1]);
+                    katSelect.value = item.kategori_area;
+                }
+                onCategoryAreaChange('edit');
+            }
+
             const form = document.getElementById('form-edit-aset');
             form.action = `/admin/inventory/facilities/${item.id_fasilitas}`;
             
             toggleModal('modal-edit');
         }
+
+        // Inisialisasi otomatis kunci bidang teknisi saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            onCategoryAreaChange('tambah');
+        });
 
         function syncSearch(val) {
             const mainSearch = document.getElementById('inventory-search');

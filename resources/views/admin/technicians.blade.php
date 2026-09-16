@@ -221,11 +221,11 @@
                         <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama teknisi atau email..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        <input type="text" id="tech-search" name="search" value="{{ request('search') }}" oninput="filterTechnicians()" placeholder="Cari nama teknisi atau email..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     </div>
 
                     <!-- Filter Kategori Spesialisasi -->
-                    <select name="category_id" onchange="this.form.submit()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <select id="tech-filter-category" name="category_id" onchange="filterTechnicians()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                         <option value="">Semua Spesialisasi Kategori</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
@@ -236,117 +236,172 @@
                 </div>
 
                 <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                    @if(request('search') || request('category_id'))
-                        <a href="{{ route('admin.technicians.index') }}" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-all">
-                            Reset Filter
-                        </a>
-                    @endif
-                    <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-all">
+                    <button type="button" onclick="resetTechFilter()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-all cursor-pointer">
+                        Reset Filter
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-all cursor-pointer">
                         Terapkan
                     </button>
                 </div>
             </form>
 
-            <!-- 4. Technicians Grid Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                @forelse($technicians as $tech)
-                    @php
-                        $catName = $tech->category ? $tech->category->name : 'Umum';
-                        $catId = $tech->category_id;
-                        
-                        // Badge Spesialisasi Color & Icon
-                        if ($catId == 1) { // Listrik
-                            $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
-                            $icon = '⚡';
-                        } elseif ($catId == 2) { // Air
-                            $badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
-                            $icon = '🚰';
-                        } elseif ($catId == 3) { // Bangunan
-                            $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200';
-                            $icon = '🏢';
-                        } elseif ($catId == 4) { // IT
-                            $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                            $icon = '💻';
-                        } else {
-                            $badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
-                            $icon = '🔧';
-                        }
-                    @endphp
-                    <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.03)] p-6 flex flex-col justify-between hover:border-blue-200 hover:shadow-md transition-all group relative">
-                        <div>
-                            <!-- Card Header: Avatar & Spesialisasi -->
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="flex items-center space-x-3.5">
-                                    <!-- Initial Letter Avatar -->
-                                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 font-black text-lg flex items-center justify-center border border-blue-200 shadow-xs group-hover:scale-105 transition-transform shrink-0">
-                                        {{ strtoupper(substr($tech->nama, 0, 1)) }}
+            <!-- 4. Technicians Table View with Pagination & Action Column -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto min-h-[420px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200/80 text-slate-400 font-bold bg-slate-50/50">
+                                <th class="px-6 py-4 font-bold">PETUGAS / TEKNISI</th>
+                                <th class="px-6 py-4 font-bold">SPESIALISASI</th>
+                                <th class="px-6 py-4 font-bold text-center">STATUS</th>
+                                <th class="px-6 py-4 font-bold text-center">TUGAS AKTIF</th>
+                                <th class="px-6 py-4 font-bold text-center">SELESAI</th>
+                                <th class="px-6 py-4 font-bold text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100" id="tech-table-body">
+                            @forelse($technicians as $tech)
+                                @php
+                                    $catName = $tech->category ? $tech->category->name : 'Umum';
+                                    $catId = $tech->category_id;
+                                    $lowerCat = strtolower($catName);
+                                    
+                                    // Sesuai dengan icon di Dashboard (Fasilitas Sering Rusak)
+                                    if ($catId == 1 || stripos($lowerCat, 'listrik') !== false) {
+                                        $icon = '⚡';
+                                        $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                                    } elseif ($catId == 2 || stripos($lowerCat, 'air') !== false) {
+                                        $icon = '🚰';
+                                        $badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+                                    } elseif ($catId == 3 || stripos($lowerCat, 'bangunan') !== false) {
+                                        $icon = '🏢';
+                                        $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                                    } elseif ($catId == 4 || $lowerCat === 'it' || stripos($lowerCat, 'komputer') !== false) {
+                                        $icon = '💻';
+                                        $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                                    } elseif ($catId == 6 || stripos($lowerCat, 'jaringan') !== false) {
+                                        $icon = '🌐';
+                                        $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                                    } elseif ($catId == 7 || stripos($lowerCat, 'kendaraan') !== false || stripos($lowerCat, 'mobil') !== false || stripos($lowerCat, 'motor') !== false) {
+                                        $icon = '🚗';
+                                        $badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+                                    } else {
+                                        $icon = '🔧';
+                                        $badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+                                    }
+                                @endphp
+                                <tr class="tech-row hover:bg-slate-50/70 transition-colors"
+                                    data-nama="{{ strtolower($tech->nama) }}"
+                                    data-email="{{ strtolower($tech->email) }}"
+                                    data-kategori="{{ $tech->category_id }}">
+                                    <!-- Petugas: Avatar & Nama/Email -->
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center space-x-3.5">
+                                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 font-extrabold text-sm flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
+                                                {{ strtoupper(substr($tech->nama, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-slate-900 text-sm leading-tight hover:text-blue-600 transition-colors">
+                                                    {{ $tech->nama }}
+                                                </div>
+                                                <div class="text-[11px] text-slate-400 font-medium font-mono mt-0.5">
+                                                    {{ $tech->email }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Spesialisasi Badge -->
+                                    <td class="px-6 py-4">
+                                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1.5 {{ $badgeClass }}">
+                                            <span>{{ $icon }}</span>
+                                            <span>{{ $catName }}</span>
+                                        </span>
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            Siap Ditugaskan
+                                        </span>
+                                    </td>
+
+                                    <!-- Tugas Aktif -->
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-2.5 py-1 rounded-lg text-xs font-black {{ $tech->active_tasks_count > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-50 text-slate-500 border border-slate-200' }}">
+                                            {{ $tech->active_tasks_count }} Tiket
+                                        </span>
+                                    </td>
+
+                                    <!-- Selesai -->
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-2.5 py-1 rounded-lg text-xs font-black {{ $tech->completed_tasks_count > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-50 text-slate-500 border border-slate-200' }}">
+                                            {{ $tech->completed_tasks_count }} Tiket
+                                        </span>
+                                    </td>
+
+                                    <!-- Action Dropdown Menu -->
+                                    <td class="px-6 py-4 text-center relative">
+                                        <div class="relative inline-block text-left">
+                                            <button type="button" onclick="toggleTechActionMenu(event, 'tech-menu-{{ $tech->id_user }}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition-all cursor-pointer" title="Pilihan Aksi">
+                                                <span>Aksi</span>
+                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
+
+                                            <!-- Dropdown Menu Box -->
+                                            <div id="tech-menu-{{ $tech->id_user }}" class="hidden absolute right-0 mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-30 text-left">
+                                                <button type="button" onclick="openEditModal({{ json_encode($tech) }}); closeAllTechMenus();" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left cursor-pointer">
+                                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                    <span>Edit Petugas</span>
+                                                </button>
+                                                <button type="button" onclick="confirmDelete({{ $tech->id_user }}, '{{ addslashes($tech->nama) }}'); closeAllTechMenus();" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer">
+                                                    <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                    <span>Hapus Petugas</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
+                                        Belum ada data petugas teknisi terdaftar.
+                                    </td>
+                                </tr>
+                            @endforelse
+
+                            <!-- Hidden row for no search results -->
+                            <tr id="tech-no-results" class="hidden">
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="font-semibold text-slate-700 text-sm">Tidak ada data petugas yang sesuai</p>
+                                        <p class="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau filter spesialisasi Anda.</p>
                                     </div>
-                                    <div>
-                                        <h4 class="text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
-                                            {{ $tech->nama }}
-                                        </h4>
-                                        <p class="text-xs text-slate-500 font-medium font-mono mt-0.5">{{ $tech->email }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                            <!-- Spesialisasi Badge -->
-                            <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Spesialisasi:</span>
-                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border flex items-center gap-1.5 {{ $badgeClass }}">
-                                    <span>{{ $icon }}</span>
-                                    <span>{{ $catName }}</span>
-                                </span>
-                            </div>
-
-                            <!-- Tasks Workload Stats -->
-                            <div class="grid grid-cols-2 gap-2 mt-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                <div class="text-center p-1.5 bg-white rounded-lg border border-slate-100">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">Tugas Aktif</p>
-                                    <p class="text-sm font-black text-amber-600 mt-0.5">{{ $tech->active_tasks_count }} Tiket</p>
-                                </div>
-                                <div class="text-center p-1.5 bg-white rounded-lg border border-slate-100">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">Selesai</p>
-                                    <p class="text-sm font-black text-emerald-600 mt-0.5">{{ $tech->completed_tasks_count }} Tiket</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card Actions (Edit & Hapus) -->
-                        <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                Siap Ditugaskan
-                            </span>
-
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="openEditModal({{ json_encode($tech) }})" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Edit Teknisi">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                    </svg>
-                                </button>
-                                <button type="button" onclick="confirmDelete({{ $tech->id_user }}, '{{ addslashes($tech->nama) }}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="Hapus Teknisi">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Table Footer / Pagination -->
+                <div class="bg-slate-50/75 border-t border-slate-200/80 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span class="text-xs font-semibold text-slate-500" id="tech-count-display">Menampilkan 0 petugas</span>
+                    <div id="techPagination" class="flex items-center gap-1.5">
+                        <!-- Tombol navigasi halaman (‹ 1 2 3 ›) digenerate secara dinamis -->
                     </div>
-                @empty
-                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-100 p-8">
-                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-base font-bold text-slate-800">Belum ada data teknisi yang sesuai.</h4>
-                        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Klik tombol di bawah untuk mendaftarkan akun petugas teknisi baru ke sistem.</p>
-                        <button type="button" onclick="openAddModal()" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs inline-flex items-center gap-2 transition-all">
-                            <span>+ Tambah Teknisi Baru</span>
-                        </button>
-                    </div>
-                @endforelse
+                </div>
             </div>
         </div>
     </main>
@@ -530,6 +585,193 @@
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.add('hidden');
         }
+
+        // ==========================================
+        // ACTION DROPDOWN MENU
+        // ==========================================
+        function toggleTechActionMenu(event, menuId) {
+            event.stopPropagation();
+            document.querySelectorAll('[id^="tech-menu-"]').forEach(m => {
+                if (m.id !== menuId) m.classList.add('hidden');
+            });
+            const target = document.getElementById(menuId);
+            if (target) target.classList.toggle('hidden');
+        }
+
+        function closeAllTechMenus() {
+            document.querySelectorAll('[id^="tech-menu-"]').forEach(m => m.classList.add('hidden'));
+        }
+
+        document.addEventListener('click', closeAllTechMenus);
+
+        // ==========================================
+        // PAGINASI TABEL PETUGAS (MINIMAL 10 BARIS PER HALAMAN)
+        // ==========================================
+        const TECH_PAGE_SIZE = 10;
+        let currentTechPage = 1;
+
+        function filterTechnicians(resetPage = true) {
+            if (resetPage) {
+                currentTechPage = 1;
+            }
+
+            const query = (document.getElementById('tech-search')?.value || '').toLowerCase().trim();
+            const categoryId = document.getElementById('tech-filter-category')?.value || '';
+
+            const rows = Array.from(document.querySelectorAll('.tech-row'));
+            const matchedRows = [];
+
+            rows.forEach(row => {
+                const nama = (row.getAttribute('data-nama') || '').toLowerCase();
+                const email = (row.getAttribute('data-email') || '').toLowerCase();
+                const cat = row.getAttribute('data-kategori') || '';
+
+                const matchesQuery = !query || nama.includes(query) || email.includes(query);
+                const matchesCategory = !categoryId || cat === categoryId;
+
+                if (matchesQuery && matchesCategory) {
+                    matchedRows.push(row);
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            const totalMatched = matchedRows.length;
+            const totalPages = Math.max(1, Math.ceil(totalMatched / TECH_PAGE_SIZE));
+
+            if (currentTechPage > totalPages) currentTechPage = totalPages;
+            if (currentTechPage < 1) currentTechPage = 1;
+
+            // Sembunyikan semua row yang cocok terlebih dahulu
+            matchedRows.forEach(r => r.classList.add('hidden'));
+
+            // Tampilkan hanya slice 10 baris pada halaman aktif
+            const startIdx = (currentTechPage - 1) * TECH_PAGE_SIZE;
+            const endIdx = startIdx + TECH_PAGE_SIZE;
+            const pageRows = matchedRows.slice(startIdx, endIdx);
+            pageRows.forEach(r => r.classList.remove('hidden'));
+
+            // Handle empty state pencarian
+            const noResults = document.getElementById('tech-no-results');
+            if (noResults) {
+                if (totalMatched === 0 && rows.length > 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            // Update info counter
+            const countDisplay = document.getElementById('tech-count-display');
+            if (countDisplay) {
+                if (totalMatched === 0) {
+                    countDisplay.innerText = 'Menampilkan 0 petugas';
+                } else {
+                    const from = startIdx + 1;
+                    const to = startIdx + pageRows.length;
+                    countDisplay.innerText = `Menampilkan ${from} hingga ${to} dari ${totalMatched} petugas`;
+                }
+            }
+
+            // Render tombol paginasi
+            renderTechPagination(totalPages, currentTechPage);
+        }
+
+        function renderTechPagination(totalPages, current) {
+            const container = document.getElementById('techPagination');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Tombol Prev (‹)
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === 1 ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            prevBtn.innerHTML = '‹';
+            prevBtn.disabled = current === 1;
+            prevBtn.onclick = () => {
+                if (current > 1) {
+                    currentTechPage = current - 1;
+                    filterTechnicians(false);
+                }
+            };
+            container.appendChild(prevBtn);
+
+            // Nomor Halaman
+            let startPage = Math.max(1, current - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            if (startPage > 1) {
+                container.appendChild(createTechPageBtn(1, current === 1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                container.appendChild(createTechPageBtn(p, p === current));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+                container.appendChild(createTechPageBtn(totalPages, current === totalPages));
+            }
+
+            // Tombol Next (›)
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${current === totalPages ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            nextBtn.innerHTML = '›';
+            nextBtn.disabled = current === totalPages;
+            nextBtn.onclick = () => {
+                if (current < totalPages) {
+                    currentTechPage = current + 1;
+                    filterTechnicians(false);
+                }
+            };
+            container.appendChild(nextBtn);
+        }
+
+        function createTechPageBtn(page, isActive) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            if (isActive) {
+                btn.className = 'w-8 h-8 rounded-lg bg-[#1e3a8a] text-white font-bold flex items-center justify-center text-xs shadow-xs';
+            } else {
+                btn.className = 'w-8 h-8 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center text-xs transition-all cursor-pointer';
+            }
+            btn.innerText = page;
+            btn.onclick = () => {
+                currentTechPage = page;
+                filterTechnicians(false);
+            };
+            return btn;
+        }
+
+        function resetTechFilter() {
+            const s = document.getElementById('tech-search');
+            const c = document.getElementById('tech-filter-category');
+            if (s) s.value = '';
+            if (c) c.value = '';
+            filterTechnicians(true);
+        }
+
+        // Inisialisasi awal paginasi saat dokumen siap
+        document.addEventListener('DOMContentLoaded', () => {
+            filterTechnicians(true);
+        });
     </script>
 </body>
 </html>

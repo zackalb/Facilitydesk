@@ -102,6 +102,12 @@ class PetugasController extends Controller
             'verification.budgetProposal.items'
         ])->findOrFail($id);
 
+        // Tandai tiket telah dibaca oleh teknisi saat pertama kali dibuka
+        if (!$report->technician_read_at) {
+            $report->technician_read_at = now();
+            $report->save();
+        }
+
         $hasEmergency = DamageReport::where('is_emergency', true)
             ->whereIn('status_laporan', ['darurat', 'proses', 'proses_perbaikan'])
             ->where(function ($q) use ($user) {

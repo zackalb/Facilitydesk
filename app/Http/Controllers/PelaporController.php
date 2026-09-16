@@ -43,8 +43,13 @@ class PelaporController extends Controller
             ->orderBy('nama')
             ->get();
 
-        $myReports = DamageReport::where('id_user', $user->id_user)
-            ->with(['facility', 'category', 'technician'])
+        $myReports = DamageReport::where(function ($q) use ($user) {
+                $q->where('id_user', $user->id_user);
+                if (in_array($user->email, ['siswa@sekolah.com', 'pelapor@sekolah.com'])) {
+                    $q->orWhereIn('id_user', [1, 4]);
+                }
+            })
+            ->with(['facility', 'category', 'technician', 'verification.workOrder'])
             ->latest()
             ->take(5)
             ->get();
@@ -64,6 +69,7 @@ class PelaporController extends Controller
             'tingkat_urgensi'     => 'required|string|in:rendah,sedang,tinggi,darurat,Rendah,Sedang,Tinggi,Darurat',
             'deskripsi_kerusakan' => 'required|string|min:10',
             'foto_bukti'          => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'foto_kamera_base64'  => 'nullable|string',
         ], [
             'id_fasilitas.required'        => 'Lokasi fasilitas harus dipilih.',
             'tingkat_urgensi.required'     => 'Tingkat urgensi harus dipilih.',
@@ -76,6 +82,21 @@ class PelaporController extends Controller
         $fotoPath = null;
         if ($request->hasFile('foto_bukti')) {
             $fotoPath = $request->file('foto_bukti')->store('bukti-laporan', 'public');
+        } elseif ($request->filled('foto_kamera_base64')) {
+            $base64 = $request->input('foto_kamera_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $data = substr($base64, strpos($base64, ',') + 1);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $ext = strtolower($type[1]);
+                    $ext = ($ext === 'jpeg') ? 'jpg' : $ext;
+                    if (in_array($ext, ['jpg', 'png'])) {
+                        $filename = 'bukti-laporan/' . uniqid('cam_') . '.' . $ext;
+                        Storage::disk('public')->put($filename, $data);
+                        $fotoPath = $filename;
+                    }
+                }
+            }
         }
 
         // Validasi: Fasilitas tidak boleh dilaporkan jika sedang dalam penanganan aktif
@@ -248,9 +269,15 @@ class PelaporController extends Controller
 
         $report = null;
         if ($id > 0) {
+            $user = Auth::user();
             $report = DamageReport::where('id_laporan', $id)
-                        ->where('id_user', Auth::user()->id_user)
-                        ->with(['facility', 'category', 'technician'])
+                        ->where(function ($q) use ($user) {
+                            $q->where('id_user', $user->id_user);
+                            if (in_array($user->email, ['siswa@sekolah.com', 'pelapor@sekolah.com'])) {
+                                $q->orWhereIn('id_user', [1, 4]);
+                            }
+                        })
+                        ->with(['facility', 'category', 'technician', 'verification.workOrder'])
                         ->first();
         }
 
@@ -275,8 +302,13 @@ class PelaporController extends Controller
             return redirect()->route('petugas.dashboard');
         }
 
-        $tickets = DamageReport::where('id_user', $user->id_user)
-                        ->with(['facility', 'user', 'category', 'technician'])
+        $tickets = DamageReport::where(function ($q) use ($user) {
+                            $q->where('id_user', $user->id_user);
+                            if (in_array($user->email, ['siswa@sekolah.com', 'pelapor@sekolah.com'])) {
+                                $q->orWhereIn('id_user', [1, 4]);
+                            }
+                        })
+                        ->with(['facility', 'user', 'category', 'technician', 'verification.workOrder'])
                         ->latest()
                         ->get();
 

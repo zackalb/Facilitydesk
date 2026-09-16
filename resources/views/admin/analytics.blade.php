@@ -38,6 +38,11 @@
         .progress-bar-animated {
             transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
+
+        @media print {
+            .trx-row { display: table-row !important; }
+            .no-print-pagination { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc] antialiased text-slate-800 flex h-screen overflow-hidden">
@@ -513,9 +518,9 @@
                                 <th class="py-3 px-3 text-right">JUMLAH (RP)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
+                        <tbody class="divide-y divide-slate-50" id="trx-table-body">
                             @forelse($logTransaksi as $trx)
-                                <tr class="hover:bg-slate-50/60 transition-colors">
+                                <tr class="trx-row hover:bg-slate-50/60 transition-colors">
                                     <td class="py-3.5 px-3 font-medium text-slate-600">
                                         {{ $trx['tanggal'] }}
                                     </td>
@@ -523,9 +528,8 @@
                                         {{ $trx['deskripsi'] }}
                                     </td>
                                     <td class="py-3.5 px-3">
-                                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-[11px] inline-flex items-center gap-1.5">
-                                            <span>{{ $trx['kategori_icon'] }}</span>
-                                            <span>{{ $trx['kategori'] }}</span>
+                                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-[11px] inline-flex items-center">
+                                            {{ $trx['kategori'] }}
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-3">
@@ -556,6 +560,14 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Table Footer / Pagination -->
+                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs no-print-pagination">
+                    <span class="text-slate-500 font-medium" id="trx-pagination-info">Menampilkan 0 transaksi</span>
+                    <div id="trxPagination" class="flex items-center gap-1.5">
+                        <!-- Tombol navigasi halaman (‹ 1 2 3 ›) digenerate secara dinamis -->
+                    </div>
                 </div>
             </div>
 
@@ -770,7 +782,130 @@
                     pBar.style.width = '{{ $persenTerpakai }}%';
                 }
             }, 300);
+
+            // Inisialisasi Paginasi Log Transaksi
+            renderTrxPagination();
         });
+
+        // ==========================================
+        // PAGINASI TABEL LOG TRANSAKSI (5 BARIS PER HALAMAN)
+        // ==========================================
+        const TRX_PAGE_SIZE = 5;
+        let currentTrxPage = 1;
+
+        function renderTrxPagination() {
+            const rows = Array.from(document.querySelectorAll('.trx-row'));
+            const totalRows = rows.length;
+            const infoEl = document.getElementById('trx-pagination-info');
+            const container = document.getElementById('trxPagination');
+
+            if (totalRows === 0) {
+                if (infoEl) infoEl.innerText = 'Menampilkan 0 transaksi';
+                if (container) container.innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.max(1, Math.ceil(totalRows / TRX_PAGE_SIZE));
+            if (currentTrxPage > totalPages) currentTrxPage = totalPages;
+            if (currentTrxPage < 1) currentTrxPage = 1;
+
+            const startIdx = (currentTrxPage - 1) * TRX_PAGE_SIZE;
+            const endIdx = startIdx + TRX_PAGE_SIZE;
+
+            rows.forEach((row, idx) => {
+                if (idx >= startIdx && idx < endIdx) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (infoEl) {
+                const from = startIdx + 1;
+                const to = Math.min(endIdx, totalRows);
+                infoEl.innerText = `Menampilkan ${from} - ${to} dari ${totalRows} transaksi`;
+            }
+
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Tombol Prev (‹)
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${currentTrxPage === 1 ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            prevBtn.innerHTML = '‹';
+            prevBtn.disabled = currentTrxPage === 1;
+            prevBtn.onclick = () => {
+                if (currentTrxPage > 1) {
+                    currentTrxPage--;
+                    renderTrxPagination();
+                }
+            };
+            container.appendChild(prevBtn);
+
+            // Nomor Halaman
+            let startPage = Math.max(1, currentTrxPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            if (startPage > 1) {
+                container.appendChild(createTrxPageBtn(1, currentTrxPage === 1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                container.appendChild(createTrxPageBtn(p, p === currentTrxPage));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-1 text-slate-400 text-xs font-bold';
+                    dots.innerText = '...';
+                    container.appendChild(dots);
+                }
+                container.appendChild(createTrxPageBtn(totalPages, currentTrxPage === totalPages));
+            }
+
+            // Tombol Next (›)
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = `w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition-all shadow-2xs ${currentTrxPage === totalPages ? 'border-slate-200 text-slate-300 cursor-not-allowed opacity-50' : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'}`;
+            nextBtn.innerHTML = '›';
+            nextBtn.disabled = currentTrxPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentTrxPage < totalPages) {
+                    currentTrxPage++;
+                    renderTrxPagination();
+                }
+            };
+            container.appendChild(nextBtn);
+        }
+
+        function createTrxPageBtn(page, isActive) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            if (isActive) {
+                btn.className = 'w-8 h-8 rounded-lg bg-[#1e3a8a] text-white font-bold flex items-center justify-center text-xs shadow-xs';
+            } else {
+                btn.className = 'w-8 h-8 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center text-xs transition-all cursor-pointer';
+            }
+            btn.innerText = page;
+            btn.onclick = () => {
+                currentTrxPage = page;
+                renderTrxPagination();
+            };
+            return btn;
+        }
 
         // Export Excel CSV
         function exportAnalyticsToExcel() {

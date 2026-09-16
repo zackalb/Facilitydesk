@@ -18,6 +18,7 @@ class DamageReport extends Model
         'is_emergency',
         'tingkat_urgensi',
         'status_laporan',
+        'technician_read_at',
     ];
 
     /**
@@ -69,6 +70,7 @@ class DamageReport extends Model
     {
         return [
             'tanggal_waktu' => 'datetime',
+            'technician_read_at' => 'datetime',
         ];
     }
 }

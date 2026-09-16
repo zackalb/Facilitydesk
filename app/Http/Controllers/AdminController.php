@@ -123,6 +123,8 @@ class AdminController extends Controller
             2 => '🚰', // Air
             3 => '🏢', // Bangunan
             4 => '💻', // IT
+            6 => '🌐', // Jaringan
+            7 => '🚗', // Kendaraan
         ];
 
         $totalAllDamages = max(1, $totalAllReports);
@@ -134,28 +136,7 @@ class AdminController extends Controller
                   ->orWhere(function($sub) use ($cat) {
                       $sub->whereNull('category_id')
                           ->whereHas('facility', function($fac) use ($cat) {
-                              if ($cat->id == 1) {
-                                  $fac->where('kategori_area', 'like', '%listrik%')
-                                      ->orWhere('nama_fasilitas', 'like', '%listrik%')
-                                      ->orWhere('nama_fasilitas', 'like', '%lampu%')
-                                      ->orWhere('nama_fasilitas', 'like', '%sound%');
-                              } elseif ($cat->id == 2) {
-                                  $fac->where('kategori_area', 'like', '%air%')
-                                      ->orWhere('kategori_area', 'like', '%pipa%')
-                                      ->orWhere('kategori_area', 'like', '%sanitasi%')
-                                      ->orWhere('nama_fasilitas', 'like', '%pipa%');
-                              } elseif ($cat->id == 3) {
-                                  $fac->where('kategori_area', 'like', '%bangunan%')
-                                      ->orWhere('kategori_area', 'like', '%furnitur%')
-                                      ->orWhere('kategori_area', 'like', '%struktur%')
-                                      ->orWhere('nama_fasilitas', 'like', '%pintu%')
-                                      ->orWhere('nama_fasilitas', 'like', '%meja%');
-                              } elseif ($cat->id == 4) {
-                                  $fac->where('kategori_area', 'like', '%elektronik%')
-                                      ->orWhere('kategori_area', 'like', '%it%')
-                                      ->orWhere('nama_fasilitas', 'like', '%proyektor%')
-                                      ->orWhere('nama_fasilitas', 'like', '%komputer%');
-                              }
+                              $fac->where('category_id', $cat->id);
                           });
                   });
             });
@@ -163,7 +144,7 @@ class AdminController extends Controller
             $kasus = $query->count();
             $selesaiKasus = (clone $query)->where('status_laporan', 'selesai')->count();
             $prosesKasus = $kasus - $selesaiKasus;
-            $persen = round(($kasus / $totalAllDamages) * 100);
+            $persen = $totalAllDamages > 0 ? round(($kasus / $totalAllDamages) * 100) : 0;
 
             $tech = $technicians->get($cat->id);
             $techName = $tech ? $tech->nama : 'Petugas Sarpras';
@@ -432,6 +413,8 @@ class AdminController extends Controller
             elseif (stripos($cat, 'ac') !== false) $catIcon = '❄️';
             elseif (stripos($cat, 'bangunan') !== false || stripos($cat, 'mebel') !== false) $catIcon = '🏢';
             elseif (stripos($cat, 'it') !== false || stripos($cat, 'elektronik') !== false) $catIcon = '💻';
+            elseif (stripos($cat, 'jaringan') !== false) $catIcon = '🌐';
+            elseif (stripos($cat, 'kendaraan') !== false || stripos($cat, 'mobil') !== false) $catIcon = '🚗';
 
             $statusLabel = 'Menunggu Persetujuan';
             if ($p->status_persetujuan === 'disetujui') $statusLabel = 'Terbayar';
@@ -654,9 +637,12 @@ class AdminController extends Controller
         }
         
         // Dapatkan data inventaris dari Facility
-        $inventory = Facility::with(['damageReports' => function($query) {
+        $inventory = Facility::with(['category', 'damageReports' => function($query) {
             $query->latest('tanggal_waktu');
         }])->get();
+
+        $categories = Category::orderBy('id')->get();
+        $facilityCategories = \App\Models\FacilityCategory::with('category')->orderBy('name')->get();
 
         // Hitung statistik secara dinamis
         $totalAset = $inventory->count();
@@ -677,7 +663,7 @@ class AdminController extends Controller
         // Sinyal darurat tidak dikirim ke admin, hanya ke petugas tertentu
         $hasEmergency = false;
 
-        return view('admin.inventory', compact('user', 'inventory', 'totalAset', 'kondisiBaik', 'perluPerhatian', 'hasEmergency'));
+        return view('admin.inventory', compact('user', 'inventory', 'totalAset', 'kondisiBaik', 'perluPerhatian', 'hasEmergency', 'categories', 'facilityCategories'));
     }
 
     public function createRab($id_laporan)
@@ -794,18 +780,75 @@ class AdminController extends Controller
         $request->validate([
             'nama_fasilitas' => 'required|string|max:255',
             'kategori_area'  => 'required|string|max:255',
+            'category_id'    => 'nullable|exists:categories,id',
             'kondisi'        => 'required|in:Baik,Rusak,Dalam Perbaikan',
             'lokasi_detail'  => 'required|string|max:255',
         ]);
 
+        $catId = $request->category_id;
+        if (!$catId) {
+            $fCat = \App\Models\FacilityCategory::where('name', $request->kategori_area)->first();
+            $catId = $fCat ? $fCat->category_id : $this->determineCategoryId($request->nama_fasilitas, $request->kategori_area, $request->lokasi_detail);
+        }
+
+        // Pastikan kategori fasilitas ini otomatis terdaftar di facility_categories agar langsung muncul di dropdown filter & formulir
+        if ($request->filled('kategori_area')) {
+            \App\Models\FacilityCategory::firstOrCreate(
+                ['name' => trim($request->kategori_area)],
+                ['category_id' => $catId ?: 1]
+            );
+        }
+
         Facility::create([
             'nama_fasilitas' => $request->nama_fasilitas,
             'kategori_area'  => $request->kategori_area,
+            'category_id'    => $catId,
             'kondisi'        => $request->kondisi,
             'lokasi_detail'  => $request->lokasi_detail,
         ]);
 
         return redirect()->route('admin.inventory.index')->with('success', 'Aset baru berhasil ditambahkan ke database!');
+    }
+
+    /**
+     * Tambah Kategori Fasilitas Baru Secara Dinamis.
+     */
+    public function storeFacilityCategory(Request $request)
+    {
+        if (!$this->checkAdminAccess()) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki hak akses ke halaman Admin.'], 403);
+        }
+
+        $request->validate([
+            'name'        => 'required|string|max:100|unique:facility_categories,name',
+            'category_id' => 'required|exists:categories,id',
+        ], [
+            'name.required'        => 'Nama kategori fasilitas wajib diisi.',
+            'name.unique'          => 'Kategori fasilitas ini sudah terdaftar.',
+            'category_id.required' => 'Bidang teknisi wajib dipilih.',
+        ]);
+
+        $cat = \App\Models\FacilityCategory::create([
+            'name'        => trim($request->name),
+            'category_id' => $request->category_id,
+        ]);
+
+        $cat->load('category');
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori fasilitas "' . $cat->name . '" berhasil ditambahkan!',
+                'data' => [
+                    'id'            => $cat->id,
+                    'name'          => $cat->name,
+                    'category_id'   => $cat->category_id,
+                    'category_name' => $cat->category->name ?? 'Umum',
+                ]
+            ]);
+        }
+
+        return redirect()->route('admin.inventory.index')->with('success', 'Kategori fasilitas baru berhasil ditambahkan!');
     }
 
     /**
@@ -820,19 +863,63 @@ class AdminController extends Controller
         $request->validate([
             'nama_fasilitas' => 'required|string|max:255',
             'kategori_area'  => 'required|string|max:255',
+            'category_id'    => 'nullable|exists:categories,id',
             'kondisi'        => 'required|in:Baik,Rusak,Dalam Perbaikan',
             'lokasi_detail'  => 'required|string|max:255',
         ]);
+
+        $catId = $request->category_id;
+        if (!$catId) {
+            $fCat = \App\Models\FacilityCategory::where('name', $request->kategori_area)->first();
+            $catId = $fCat ? $fCat->category_id : $this->determineCategoryId($request->nama_fasilitas, $request->kategori_area, $request->lokasi_detail);
+        }
+
+        // Pastikan kategori fasilitas ini otomatis terdaftar di facility_categories agar langsung muncul di dropdown filter & formulir
+        if ($request->filled('kategori_area')) {
+            \App\Models\FacilityCategory::firstOrCreate(
+                ['name' => trim($request->kategori_area)],
+                ['category_id' => $catId ?: 1]
+            );
+        }
 
         $facility = Facility::findOrFail($id);
         $facility->update([
             'nama_fasilitas' => $request->nama_fasilitas,
             'kategori_area'  => $request->kategori_area,
+            'category_id'    => $catId,
             'kondisi'        => $request->kondisi,
             'lokasi_detail'  => $request->lokasi_detail,
         ]);
 
         return redirect()->route('admin.inventory.index')->with('success', 'Data aset berhasil diperbarui di database!');
+    }
+
+    /**
+     * Tentukan category_id otomatis berdasarkan nama fasilitas dan kategori area.
+     */
+    private function determineCategoryId($nama, $area, $lokasi)
+    {
+        $text = strtolower($nama . ' ' . $area . ' ' . $lokasi);
+
+        if (preg_match('/(listrik|lampu|stop\s*kontak|saklar|ac|kabel|panel|sound|elektronik)/i', $text)) {
+            return 1; // Listrik
+        }
+        if (preg_match('/(air|wastafel|pipa|sanitasi|toilet|keran|kran|wc|tandon)/i', $text)) {
+            return 2; // Air
+        }
+        if (preg_match('/(bangunan|struktur|furnitur|pintu|meja|kursi|plafon|atap|lantai|dinding|kaca)/i', $text)) {
+            return 3; // Bangunan
+        }
+        if (preg_match('/(komputer|pc|proyektor|laptop|server|layar|infocus|laboratorium|printer)/i', $text)) {
+            return 4; // IT
+        }
+        if (preg_match('/(jaringan|wifi|internet|router|switch)/i', $text)) {
+            return 6; // Jaringan
+        }
+        if (preg_match('/(kendaraan|motor|mobil|bus|sepeda|parkir)/i', $text)) {
+            return 7; // Kendaraan
+        }
+        return 1; // Default to Listrik
     }
 
     /**

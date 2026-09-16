@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/inventory/facilities', [\App\Http\Controllers\AdminController::class, 'storeFacility'])->name('inventory.facilities.store');
         Route::put('/inventory/facilities/{id}', [\App\Http\Controllers\AdminController::class, 'updateFacility'])->name('inventory.facilities.update');
         Route::delete('/inventory/facilities/{id}', [\App\Http\Controllers\AdminController::class, 'destroyFacility'])->name('inventory.facilities.destroy');
+        Route::post('/inventory/categories', [\App\Http\Controllers\AdminController::class, 'storeFacilityCategory'])->name('inventory.categories.store');
         
         Route::get('/technicians', [\App\Http\Controllers\AdminController::class, 'techniciansIndex'])->name('technicians.index');
         Route::post('/technicians', [\App\Http\Controllers\AdminController::class, 'storeTechnician'])->name('technicians.store');
