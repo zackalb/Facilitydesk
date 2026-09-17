@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
                     $role = strtolower(trim($user->status ?? $user->role ?? 'pelapor'));
 
                     if ($role === 'pelapor') {
-                        // Notifikasi Pelapor: HANYA ketika tugas/laporan yang kita berikan ke teknisi sudah SELESAI
+                        // Notifikasi Pelapor: HANYA tugas yang sudah SELESAI dan BELUM dibaca oleh pelapor
                         $pelaporNotifications = DamageReport::where(function ($q) use ($user) {
                                 $q->where('id_user', $user->id_user);
                                 if (in_array($user->email, ['siswa@sekolah.com', 'pelapor@sekolah.com'])) {
@@ -48,7 +48,8 @@ class AppServiceProvider extends ServiceProvider
                                 }
                             })
                             ->where('status_laporan', 'selesai')
-                            ->with(['facility', 'technician', 'verification'])
+                            ->whereNull('pelapor_read_at')
+                            ->with(['facility', 'category', 'technician', 'verification.workOrder', 'verification.budgetProposal'])
                             ->latest('updated_at')
                             ->take(10)
                             ->get();
@@ -60,9 +61,10 @@ class AppServiceProvider extends ServiceProvider
                             'petugasNotificationCount' => 0,
                         ]);
                     } elseif (in_array($role, ['petugas', 'teknisi', 'staf', 'admin'])) {
-                        // Notifikasi Petugas: HANYA ketika ada laporan masuk dari pelapor
+                        // Notifikasi Petugas: HANYA laporan masuk yang BELUM dibaca oleh teknisi
                         $incomingQuery = DamageReport::with(['facility', 'user', 'category', 'technician'])
-                            ->whereIn('status_laporan', ['menunggu', 'menunggu_rab', 'darurat']);
+                            ->whereIn('status_laporan', ['menunggu', 'menunggu_rab', 'darurat'])
+                            ->whereNull('technician_read_at');
 
                         if (!in_array($role, ['admin', 'sarpras', 'admin_sarpras'])) {
                             $incomingQuery->where(function ($q) use ($user) {

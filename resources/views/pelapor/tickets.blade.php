@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiket Saya - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -102,28 +103,37 @@
                                     <p class="text-[10px] sm:text-[11px] text-slate-500">Tugas Perbaikan Selesai</p>
                                 </div>
                             </div>
-                            @if(($pelaporNotificationCount ?? 0) > 0)
-                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
-                                    {{ $pelaporNotificationCount }} Selesai
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                    0 Baru
-                                </span>
-                            @endif
+                            <div class="flex items-center space-x-2">
+                                @if(($pelaporNotificationCount ?? 0) > 0)
+                                    <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Tandai baca semua</span>
+                                    </button>
+                                    <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
+                                        {{ $pelaporNotificationCount }} Baru
+                                    </span>
+                                @else
+                                    <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                        0 Baru
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- List Notifikasi -->
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                        <div id="pelaporNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                             @forelse($pelaporNotifications ?? [] as $notif)
-                                <a href="{{ route('pelapor.tickets') }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                <div id="pelaporNotifItem-{{ $notif->id_laporan }}" onclick="openTicketDetailAndMarkRead({{ $notif->id_laporan }}, @js($notif))" class="block p-3.5 hover:bg-slate-50/90 transition-colors group cursor-pointer bg-emerald-50/20">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between mb-0.5">
-                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $notif->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <div class="flex items-center space-x-1.5 truncate">
+                                                    <span class="text-xs font-bold text-slate-900 truncate">{{ $notif->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                    <span class="unread-notif-dot w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                                </div>
                                                 <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $notif->updated_at ? $notif->updated_at->diffForHumans() : 'Selesai' }}</span>
                                             </div>
                                             <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
@@ -134,7 +144,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </div>
                             @empty
                                 <div class="p-8 text-center">
                                     <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
@@ -601,7 +611,11 @@
         let currentFilter = 'Semua';
 
         // Data tiket lengkap yang disiapkan secara terstruktur
-        const ticketsData = @json($tickets->keyBy('id_laporan'));
+        const ticketsData = Object.assign(
+            {},
+            @json(($pelaporNotifications ?? collect())->keyBy('id_laporan')),
+            @json($tickets->keyBy('id_laporan'))
+        );
 
         let currentActiveTicket = null;
 
@@ -661,11 +675,18 @@
         }
 
         // Buka modal detail tiket lengkap
-        function openTicketDetail(ticketId) {
+        function openTicketDetail(ticketIdOrData, fallbackData) {
             try {
-                const ticket = ticketsData[ticketId];
+                let ticket;
+                if (typeof ticketIdOrData === 'object' && ticketIdOrData !== null) {
+                    ticket = ticketIdOrData;
+                } else if (ticketsData && ticketsData[ticketIdOrData]) {
+                    ticket = ticketsData[ticketIdOrData];
+                } else if (fallbackData) {
+                    ticket = fallbackData;
+                }
                 if (!ticket) {
-                    console.warn('Data tiket tidak ditemukan untuk ID:', ticketId);
+                    console.warn('Data tiket tidak ditemukan untuk ID:', ticketIdOrData);
                     return;
                 }
 
@@ -1089,6 +1110,123 @@
                 profileDropdown.classList.toggle('hidden');
             }
         }
+
+        // Buka modal detail dan tandai notifikasi dibaca (otomatis hapus dari daftar notifikasi)
+        function openTicketDetailAndMarkRead(id, notifData) {
+            // Tutup popover notifikasi
+            const notifDropdown = document.getElementById('pelaporNotificationDropdown');
+            if (notifDropdown) notifDropdown.classList.add('hidden');
+
+            // Munculkan popup tiket
+            openTicketDetail(id, notifData);
+
+            // Tandai sudah dibaca di backend & hapus dari UI notifikasi
+            fetch(`/notifications/mark-read/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Otomatis hapus baris notifikasi yang dibuka
+                const itemEl = document.getElementById(`pelaporNotifItem-${id}`);
+                if (itemEl) itemEl.remove();
+
+                // Cek sisa notifikasi aktif
+                const remainingItems = document.querySelectorAll('#pelaporNotifList > [id^="pelaporNotifItem-"]');
+                const badge = document.getElementById('pelaporNotifBadge');
+                if (remainingItems.length === 0) {
+                    const bellContainer = document.getElementById('pelaporNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    const notifList = document.getElementById('pelaporNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="pelaporNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (badge) {
+                        badge.textContent = `${remainingItems.length} Baru`;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi perorangan', err));
+        }
+
+        // Tandai baca semua (otomatis hapus seluruh pesan notifikasi dari popover)
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            fetch('{{ route('notifications.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const bellContainer = document.getElementById('pelaporNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    const badge = document.getElementById('pelaporNotifBadge');
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    // Otomatis hapus pesan notif dan munculkan pesan kosong
+                    const notifList = document.getElementById('pelaporNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="pelaporNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi dibaca', err));
+        }
+
+        // Buka popup tiket otomatis jika URL membawa parameter ticket_id
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTicketId = urlParams.get('ticket_id') || urlParams.get('open_ticket');
+            if (targetTicketId) {
+                setTimeout(() => {
+                    openTicketDetail(targetTicketId);
+                }, 150);
+            }
+        });
 
         // Close dropdowns on outside click
         document.addEventListener('click', function(e) {

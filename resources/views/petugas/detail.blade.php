@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Tugas - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -116,21 +117,27 @@
                                     <p class="text-[10px] sm:text-[11px] text-slate-500">Dari Pelapor Sekolah</p>
                                 </div>
                             </div>
-                            @if(($petugasNotificationCount ?? 0) > 0)
-                                <span class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
-                                    {{ $petugasNotificationCount }} Laporan Baru
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                    0 Baru
-                                </span>
-                            @endif
+                            <div class="flex items-center space-x-2">
+                                @if(($petugasNotificationCount ?? 0) > 0)
+                                    <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Tandai baca semua</span>
+                                    </button>
+                                    <span id="petugasNotifBadge" class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
+                                        {{ $petugasNotificationCount }} Baru
+                                    </span>
+                                @else
+                                    <span id="petugasNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                        0 Baru
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- List Notifikasi Laporan Masuk -->
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                        <div id="petugasNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                             @forelse($petugasNotifications ?? [] as $item)
-                                <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group {{ is_null($item->technician_read_at) ? 'bg-blue-50/30' : '' }}">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-8 h-8 rounded-lg {{ $item->is_emergency || $item->status_laporan === 'darurat' ? 'bg-red-50 text-red-600 border-red-100 group-hover:bg-red-600' : ($item->tingkat_urgensi === 'tinggi' ? 'bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-600' : 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-600') }} flex items-center justify-center shrink-0 mt-0.5 border group-hover:text-white transition-colors">
                                             @if($item->is_emergency || $item->status_laporan === 'darurat')
@@ -141,7 +148,12 @@
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between mb-0.5">
-                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $item->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <div class="flex items-center space-x-1.5 truncate">
+                                                    <span class="text-xs font-bold text-slate-900 truncate">{{ $item->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                    @if(is_null($item->technician_read_at))
+                                                        <span class="unread-notif-dot w-2 h-2 rounded-full bg-blue-600 shrink-0"></span>
+                                                    @endif
+                                                </div>
                                                 <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $item->created_at ? $item->created_at->diffForHumans() : 'Baru saja' }}</span>
                                             </div>
                                             <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
@@ -289,7 +301,7 @@
                                     </div>
                                 @endif
                                 <div class="absolute top-4 left-4 bg-red-600/90 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full tracking-wider uppercase">
-                                    Foto 'Before'
+                                    Foto 'Sebelum'
                                 </div>
                             </div>
 
@@ -447,7 +459,7 @@
                                                         <p class="text-xs text-slate-500 font-medium">Teknisi dapat merevisi biaya pengadaan:</p>
                                                         <button type="button" onclick="toggleReviseForm()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                            <span>✏️ Ajukan Revisi RAB</span>
+                                                            <span>Ajukan Revisi RAB</span>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -480,37 +492,44 @@
                                             <!-- Form Revisi RAB (Awalnya tersembunyi, muncul saat klik Ajukan Revisi) -->
                                             @if($proposal->status_persetujuan === 'ditolak')
                                                 <div id="revise-rab-container" class="hidden mt-4 pt-4 border-t border-slate-200">
-                                                    <h5 class="text-xs font-bold text-slate-900 mb-3 uppercase tracking-wider">Formulir Revisi Anggaran (RAB Baru)</h5>
-                                                    <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4">
+                                                    <div class="flex items-center justify-between mb-3">
+                                                        <h5 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Formulir Revisi Anggaran (RAB Baru)</h5>
+                                                        <span id="revise-row-count-badge" class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">{{ count($proposal->items) }} / 5 Baris</span>
+                                                    </div>
+                                                    <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4" onsubmit="return validateReviseRabForm(event)">
                                                         @csrf
                                                         <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 p-3 space-y-3">
                                                             <div id="revise-items-container" class="space-y-2.5">
                                                                 @foreach($proposal->items as $idx => $it)
-                                                                    <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                                                                    <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative" id="revise-row-{{ $idx }}">
                                                                         <div class="col-span-5">
-                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa <span class="text-red-500">*</span></label>
                                                                             <input type="text" name="items[{{ $idx }}][nama]" value="{{ $it->nama_sarana_jasa }}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
                                                                         </div>
                                                                         <div class="col-span-2">
-                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
-                                                                            <input type="number" min="1" name="items[{{ $idx }}][qty]" value="{{ $it->qty }}" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah <span class="text-red-500">*</span></label>
+                                                                            <input type="number" min="1" name="items[{{ $idx }}][qty]" value="{{ $it->qty }}" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center" oninput="calculateReviseTotal()">
                                                                         </div>
                                                                         <div class="col-span-2">
-                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
-                                                                            <input type="text" name="items[{{ $idx }}][satuan]" value="{{ $it->satuan }}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan <span class="text-red-500">*</span></label>
+                                                                            <input type="text" name="items[{{ $idx }}][satuan]" value="{{ $it->satuan }}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center">
                                                                         </div>
                                                                         <div class="col-span-3">
-                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
-                                                                            <input type="number" min="0" name="items[{{ $idx }}][harga]" value="{{ (int)$it->harga_satuan }}" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                                                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
+                                                                            <input type="number" min="1" name="items[{{ $idx }}][harga]" value="{{ max(1, (int)$it->harga_satuan) }}" placeholder="Min. Rp 1" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
                                                                         </div>
                                                                     </div>
                                                                 @endforeach
                                                             </div>
 
                                                             <div class="flex items-center justify-between pt-2">
-                                                                <button type="button" onclick="addReviseRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer">
-                                                                    <span>+ Tambah Komponen</span>
-                                                                </button>
+                                                                <div>
+                                                                    <button type="button" id="btn-add-revise-row" onclick="addReviseRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1.5 cursor-pointer">
+                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                                        <span>Tambah Komponen</span>
+                                                                    </button>
+                                                                    <span id="revise-max-notice" class="hidden text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">Batas maksimal 5 baris tercapai</span>
+                                                                </div>
                                                                 <div class="text-right">
                                                                     <span class="text-xs text-slate-500 font-medium">Total Estimasi Revisi:</span>
                                                                     <span class="text-sm font-bold text-blue-900 ml-1.5" id="revise-grand-total">Rp {{ number_format($proposal->estimasi_biaya, 0, ',', '.') }}</span>
@@ -537,38 +556,45 @@
                                         </div>
                                     @else
                                         <!-- Form Input RAB Baru -->
-                                        <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4">
+                                        <form action="{{ route('petugas.tasks.rab', $report->id_laporan) }}" method="POST" class="space-y-4" onsubmit="return validateRabForm(event)">
                                             @csrf
                                             
                                             <div>
-                                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Daftar Komponen & Suku Cadang yang Dibutuhkan</label>
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Daftar Komponen & Suku Cadang yang Dibutuhkan</label>
+                                                    <span id="rab-row-count-badge" class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">1 / 5 Baris</span>
+                                                </div>
                                                 <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50 p-3 space-y-3">
                                                     <div id="rab-items-container" class="space-y-2.5">
                                                         <!-- Initial Row -->
-                                                        <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                                                        <div class="grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative" id="rab-row-0">
                                                             <div class="col-span-5">
-                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa <span class="text-red-500">*</span></label>
                                                                 <input type="text" name="items[0][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: Kompresor AC 1PK">
                                                             </div>
                                                             <div class="col-span-2">
-                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
-                                                                <input type="number" min="1" name="items[0][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah <span class="text-red-500">*</span></label>
+                                                                <input type="number" min="1" name="items[0][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center" oninput="calculateTotal()">
                                                             </div>
                                                             <div class="col-span-2">
-                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
-                                                                <input type="text" name="items[0][satuan]" value="Unit" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan <span class="text-red-500">*</span></label>
+                                                                <input type="text" name="items[0][satuan]" value="Unit" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center">
                                                             </div>
                                                             <div class="col-span-3">
-                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
-                                                                <input type="number" min="0" name="items[0][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                                                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
+                                                                <input type="number" min="1" name="items[0][harga]" value="" placeholder="Contoh: 150000" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     <div class="flex items-center justify-between pt-2">
-                                                        <button type="button" onclick="addRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer">
-                                                            <span>+ Tambah Komponen Material</span>
-                                                        </button>
+                                                        <div>
+                                                            <button type="button" id="btn-add-rab-row" onclick="addRabRow()" class="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1.5 cursor-pointer">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                                <span>Tambah Komponen Material</span>
+                                                            </button>
+                                                            <span id="rab-max-notice" class="hidden text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">Batas maksimal 5 baris tercapai</span>
+                                                        </div>
                                                         <div class="text-right">
                                                             <span class="text-xs text-slate-500 font-medium">Total Estimasi:</span>
                                                             <span class="text-sm font-bold text-slate-900 ml-1.5" id="rab-grand-total">Rp 0</span>
@@ -719,6 +745,17 @@
                                             Formulir unggah foto hasil perbaikan ('After') dan catatan penyelesaian baru dapat diisi setelah Admin Sarpras menyetujui pengajuan Rencana Anggaran Biaya (RAB).
                                         </p>
                                     </div>
+                                @elseif(!in_array($report->status_laporan, ['proses', 'proses_perbaikan']))
+                                    <!-- Locked Execution Form State (Belum Mulai Pengerjaan) -->
+                                    <div class="py-10 px-6 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/60">
+                                        <div class="w-14 h-14 bg-blue-50 text-blue-600 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        </div>
+                                        <h5 class="text-sm font-bold text-slate-800">Unggah Bukti Selesai Terkunci</h5>
+                                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1.5 leading-relaxed">
+                                            Bukti foto hasil perbaikan ('After') tidak dapat diunggah sebelum Anda menekan tombol <strong>"Mulai Pengerjaan"</strong>. Silakan tekan tombol <strong>Mulai Pengerjaan</strong> di atas saat Anda telah tiba di lokasi fasilitas untuk memulai perbaikan.
+                                        </p>
+                                    </div>
                                 @else
                                     <!-- Complete Task Form -->
                                     <form action="{{ route('petugas.tasks.complete', $report->id_laporan) }}" method="POST" enctype="multipart/form-data" class="space-y-6" onsubmit="return validateCompleteForm(event)">
@@ -775,37 +812,104 @@
 
     <script>
         let rowIndex = 1;
+        const MAX_RAB_ROWS = 5;
+
+        function updateRabRowCount() {
+            const container = document.getElementById('rab-items-container');
+            if (!container) return;
+            const rows = container.querySelectorAll('.rab-row');
+            const badge = document.getElementById('rab-row-count-badge');
+            const addBtn = document.getElementById('btn-add-rab-row');
+            const maxNotice = document.getElementById('rab-max-notice');
+
+            if (badge) badge.textContent = `${rows.length} / ${MAX_RAB_ROWS} Baris`;
+            if (rows.length >= MAX_RAB_ROWS) {
+                if (addBtn) addBtn.classList.add('hidden');
+                if (maxNotice) maxNotice.classList.remove('hidden');
+            } else {
+                if (addBtn) addBtn.classList.remove('hidden');
+                if (maxNotice) maxNotice.classList.add('hidden');
+            }
+        }
 
         function addRabRow() {
             const container = document.getElementById('rab-items-container');
+            const currentRows = container.querySelectorAll('.rab-row').length;
+            if (currentRows >= MAX_RAB_ROWS) {
+                alert('Batas maksimal pengajuan RAB adalah 5 baris.');
+                return;
+            }
+
             const row = document.createElement('div');
             row.className = 'grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative';
             row.innerHTML = `
                 <div class="col-span-5">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa <span class="text-red-500">*</span></label>
                     <input type="text" name="items[${rowIndex}][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: Freon R32">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
-                    <input type="number" min="1" name="items[${rowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah <span class="text-red-500">*</span></label>
+                    <input type="number" min="1" name="items[${rowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center" oninput="calculateTotal()">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
-                    <input type="text" name="items[${rowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan <span class="text-red-500">*</span></label>
+                    <input type="text" name="items[${rowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center">
                 </div>
-                <div class="col-span-3">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
-                    <input type="number" min="0" name="items[${rowIndex}][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
+                    <input type="number" min="1" name="items[${rowIndex}][harga]" value="" placeholder="Min. Rp 1" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateTotal()">
+                </div>
+                <div class="col-span-1 flex items-end justify-center pt-3">
+                    <button type="button" onclick="deleteRabRow(this)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Baris">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
                 </div>
             `;
             container.appendChild(row);
             rowIndex++;
             calculateTotal();
+            updateRabRowCount();
+        }
+
+        function deleteRabRow(btn) {
+            const row = btn.closest('.rab-row');
+            if (row) {
+                row.remove();
+                calculateTotal();
+                updateRabRowCount();
+            }
+        }
+
+        function validateRabForm(e) {
+            const container = document.getElementById('rab-items-container');
+            if (!container) return true;
+            const rows = container.querySelectorAll('.rab-row');
+            if (rows.length === 0) {
+                alert('Minimal harus ada 1 baris komponen/material.');
+                if (e) e.preventDefault();
+                return false;
+            }
+            if (rows.length > MAX_RAB_ROWS) {
+                alert(`Batas maksimal pengajuan RAB adalah ${MAX_RAB_ROWS} baris!`);
+                if (e) e.preventDefault();
+                return false;
+            }
+            for (let i = 0; i < rows.length; i++) {
+                const priceInput = rows[i].querySelector('.rab-price');
+                const priceVal = parseFloat(priceInput?.value);
+                if (isNaN(priceVal) || priceVal <= 0) {
+                    alert('Harga satuan tidak boleh 0 rupiah! Harap masukkan harga satuan yang valid (lebih dari Rp 0).');
+                    if (priceInput) priceInput.focus();
+                    if (e) e.preventDefault();
+                    return false;
+                }
+            }
+            return true;
         }
 
         function calculateTotal() {
             let total = 0;
-            const rows = document.querySelectorAll('.rab-row');
+            const rows = document.querySelectorAll('#rab-items-container .rab-row');
             rows.forEach(row => {
                 const qtyInput = row.querySelector('.rab-qty');
                 const priceInput = row.querySelector('.rab-price');
@@ -823,38 +927,105 @@
 
         function toggleReviseForm() {
             const container = document.getElementById('revise-rab-container');
-            const table = document.getElementById('submitted-items-table');
             if (container) {
                 container.classList.toggle('hidden');
+                updateReviseRowCount();
             }
         }
 
         let reviseRowIndex = 100;
+
+        function updateReviseRowCount() {
+            const container = document.getElementById('revise-items-container');
+            if (!container) return;
+            const rows = container.querySelectorAll('.rab-row');
+            const badge = document.getElementById('revise-row-count-badge');
+            const addBtn = document.getElementById('btn-add-revise-row');
+            const maxNotice = document.getElementById('revise-max-notice');
+
+            if (badge) badge.textContent = `${rows.length} / ${MAX_RAB_ROWS} Baris`;
+            if (rows.length >= MAX_RAB_ROWS) {
+                if (addBtn) addBtn.classList.add('hidden');
+                if (maxNotice) maxNotice.classList.remove('hidden');
+            } else {
+                if (addBtn) addBtn.classList.remove('hidden');
+                if (maxNotice) maxNotice.classList.add('hidden');
+            }
+        }
+
         function addReviseRabRow() {
             const container = document.getElementById('revise-items-container');
+            const currentRows = container.querySelectorAll('.rab-row').length;
+            if (currentRows >= MAX_RAB_ROWS) {
+                alert('Batas maksimal pengajuan RAB adalah 5 baris.');
+                return;
+            }
+
             const row = document.createElement('div');
             row.className = 'grid grid-cols-12 gap-2 rab-row items-center bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs relative';
             row.innerHTML = `
                 <div class="col-span-5">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa</label>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Suku Cadang / Jasa <span class="text-red-500">*</span></label>
                     <input type="text" name="items[${reviseRowIndex}][nama]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Item baru">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah</label>
-                    <input type="number" min="1" name="items[${reviseRowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah <span class="text-red-500">*</span></label>
+                    <input type="number" min="1" name="items[${reviseRowIndex}][qty]" value="1" required class="rab-qty w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center" oninput="calculateReviseTotal()">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan</label>
-                    <input type="text" name="items[${reviseRowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Satuan <span class="text-red-500">*</span></label>
+                    <input type="text" name="items[${reviseRowIndex}][satuan]" value="Pcs" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none text-center">
                 </div>
-                <div class="col-span-3">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp)</label>
-                    <input type="number" min="0" name="items[${reviseRowIndex}][harga]" value="0" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
+                    <input type="number" min="1" name="items[${reviseRowIndex}][harga]" value="" placeholder="Min. Rp 1" required class="rab-price w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none" oninput="calculateReviseTotal()">
+                </div>
+                <div class="col-span-1 flex items-end justify-center pt-3">
+                    <button type="button" onclick="deleteReviseRabRow(this)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer" title="Hapus Baris">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
                 </div>
             `;
             container.appendChild(row);
             reviseRowIndex++;
             calculateReviseTotal();
+            updateReviseRowCount();
+        }
+
+        function deleteReviseRabRow(btn) {
+            const row = btn.closest('.rab-row');
+            if (row) {
+                row.remove();
+                calculateReviseTotal();
+                updateReviseRowCount();
+            }
+        }
+
+        function validateReviseRabForm(e) {
+            const container = document.getElementById('revise-items-container');
+            if (!container) return true;
+            const rows = container.querySelectorAll('.rab-row');
+            if (rows.length === 0) {
+                alert('Minimal harus ada 1 baris komponen/material.');
+                if (e) e.preventDefault();
+                return false;
+            }
+            if (rows.length > MAX_RAB_ROWS) {
+                alert(`Batas maksimal pengajuan RAB adalah ${MAX_RAB_ROWS} baris!`);
+                if (e) e.preventDefault();
+                return false;
+            }
+            for (let i = 0; i < rows.length; i++) {
+                const priceInput = rows[i].querySelector('.rab-price');
+                const priceVal = parseFloat(priceInput?.value);
+                if (isNaN(priceVal) || priceVal <= 0) {
+                    alert('Harga satuan tidak boleh 0 rupiah! Harap masukkan harga satuan yang valid (lebih dari Rp 0).');
+                    if (priceInput) priceInput.focus();
+                    if (e) e.preventDefault();
+                    return false;
+                }
+            }
+            return true;
         }
 
         function calculateReviseTotal() {
@@ -924,6 +1095,51 @@
             if (profileDropdown) {
                 profileDropdown.classList.toggle('hidden');
             }
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            fetch('{{ route('notifications.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const bellContainer = document.getElementById('petugasNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    const badge = document.getElementById('petugasNotifBadge');
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    // Otomatis hapus seluruh pesan notifikasi dan ganti dengan tampilan kosong
+                    const notifList = document.getElementById('petugasNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="petugasNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Tidak Ada Laporan Baru</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi akan muncul saat ada laporan kerusakan baru dari pelapor.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi dibaca', err));
         }
 
         // Close dropdowns on outside click

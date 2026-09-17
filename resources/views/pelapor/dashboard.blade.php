@@ -4,12 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lapor Kerusakan - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        @keyframes planeFlyOut {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+            25% { transform: translate(-4px, 4px) scale(0.9) rotate(-12deg); opacity: 1; }
+            100% { transform: translate(60px, -60px) scale(1.3) rotate(25deg); opacity: 0; }
+        }
+        .animate-plane-fly {
+            display: inline-block;
+            animation: planeFlyOut 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes shimmerTrack {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer {
+            background-size: 200% 100%;
+            animation: shimmerTrack 1.8s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 antialiased text-gray-800 flex h-screen overflow-hidden">
@@ -103,28 +123,37 @@
                                     <p class="text-[10px] sm:text-[11px] text-slate-500">Tugas Perbaikan Selesai</p>
                                 </div>
                             </div>
-                            @if(($pelaporNotificationCount ?? 0) > 0)
-                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
-                                    {{ $pelaporNotificationCount }} Selesai
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                    0 Baru
-                                </span>
-                            @endif
+                            <div class="flex items-center space-x-2">
+                                @if(($pelaporNotificationCount ?? 0) > 0)
+                                    <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Tandai baca semua</span>
+                                    </button>
+                                    <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
+                                        {{ $pelaporNotificationCount }} Baru
+                                    </span>
+                                @else
+                                    <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                        0 Baru
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- List Notifikasi -->
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                        <div id="pelaporNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                             @forelse($pelaporNotifications ?? [] as $notif)
-                                <a href="{{ route('pelapor.tickets') }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                <div id="pelaporNotifItem-{{ $notif->id_laporan }}" onclick="openTicketDetailAndMarkRead(@js($notif))" class="block p-3.5 hover:bg-slate-50/90 transition-colors group cursor-pointer bg-emerald-50/20">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between mb-0.5">
-                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $notif->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <div class="flex items-center space-x-1.5 truncate">
+                                                    <span class="text-xs font-bold text-slate-900 truncate">{{ $notif->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                    <span class="unread-notif-dot w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                                </div>
                                                 <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $notif->updated_at ? $notif->updated_at->diffForHumans() : 'Selesai' }}</span>
                                             </div>
                                             <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
@@ -135,9 +164,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </div>
                             @empty
-                                <div class="p-8 text-center">
+                                <div class="p-8 text-center" id="pelaporNotifEmpty">
                                     <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                                     </div>
@@ -257,9 +286,9 @@
                                         <div class="relative">
                                             <select name="tingkat_urgensi" required class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                                                 <option value="" disabled selected>Pilih tingkat urgensi</option>
-                                                <option value="rendah">Rendah (Dapat ditunda - Langsung Proses)</option>
-                                                <option value="sedang">Sedang (Mengganggu kenyamanan - Langsung Proses)</option>
-                                                <option value="tinggi">Tinggi (Kritis / Butuh Pengajuan RAB Sarpras)</option>
+                                                <option value="rendah">Rendah (Kerusakan ringan / masih bisa digunakan normal)</option>
+                                                <option value="sedang">Sedang (Masih berfungsi tapi bermasalah / mengganggu kenyamanan)</option>
+                                                <option value="tinggi">Tinggi (Pecah, mati total, atau tidak bisa digunakan lagi)</option>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -458,10 +487,19 @@
                                 </div>
 
                                 <div class="flex items-center justify-end gap-3 pt-2">
-                                    <button type="reset" class="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors" onclick="resetReportForm()">Batal</button>
-                                    <button type="submit" class="px-6 py-2.5 flex items-center gap-2 text-sm font-bold text-white bg-[#0B3A82] rounded-lg hover:bg-blue-800 transition-colors shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                                        Kirim Laporan
+                                    <button type="reset" class="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onclick="resetReportForm()">Batal</button>
+                                    <button type="submit" id="btn-submit-report" class="group relative overflow-hidden px-6 py-2.5 flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-[#0B3A82] to-blue-700 hover:from-blue-900 hover:to-blue-800 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-blue-900/20 active:scale-95 cursor-pointer disabled:opacity-80">
+                                        <span id="btn-text-content" class="flex items-center gap-2 transition-transform duration-300">
+                                            <svg id="submit-plane-icon" class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                            <span id="submit-btn-label">Kirim Laporan</span>
+                                        </span>
+                                        <span id="btn-submitting-content" class="hidden items-center gap-2">
+                                            <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Mengirim Laporan...</span>
+                                        </span>
                                     </button>
                                 </div>
                             </form>
@@ -1609,9 +1647,92 @@
             }
             const catIdInput = document.getElementById('form-category-id');
             if (catIdInput) catIdInput.value = '';
+            resetSubmitButtonState();
+        }
+
+        function resetSubmitButtonState() {
+            const btn = document.getElementById('btn-submit-report');
+            const planeIcon = document.getElementById('submit-plane-icon');
+            const btnText = document.getElementById('btn-text-content');
+            const btnSubmitting = document.getElementById('btn-submitting-content');
+            const overlay = document.getElementById('submit-report-overlay');
+
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('pointer-events-none');
+            }
+            if (planeIcon) {
+                planeIcon.classList.remove('animate-plane-fly');
+            }
+            if (btnText && btnSubmitting) {
+                btnText.classList.remove('hidden');
+                btnSubmitting.classList.add('hidden');
+                btnSubmitting.classList.remove('flex');
+            }
+            if (overlay) {
+                overlay.classList.add('hidden');
+                if (overlay.firstElementChild) {
+                    overlay.firstElementChild.classList.remove('scale-100');
+                    overlay.firstElementChild.classList.add('scale-95');
+                }
+            }
+        }
+
+        function triggerSubmitReportAnimation() {
+            const btn = document.getElementById('btn-submit-report');
+            const planeIcon = document.getElementById('submit-plane-icon');
+            const btnText = document.getElementById('btn-text-content');
+            const btnSubmitting = document.getElementById('btn-submitting-content');
+            const overlay = document.getElementById('submit-report-overlay');
+            const progressFill = document.getElementById('submit-progress-fill');
+            const stepText = document.getElementById('submit-step-text');
+
+            if (btn) {
+                btn.classList.add('pointer-events-none');
+                setTimeout(() => { btn.disabled = true; }, 100);
+            }
+            if (planeIcon) {
+                planeIcon.classList.add('animate-plane-fly');
+            }
+            if (btnText && btnSubmitting) {
+                setTimeout(() => {
+                    btnText.classList.add('hidden');
+                    btnSubmitting.classList.remove('hidden');
+                    btnSubmitting.classList.add('flex');
+                }, 180);
+            }
+
+            if (overlay) {
+                setTimeout(() => {
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        if (overlay.firstElementChild) {
+                            overlay.firstElementChild.classList.remove('scale-95');
+                            overlay.firstElementChild.classList.add('scale-100');
+                        }
+                    }, 20);
+
+                    if (progressFill) {
+                        setTimeout(() => { progressFill.style.width = '35%'; }, 80);
+                        setTimeout(() => { 
+                            progressFill.style.width = '70%'; 
+                            if (stepText) stepText.textContent = 'Mendaftarkan tiket laporan ke sistem...';
+                        }, 700);
+                        setTimeout(() => { 
+                            progressFill.style.width = '94%'; 
+                            if (stepText) stepText.textContent = 'Menghubungkan notifikasi ke teknisi SarPras...';
+                        }, 1500);
+                    }
+                }, 200);
+            }
         }
 
         function validateReportForm(e) {
+            const form = (e && e.target) ? e.target : document.querySelector('form[action="{{ route('pelapor.lapor') }}"]');
+            if (form && !form.checkValidity()) {
+                return false;
+            }
+
             const fileInput = document.getElementById('file-upload');
             const base64Input = document.getElementById('foto-kamera-base64');
             const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
@@ -1622,6 +1743,8 @@
                 alert('Foto bukti kerusakan wajib dilampirkan!\nSilakan gunakan Opsi 1 (Kamera Real-Time) untuk memotret atau Opsi 2 (Unggah File) untuk memilih foto bukti.');
                 return false;
             }
+
+            triggerSubmitReportAnimation();
             return true;
         }
 
@@ -1841,6 +1964,116 @@
             }
         }
 
+        // Buka modal detail dan tandai notifikasi dibaca (otomatis hapus dari daftar notifikasi)
+        function openTicketDetailAndMarkRead(ticket) {
+            if (!ticket) return;
+
+            // Tutup popover notifikasi
+            const notifDropdown = document.getElementById('pelaporNotificationDropdown');
+            if (notifDropdown) notifDropdown.classList.add('hidden');
+
+            // Munculkan popup tiket langsung
+            openTicketDetail(ticket);
+
+            const id = ticket.id_laporan;
+
+            // Tandai sudah dibaca di backend & hapus dari UI notifikasi
+            fetch(`/notifications/mark-read/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Otomatis hapus baris notifikasi yang dibuka
+                const itemEl = document.getElementById(`pelaporNotifItem-${id}`);
+                if (itemEl) itemEl.remove();
+
+                // Cek sisa notifikasi aktif
+                const remainingItems = document.querySelectorAll('#pelaporNotifList > [id^="pelaporNotifItem-"]');
+                const badge = document.getElementById('pelaporNotifBadge');
+                if (remainingItems.length === 0) {
+                    const bellContainer = document.getElementById('pelaporNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    const notifList = document.getElementById('pelaporNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="pelaporNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (badge) {
+                        badge.textContent = `${remainingItems.length} Baru`;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi perorangan', err));
+        }
+
+        // Tandai baca semua (otomatis hapus seluruh pesan notifikasi dari popover)
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            fetch('{{ route('notifications.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const bellContainer = document.getElementById('pelaporNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    const badge = document.getElementById('pelaporNotifBadge');
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    // Otomatis hapus pesan notif dan munculkan pesan kosong
+                    const notifList = document.getElementById('pelaporNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="pelaporNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi dibaca', err));
+        }
+
         // Close dropdowns on outside click
         document.addEventListener('click', function(e) {
             const notifContainer = document.getElementById('pelaporNotificationContainer');
@@ -1855,6 +2088,49 @@
                 profileDropdown.classList.add('hidden');
             }
         });
+
+        // Pulihkan tombol jika kembali via browser back button (bfcache)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                resetSubmitButtonState();
+            }
+        });
     </script>
+
+    <!-- Overlay Animasi Pengiriman Laporan (Super Smooth & Premium) -->
+    <div id="submit-report-overlay" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white/95 backdrop-blur-xl border border-white/60 rounded-3xl p-8 max-w-sm w-full shadow-2xl shadow-blue-900/30 text-center relative overflow-hidden transform scale-95 transition-all duration-300">
+            <!-- Glowing Background Circles -->
+            <div class="absolute -top-16 -left-16 w-36 h-36 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-36 h-36 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Central Animated Graphic -->
+            <div class="relative w-24 h-24 mx-auto mb-5 flex items-center justify-center">
+                <!-- Ping Ripple Wave -->
+                <div class="absolute inset-0 rounded-full bg-blue-400/20 animate-ping"></div>
+                <!-- Outer Radial Dashed Ring -->
+                <div class="absolute inset-1 rounded-full border-2 border-dashed border-blue-400/50 animate-[spin_10s_linear_infinite]"></div>
+                <!-- Center Bouncing Icon Box -->
+                <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/35 animate-bounce">
+                    <svg class="w-8 h-8 -rotate-12 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Title & Dynamic Step -->
+            <h4 class="text-lg font-bold text-slate-900 mb-1">Mengirim Laporan...</h4>
+            <p id="submit-step-text" class="text-xs font-semibold text-blue-600 mb-4 transition-all duration-300">Mengunggah berkas & foto bukti...</p>
+
+            <!-- Animated Progress Bar -->
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden mb-3.5 border border-slate-200/70 p-0.5 shadow-inner">
+                <div id="submit-progress-fill" class="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 rounded-full transition-all duration-700 ease-out w-0 animate-shimmer" style="background-size: 200% 100%;"></div>
+            </div>
+
+            <p class="text-[11px] text-slate-400 font-medium leading-relaxed">
+                Mohon tunggu sejenak, data dan bukti foto laporan sedang didaftarkan ke sistem SarPras.
+            </p>
+        </div>
+    </div>
 </body>
 </html>

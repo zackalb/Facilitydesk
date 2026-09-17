@@ -294,9 +294,29 @@ class AdminController extends Controller
             return redirect()->route('pelapor.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman Admin.');
         }
 
+        $now = now();
         $period = $request->get('period', 'tahun');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+
+        if ($period === 'triwulan') {
+            $periodStart = $now->copy()->subMonths(3)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Triwulan (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'semester') {
+            $periodStart = $now->copy()->subMonths(6)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Semester (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $periodStart = \Carbon\Carbon::parse($startDate)->startOfDay();
+            $periodEnd = \Carbon\Carbon::parse($endDate)->endOfDay();
+            $periodLabel = $periodStart->format('d M Y') . ' - ' . $periodEnd->format('d M Y');
+        } else {
+            $period = 'tahun';
+            $periodStart = $now->copy()->startOfYear();
+            $periodEnd = $now->copy()->endOfYear();
+            $periodLabel = 'Tahun Berjalan (' . $now->format('Y') . ')';
+        }
 
         // 1. Data Finansial & Anggaran Riil
         $budget = SchoolBudget::first();
@@ -311,21 +331,10 @@ class AdminController extends Controller
         $tahunAjaran = $budget->tahun_ajaran;
 
         // Query proposal RAB yang disetujui dengan filter periode
-        $proposalQuery = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
-            ->where('status_persetujuan', 'disetujui');
-
-        if ($period === 'triwulan') {
-            $proposalQuery->where('created_at', '>=', now()->subMonths(3)->startOfDay());
-        } elseif ($period === 'semester') {
-            $proposalQuery->where('created_at', '>=', now()->subMonths(6)->startOfDay());
-        } elseif ($period === 'custom' && $startDate && $endDate) {
-            $proposalQuery->whereBetween('created_at', [
-                \Carbon\Carbon::parse($startDate)->startOfDay(),
-                \Carbon\Carbon::parse($endDate)->endOfDay(),
-            ]);
-        }
-
-        $approvedProposals = $proposalQuery->get();
+        $approvedProposals = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->where('status_persetujuan', 'disetujui')
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
+            ->get();
 
         // Hitung total pengeluaran terealisasi dari subtotal items RAB yang disetujui
         $pengeluaranTerealisasi = 0;
@@ -408,9 +417,10 @@ class AdminController extends Controller
         }
 
         // 4. Log Transaksi Utama Terkini dari Database
+        // 4. Log Transaksi Riil dari Database Sesuai Periode Terpilih
         $proposalsWithReports = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
             ->latest()
-            ->take(8)
             ->get();
 
         $logTransaksi = [];
@@ -457,6 +467,7 @@ class AdminController extends Controller
             'maxTrenValue',
             'logTransaksi',
             'period',
+            'periodLabel',
             'startDate',
             'endDate'
         ));
@@ -725,12 +736,17 @@ class AdminController extends Controller
         }
 
         $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.nama' => 'required|string',
-            'items.*.qty' => 'required|integer|min:1',
+            'items'          => 'required|array|min:1|max:5',
+            'items.*.nama'   => 'required|string',
+            'items.*.qty'    => 'required|integer|min:1',
             'items.*.satuan' => 'required|string',
-            'items.*.harga' => 'required|numeric|min:0',
-            'catatan' => 'nullable|string',
+            'items.*.harga'  => 'required|numeric|min:1',
+            'catatan'        => 'nullable|string',
+        ], [
+            'items.required' => 'Rincian item RAB wajib diisi.',
+            'items.max'      => 'Batas maksimal pengajuan material RAB adalah 5 baris.',
+            'items.*.harga.min' => 'Harga satuan tidak boleh 0 rupiah! Harap masukkan harga yang valid.',
+            'items.*.harga.required' => 'Harga satuan wajib diisi dan tidak boleh 0 rupiah.',
         ]);
 
         DB::beginTransaction();
@@ -968,6 +984,40 @@ class AdminController extends Controller
         $user = Auth::user();
         $categories = Category::all();
 
+        // Pastikan sinkronisasi 1-ke-1 antara technician_vendors dan users petugas
+        $allTv = TechnicianVendor::all();
+        foreach ($allTv as $tv) {
+            $existingUser = User::where('nama', $tv->nama_teknisi)->first();
+            if (!$existingUser) {
+                // Tentukan kategori dari jenis_teknisi
+                $catId = 1;
+                $jLower = strtolower($tv->jenis_teknisi);
+                if (str_contains($jLower, 'air') || str_contains($jLower, 'pipa') || str_contains($jLower, 'sanitasi')) $catId = 2;
+                elseif (str_contains($jLower, 'bangunan') || str_contains($jLower, 'mebel') || str_contains($jLower, 'kayu')) $catId = 3;
+                elseif (str_contains($jLower, 'it') || str_contains($jLower, 'komputer')) $catId = 4;
+                elseif (str_contains($jLower, 'jaringan') || str_contains($jLower, 'wifi')) $catId = 6;
+                elseif (str_contains($jLower, 'kendaraan') || str_contains($jLower, 'motor') || str_contains($jLower, 'mobil')) $catId = 7;
+
+                $slugName = strtolower(preg_replace('/[^a-z0-9]/i', '', explode(' ', $tv->nama_teknisi)[0]));
+                if (empty($slugName)) $slugName = 'teknisi' . $tv->id_teknisi;
+                $email = $slugName . '.petugas@sekolah.com';
+                $counter = 1;
+                while (User::where('email', $email)->exists()) {
+                    $email = $slugName . $counter . '.petugas@sekolah.com';
+                    $counter++;
+                }
+
+                User::create([
+                    'nama'        => $tv->nama_teknisi,
+                    'email'       => $email,
+                    'password'    => Hash::make('password123'),
+                    'status'      => 'petugas',
+                    'role'        => 'petugas',
+                    'category_id' => $catId,
+                ]);
+            }
+        }
+
         // Query teknisi
         $query = User::with(['category', 'assignedReports'])
             ->where(function($q) {
@@ -1060,10 +1110,11 @@ class AdminController extends Controller
             'category_id' => $category->id,
         ]);
 
-        TechnicianVendor::firstOrCreate([
+        $prefix = (stripos($category->name, 'teknisi') === 0) ? '' : 'Teknisi ';
+        TechnicianVendor::updateOrCreate([
             'nama_teknisi' => $request->nama,
         ], [
-            'jenis_teknisi' => 'Teknisi ' . $category->name,
+            'jenis_teknisi' => $prefix . $category->name,
             'kontak' => '08' . rand(1000000000, 9999999999),
         ]);
 
@@ -1080,6 +1131,7 @@ class AdminController extends Controller
         }
 
         $tech = User::findOrFail($id);
+        $oldName = $tech->nama;
 
         $request->validate([
             'nama'     => 'required|string|max:255',
@@ -1114,6 +1166,20 @@ class AdminController extends Controller
 
         $tech->update($data);
 
+        $prefix = (stripos($category->name, 'teknisi') === 0) ? '' : 'Teknisi ';
+        $tv = TechnicianVendor::where('nama_teknisi', $oldName)->first();
+        if ($tv) {
+            $tv->update([
+                'nama_teknisi'  => $request->nama,
+                'jenis_teknisi' => $prefix . $category->name,
+            ]);
+        } else {
+            TechnicianVendor::updateOrCreate(
+                ['nama_teknisi' => $request->nama],
+                ['jenis_teknisi' => $prefix . $category->name, 'kontak' => '08' . rand(1000000000, 9999999999)]
+            );
+        }
+
         return redirect()->route('admin.technicians.index')->with('success', 'Data teknisi berhasil diperbarui!');
     }
 
@@ -1141,6 +1207,7 @@ class AdminController extends Controller
             return back()->with('error', "Tidak dapat menghapus teknisi ini karena sedang menangani {$activeReportsCount} tugas aktif. Selesaikan atau alihkan tugas terlebih dahulu.");
         }
 
+        TechnicianVendor::where('nama_teknisi', $tech->nama)->delete();
         $tech->delete();
 
         return redirect()->route('admin.technicians.index')->with('success', 'Petugas teknisi berhasil dihapus dari sistem.');

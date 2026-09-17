@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengaturan Keamanan - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -150,21 +151,27 @@
                                             <p class="text-[10px] sm:text-[11px] text-slate-500">Tugas Perbaikan Selesai</p>
                                         </div>
                                     </div>
-                                    @if(($pelaporNotificationCount ?? 0) > 0)
-                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
-                                            {{ $pelaporNotificationCount }} Selesai
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                            0 Baru
-                                        </span>
-                                    @endif
+                                    <div class="flex items-center space-x-2">
+                                        @if(($pelaporNotificationCount ?? 0) > 0)
+                                            <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>Tandai baca semua</span>
+                                            </button>
+                                            <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
+                                                {{ $pelaporNotificationCount }} Baru
+                                            </span>
+                                        @else
+                                            <span id="pelaporNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                                0 Baru
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <!-- List Notifikasi -->
-                                <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                                <div id="pelaporNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                                     @forelse($pelaporNotifications ?? [] as $notif)
-                                        <a href="{{ route('pelapor.tickets') }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                        <a href="{{ route('pelapor.tickets', ['ticket_id' => $notif->id_laporan]) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
                                             <div class="flex items-start space-x-3">
                                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -184,7 +191,7 @@
                                             </div>
                                         </a>
                                     @empty
-                                        <div class="p-8 text-center">
+                                        <div class="p-8 text-center" id="pelaporNotifEmpty">
                                             <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                                             </div>
@@ -230,19 +237,25 @@
                                             <p class="text-[10px] sm:text-[11px] text-slate-500">Dari Pelapor Sekolah</p>
                                         </div>
                                     </div>
-                                    @if(($petugasNotificationCount ?? 0) > 0)
-                                        <span class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
-                                            {{ $petugasNotificationCount }} Laporan Baru
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                            0 Baru
-                                        </span>
-                                    @endif
+                                    <div class="flex items-center space-x-2">
+                                        @if(($petugasNotificationCount ?? 0) > 0)
+                                            <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>Tandai baca semua</span>
+                                            </button>
+                                            <span id="petugasNotifBadge" class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
+                                                {{ $petugasNotificationCount }} Laporan Baru
+                                            </span>
+                                        @else
+                                            <span id="petugasNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                                0 Baru
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <!-- List Notifikasi Laporan Masuk -->
-                                <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                                <div id="petugasNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                                     @forelse($petugasNotifications ?? [] as $item)
                                         <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
                                             <div class="flex items-start space-x-3">
@@ -271,7 +284,7 @@
                                             </div>
                                         </a>
                                     @empty
-                                        <div class="p-8 text-center">
+                                        <div class="p-8 text-center" id="petugasNotifEmpty">
                                             <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             </div>
@@ -735,6 +748,68 @@
             if (profileDropdown) {
                 profileDropdown.classList.toggle('hidden');
             }
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            fetch('{{ route('notifications.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const bellContainer = document.getElementById('securityNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    const pelaporBadge = document.getElementById('pelaporNotifBadge');
+                    if (pelaporBadge) {
+                        pelaporBadge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        pelaporBadge.textContent = '0 Baru';
+                    }
+                    const petugasBadge = document.getElementById('petugasNotifBadge');
+                    if (petugasBadge) {
+                        petugasBadge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        petugasBadge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    // Otomatis hapus seluruh pesan notifikasi
+                    const pelaporList = document.getElementById('pelaporNotifList');
+                    if (pelaporList) {
+                        pelaporList.innerHTML = `
+                            <div class="p-8 text-center" id="pelaporNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                            </div>
+                        `;
+                    }
+                    const petugasList = document.getElementById('petugasNotifList');
+                    if (petugasList) {
+                        petugasList.innerHTML = `
+                            <div class="p-8 text-center" id="petugasNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Tidak Ada Laporan Baru</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi akan muncul saat ada laporan kerusakan baru dari pelapor.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi dibaca', err));
         }
 
         // Close dropdowns on outside click

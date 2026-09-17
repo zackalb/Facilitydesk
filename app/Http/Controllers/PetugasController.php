@@ -135,11 +135,18 @@ class PetugasController extends Controller
 
         $request->validate([
             'catatan_kebutuhan' => 'nullable|string|max:1000',
-            'items'             => 'required|array|min:1',
+            'items'             => 'required|array|min:1|max:5',
             'items.*.nama'      => 'required|string|max:255',
             'items.*.qty'       => 'required|numeric|min:1',
             'items.*.satuan'    => 'required|string|max:50',
-            'items.*.harga'     => 'required|numeric|min:0',
+            'items.*.harga'     => 'required|numeric|min:1',
+        ], [
+            'items.required'    => 'Rincian komponen material RAB wajib diisi.',
+            'items.max'         => 'Batas maksimal pengajuan material RAB adalah 5 baris.',
+            'items.*.nama.required' => 'Nama suku cadang / jasa wajib diisi.',
+            'items.*.qty.min'   => 'Jumlah minimal adalah 1.',
+            'items.*.harga.min' => 'Harga satuan tidak boleh 0 rupiah! Harap masukkan harga yang valid.',
+            'items.*.harga.required' => 'Harga satuan wajib diisi dan tidak boleh 0 rupiah.',
         ]);
 
         $report = DamageReport::with(['facility', 'verification'])->findOrFail($id);
@@ -295,6 +302,11 @@ class PetugasController extends Controller
         }
 
         $report = DamageReport::with(['facility', 'verification.workOrder', 'verification.budgetProposal'])->findOrFail($id);
+
+        // Validasi: Wajib mulai pengerjaan terlebih dahulu sebelum mengunggah bukti selesai
+        if (!in_array($report->status_laporan, ['proses', 'proses_perbaikan'])) {
+            return back()->with('error', 'Unggah foto selesai gagal! Anda harus menekan "Mulai Pengerjaan" terlebih dahulu sebelum dapat mengunggah bukti dan menyelesaikan perbaikan.');
+        }
 
         // Validasi: Jika urgensi tinggi atau ada RAB, wajib disetujui Admin Sarpras sebelum diselesaikan
         $proposal = $report->verification ? $report->verification->budgetProposal : null;

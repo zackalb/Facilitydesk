@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Petugas Teknisi - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -116,21 +117,27 @@
                                     <p class="text-[10px] sm:text-[11px] text-slate-500">Dari Pelapor Sekolah</p>
                                 </div>
                             </div>
-                            @if(($petugasNotificationCount ?? 0) > 0)
-                                <span class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
-                                    {{ $petugasNotificationCount }} Laporan Baru
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
-                                    0 Baru
-                                </span>
-                            @endif
+                            <div class="flex items-center space-x-2">
+                                @if(($petugasNotificationCount ?? 0) > 0)
+                                    <button type="button" id="markAllReadBtn" onclick="markAllNotificationsAsRead(event)" class="text-[11px] text-blue-600 hover:text-blue-800 font-semibold hover:underline cursor-pointer flex items-center space-x-1 transition-colors" title="Tandai semua notifikasi telah dibaca">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Tandai baca semua</span>
+                                    </button>
+                                    <span id="petugasNotifBadge" class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
+                                        {{ $petugasNotificationCount }} Baru
+                                    </span>
+                                @else
+                                    <span id="petugasNotifBadge" class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                        0 Baru
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- List Notifikasi Laporan Masuk -->
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                        <div id="petugasNotifList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
                             @forelse($petugasNotifications ?? [] as $item)
-                                <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group {{ is_null($item->technician_read_at) ? 'bg-blue-50/30' : '' }}">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-8 h-8 rounded-lg {{ $item->is_emergency || $item->status_laporan === 'darurat' ? 'bg-red-50 text-red-600 border-red-100 group-hover:bg-red-600' : ($item->tingkat_urgensi === 'tinggi' ? 'bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-600' : 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-600') }} flex items-center justify-center shrink-0 mt-0.5 border group-hover:text-white transition-colors">
                                             @if($item->is_emergency || $item->status_laporan === 'darurat')
@@ -141,7 +148,12 @@
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between mb-0.5">
-                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $item->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <div class="flex items-center space-x-1.5 truncate">
+                                                    <span class="text-xs font-bold text-slate-900 truncate">{{ $item->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                    @if(is_null($item->technician_read_at))
+                                                        <span class="unread-notif-dot w-2 h-2 rounded-full bg-blue-600 shrink-0"></span>
+                                                    @endif
+                                                </div>
                                                 <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $item->created_at ? $item->created_at->diffForHumans() : 'Baru saja' }}</span>
                                             </div>
                                             <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
@@ -465,6 +477,51 @@
             if (profileDropdown) {
                 profileDropdown.classList.toggle('hidden');
             }
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            fetch('{{ route('notifications.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const bellContainer = document.getElementById('petugasNotificationContainer');
+                    if (bellContainer) {
+                        const pingBadge = bellContainer.querySelector('button span.flex');
+                        if (pingBadge) pingBadge.remove();
+                    }
+                    const badge = document.getElementById('petugasNotifBadge');
+                    if (badge) {
+                        badge.className = 'px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full';
+                        badge.textContent = '0 Baru';
+                    }
+                    const markBtn = document.getElementById('markAllReadBtn');
+                    if (markBtn) markBtn.remove();
+
+                    // Otomatis hapus seluruh pesan notifikasi dan ganti dengan tampilan kosong
+                    const notifList = document.getElementById('petugasNotifList');
+                    if (notifList) {
+                        notifList.innerHTML = `
+                            <div class="p-8 text-center" id="petugasNotifEmpty">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mb-1">Tidak Ada Laporan Baru</p>
+                                <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua notifikasi telah dibaca. Notifikasi akan muncul saat ada laporan kerusakan baru dari pelapor.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error('Gagal menandai notifikasi dibaca', err));
         }
 
         // Close dropdowns on outside click

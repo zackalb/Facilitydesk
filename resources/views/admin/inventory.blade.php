@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katalog Inventaris & Aset - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -508,13 +509,7 @@
                                 Terkunci
                             </span>
                         </div>
-                        <select id="tambah-category-id-display" disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-600 cursor-not-allowed">
-                            @if(isset($categories))
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
+                        <input type="text" id="tambah-category-id-display" readonly value="" placeholder="Otomatis terisi..." class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-700 cursor-not-allowed select-none focus:outline-none">
                         <input type="hidden" name="category_id" id="tambah-category-id" value="">
                     </div>
                 </div>
@@ -596,13 +591,7 @@
                                 Terkunci
                             </span>
                         </div>
-                        <select id="edit-category-id-display" disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-600 cursor-not-allowed">
-                            @if(isset($categories))
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
+                        <input type="text" id="edit-category-id-display" readonly value="" placeholder="Otomatis terisi..." class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-slate-700 cursor-not-allowed select-none focus:outline-none">
                         <input type="hidden" name="category_id" id="edit-category-id" value="">
                     </div>
                 </div>
@@ -730,15 +719,16 @@
             if (!selectedOption) return;
 
             const catId = selectedOption.getAttribute('data-category-id');
+            const catName = selectedOption.getAttribute('data-category-name');
 
             const hiddenInput = document.getElementById(`${context}-category-id`);
-            const displaySelect = document.getElementById(`${context}-category-id-display`);
+            const displayInput = document.getElementById(`${context}-category-id-display`);
 
             if (hiddenInput && catId) {
                 hiddenInput.value = catId;
             }
-            if (displaySelect && catId) {
-                displaySelect.value = catId;
+            if (displayInput) {
+                displayInput.value = catName || '';
             }
         }
 
@@ -848,6 +838,7 @@
                     const opt = document.createElement('option');
                     opt.value = item.kategori_area;
                     opt.setAttribute('data-category-id', item.category_id || '1');
+                    opt.setAttribute('data-category-name', item.category ? item.category.name : 'Umum');
                     opt.textContent = item.kategori_area;
                     katSelect.insertBefore(opt, katSelect.options[katSelect.options.length - 1]);
                     katSelect.value = item.kategori_area;

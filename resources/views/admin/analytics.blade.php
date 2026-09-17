@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan & Analitik - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -213,28 +214,55 @@
             </div>
 
             <!-- 2. Period Filter Tabs (Fungsional: Tahun Berjalan, Triwulan, Semester, Tanggal Kustom) -->
-            <div class="flex items-center gap-1 bg-white border border-slate-100 p-1.5 rounded-2xl w-fit shadow-xs">
-                <a href="{{ route('admin.analytics.index', ['period' => 'tahun']) }}" class="px-4 py-1.5 {{ ($period ?? 'tahun') === 'tahun' ? 'bg-slate-800 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 font-semibold' }} rounded-xl text-xs transition-colors">
-                    Tahun Berjalan
-                </a>
-                <a href="{{ route('admin.analytics.index', ['period' => 'triwulan']) }}" class="px-4 py-1.5 {{ ($period ?? '') === 'triwulan' ? 'bg-slate-800 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 font-semibold' }} rounded-xl text-xs transition-colors">
-                    Triwulan
-                </a>
-                <a href="{{ route('admin.analytics.index', ['period' => 'semester']) }}" class="px-4 py-1.5 {{ ($period ?? '') === 'semester' ? 'bg-slate-800 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 font-semibold' }} rounded-xl text-xs transition-colors">
-                    Semester
-                </a>
-                <button type="button" onclick="openCustomDateModal()" class="px-4 py-1.5 {{ ($period ?? '') === 'custom' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 font-semibold' }} rounded-xl text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 {{ ($period ?? '') === 'custom' ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>
-                        @if(($period ?? '') === 'custom' && !empty($startDate) && !empty($endDate))
-                            {{ \Carbon\Carbon::parse($startDate)->format('d M') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
-                        @else
-                            tanggal kustom
-                        @endif
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-100 p-2 rounded-2xl shadow-xs">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <!-- Tahun Berjalan -->
+                    <a href="{{ route('admin.analytics.index', ['period' => 'tahun']) }}" 
+                       class="px-4 py-2 {{ ($period ?? 'tahun') === 'tahun' ? 'bg-[#0f172a] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold' }} rounded-xl text-xs transition-all flex items-center gap-1.5">
+                        <span>Tahun Berjalan</span>
+                    </a>
+
+                    <!-- Triwulan -->
+                    <a href="{{ route('admin.analytics.index', ['period' => 'triwulan']) }}" 
+                       class="px-4 py-2 {{ ($period ?? '') === 'triwulan' ? 'bg-[#0f172a] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold' }} rounded-xl text-xs transition-all flex items-center gap-1.5">
+                        <span>Triwulan</span>
+                    </a>
+
+                    <!-- Semester -->
+                    <a href="{{ route('admin.analytics.index', ['period' => 'semester']) }}" 
+                       class="px-4 py-2 {{ ($period ?? '') === 'semester' ? 'bg-[#0f172a] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold' }} rounded-xl text-xs transition-all flex items-center gap-1.5">
+                        <span>Semester</span>
+                    </a>
+
+                    <!-- Tanggal Kustom -->
+                    <button type="button" onclick="openCustomDateModal()" 
+                            class="px-4 py-2 {{ ($period ?? '') === 'custom' ? 'bg-[#0f172a] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold' }} rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 {{ ($period ?? '') === 'custom' ? 'text-blue-400' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>
+                            @if(($period ?? '') === 'custom' && !empty($startDate) && !empty($endDate))
+                                {{ \Carbon\Carbon::parse($startDate)->format('d M') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
+                            @else
+                                Tanggal Kustom
+                            @endif
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Info Label Rentang Aktif & Tombol Reset -->
+                <div class="flex items-center gap-2 px-2 text-xs flex-wrap">
+                    <span class="text-slate-400 font-medium">Rentang Aktif:</span>
+                    <span class="font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 flex items-center gap-1.5 shadow-2xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        {{ $periodLabel ?? 'Tahun Berjalan' }}
                     </span>
-                </button>
+                    @if(($period ?? 'tahun') !== 'tahun')
+                        <a href="{{ route('admin.analytics.index', ['period' => 'tahun']) }}" class="text-[11px] font-bold text-slate-400 hover:text-red-600 transition-colors ml-1 px-1.5 py-0.5 rounded hover:bg-red-50" title="Reset ke filter awal Tahun Berjalan">
+                            ✕ Reset
+                        </a>
+                    @endif
+                </div>
             </div>
 
             <!-- 3. 3 Financial KPI Cards (Hanya SATU Tombol: "Atur Anggaran") -->
@@ -325,7 +353,7 @@
                 <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] p-6 overflow-hidden">
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-sm font-extrabold text-slate-900">Tren Realisasi Biaya Pemeliharaan (6 Bulan Terakhir)</h3>
+                            <h3 class="text-sm font-extrabold text-slate-900">Tren Realisasi Biaya Pemeliharaan — {{ $periodLabel ?? '6 Bulan Terakhir' }}</h3>
                             <p class="text-[11px] text-slate-400 font-medium mt-0.5">Berdasarkan tanggal persetujuan proposal RAB fasilitas sekolah.</p>
                         </div>
                         <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
@@ -497,12 +525,12 @@
                 </div>
             </div>
 
-            <!-- 5. Bottom Table: Log Transaksi Utama Terkini (Real Data) -->
+            <!-- 5. Bottom Table: Log Transaksi Utama Terkini (Real Data Sesuai Periode) -->
             <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] p-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h3 class="text-sm font-extrabold text-slate-900">Log Transaksi & Pengajuan Anggaran Terkini</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Daftar riwayat pengeluaran dari proposal RAB dan penanganan sarpras.</p>
+                        <h3 class="text-sm font-extrabold text-slate-900">Log Transaksi & Pengajuan Anggaran — {{ $periodLabel ?? 'Semua' }}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Daftar riwayat pengeluaran dari proposal RAB yang tercatat pada rentang periode aktif.</p>
                     </div>
                     <a href="{{ route('admin.work-orders.index') }}" class="text-xs font-bold text-blue-700 hover:underline">Lihat Semua Work Orders →</a>
                 </div>
@@ -674,23 +702,35 @@
                     </div>
                     <h3 class="text-sm font-black text-slate-900">Filter Tanggal Kustom</h3>
                 </div>
-                <button type="button" onclick="closeCustomDateModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                <button type="button" onclick="closeCustomDateModal()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
+
+            <!-- Quick Presets -->
+            <div class="mt-3">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pilihan Cepat:</p>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button type="button" onclick="setDatePreset('7days')" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors cursor-pointer text-center">7 Hari Terakhir</button>
+                    <button type="button" onclick="setDatePreset('30days')" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors cursor-pointer text-center">30 Hari Terakhir</button>
+                    <button type="button" onclick="setDatePreset('thisMonth')" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors cursor-pointer text-center">Bulan Ini</button>
+                    <button type="button" onclick="setDatePreset('lastMonth')" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-[11px] font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors cursor-pointer text-center">Bulan Lalu</button>
+                </div>
+            </div>
+
             <form method="GET" action="{{ route('admin.analytics.index') }}" class="mt-4 space-y-3">
                 <input type="hidden" name="period" value="custom">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Dari Tanggal <span class="text-red-500">*</span></label>
-                    <input type="date" name="start_date" value="{{ $startDate ?? now()->subMonth()->format('Y-m-d') }}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="date" id="custom_start_date" name="start_date" value="{{ $startDate ?? now()->subMonth()->format('Y-m-d') }}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Sampai Tanggal <span class="text-red-500">*</span></label>
-                    <input type="date" name="end_date" value="{{ $endDate ?? now()->format('Y-m-d') }}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input type="date" id="custom_end_date" name="end_date" value="{{ $endDate ?? now()->format('Y-m-d') }}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-50">
-                    <button type="button" onclick="closeCustomDateModal()" class="px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Batal</button>
-                    <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer">Terapkan Filter</button>
+                    <button type="button" onclick="closeCustomDateModal()" class="px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">Batal</button>
+                    <button type="submit" class="px-4 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer">Terapkan Filter</button>
                 </div>
             </form>
         </div>
@@ -716,6 +756,37 @@
 
         function closeCustomDateModal() {
             document.getElementById('customDateModal').classList.add('hidden');
+        }
+
+        // Quick Preset Helper for Custom Date
+        function setDatePreset(type) {
+            const startInput = document.getElementById('custom_start_date');
+            const endInput = document.getElementById('custom_end_date');
+            if (!startInput || !endInput) return;
+
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const toYMD = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+            endInput.value = toYMD(now);
+
+            if (type === '7days') {
+                const d = new Date();
+                d.setDate(d.getDate() - 7);
+                startInput.value = toYMD(d);
+            } else if (type === '30days') {
+                const d = new Date();
+                d.setDate(d.getDate() - 30);
+                startInput.value = toYMD(d);
+            } else if (type === 'thisMonth') {
+                const d = new Date(now.getFullYear(), now.getMonth(), 1);
+                startInput.value = toYMD(d);
+            } else if (type === 'lastMonth') {
+                const dStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const dEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+                startInput.value = toYMD(dStart);
+                endInput.value = toYMD(dEnd);
+            }
         }
 
         // Close on ESC key

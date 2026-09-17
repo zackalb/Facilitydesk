@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Pengajuan RAB - SIPERFAS</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -194,19 +195,21 @@
                     </div>
 
                     <!-- Dynamic RAB Form -->
-                    <form action="{{ route('admin.rab.store', $report->id_laporan) }}" method="POST" id="rab-form">
+                    <form action="{{ route('admin.rab.store', $report->id_laporan) }}" method="POST" id="rab-form" onsubmit="return validateAdminRabForm(event)">
                         @csrf
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                            <h3 class="text-lg font-bold text-slate-900 mb-6">Rincian Kebutuhan</h3>
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-bold text-slate-900">Rincian Kebutuhan</h3>
+                                <span id="admin-rab-row-badge" class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">1 / 5 Baris</span>
+                            </div>
 
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left" id="rab-table">
                                     <thead>
                                         <tr class="border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                            <th class="pb-4 pr-4 w-2/5">Nama Barang / Jasa</th>
-                                            <th class="pb-4 pr-4 w-24">QTY</th>
-                                            <th class="pb-4 pr-4 w-32">Satuan</th>
-                                            <th class="pb-4 pr-4 w-40">Harga Satuan (Rp)</th>
+                                            <th class="pb-4 pr-4 w-2/5">Nama Barang / Jasa <span class="text-red-500">*</span></th>
+                                            <th class="pb-4 pr-4 w-24">QTY <span class="text-red-500">*</span></th>
+                                            <th class="pb-4 pr-4 w-32">Satuan <span class="text-red-500">*</span></th>
+                                            <th class="pb-4 pr-4 w-40">Harga Satuan (Rp) <span class="text-red-500">*</span></th>
                                             <th class="pb-4 pr-4 w-40 text-right">Subtotal (Rp)</th>
                                             <th class="pb-4 w-10"></th>
                                         </tr>
@@ -227,7 +230,7 @@
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span class="text-slate-400 text-sm font-medium">Rp</span>
                                                 </div>
-                                                <input type="number" name="items[0][harga]" required min="0" value="0" oninput="calculateRow(0)" id="harga-0" class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-8 pr-3 py-2 text-sm font-medium text-slate-700 outline-none text-right">
+                                                <input type="number" name="items[0][harga]" required min="1" value="" placeholder="Min. Rp 1" oninput="calculateRow(0)" id="harga-0" class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-8 pr-3 py-2 text-sm font-medium text-slate-700 outline-none text-right">
                                             </td>
                                             <td class="py-3 pr-4 text-right">
                                                 <span class="text-sm font-bold text-slate-900" id="subtotal-0">0</span>
@@ -243,10 +246,13 @@
                             </div>
 
                             <!-- Add Row Button -->
-                            <button type="button" onclick="addRow()" class="w-full mt-4 border-2 border-dashed border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 font-semibold text-sm py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <button type="button" id="btn-admin-add-row" onclick="addRow()" class="w-full mt-4 border-2 border-dashed border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 font-semibold text-sm py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                                Tambah Baris
+                                <span>Tambah Baris</span>
                             </button>
+                            <div id="admin-rab-max-notice" class="hidden w-full mt-3 text-center py-2.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs font-bold">
+                                Batas maksimal 5 baris kebutuhan tercapai
+                            </div>
                         </div>
 
                         <!-- Footer actions -->
@@ -282,10 +288,12 @@
     <!-- Javascript for Dynamic Form -->
     <script>
         let rowCount = 1;
+        const MAX_RAB_ROWS = 5;
 
         // Auto-calculate on load
         document.addEventListener("DOMContentLoaded", () => {
             calculateGrandTotal();
+            updateAdminRabRowCount();
         });
 
         // Format number to Indonesian Rupiah standard format
@@ -293,8 +301,31 @@
             return new Intl.NumberFormat('id-ID').format(number);
         };
 
+        function updateAdminRabRowCount() {
+            const tbody = document.getElementById('rab-body');
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr');
+            const badge = document.getElementById('admin-rab-row-badge');
+            const addBtn = document.getElementById('btn-admin-add-row');
+            const maxNotice = document.getElementById('admin-rab-max-notice');
+            if (badge) badge.textContent = `${rows.length} / ${MAX_RAB_ROWS} Baris`;
+            if (rows.length >= MAX_RAB_ROWS) {
+                if (addBtn) addBtn.classList.add('hidden');
+                if (maxNotice) maxNotice.classList.remove('hidden');
+            } else {
+                if (addBtn) addBtn.classList.remove('hidden');
+                if (maxNotice) maxNotice.classList.add('hidden');
+            }
+        }
+
         function addRow() {
             const tbody = document.getElementById('rab-body');
+            const currentRows = tbody.querySelectorAll('tr').length;
+            if (currentRows >= MAX_RAB_ROWS) {
+                alert('Batas maksimal pengajuan RAB adalah 5 baris.');
+                return;
+            }
+
             const rowId = rowCount++;
             
             const tr = document.createElement('tr');
@@ -315,7 +346,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span class="text-slate-400 text-sm font-medium">Rp</span>
                     </div>
-                    <input type="number" name="items[${rowId}][harga]" required min="0" value="0" oninput="calculateRow(${rowId})" id="harga-${rowId}" class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-8 pr-3 py-2 text-sm font-medium text-slate-700 outline-none text-right">
+                    <input type="number" name="items[${rowId}][harga]" required min="1" value="" placeholder="Min. Rp 1" oninput="calculateRow(${rowId})" id="harga-${rowId}" class="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-8 pr-3 py-2 text-sm font-medium text-slate-700 outline-none text-right">
                 </td>
                 <td class="py-3 pr-4 text-right">
                     <span class="text-sm font-bold text-slate-900" id="subtotal-${rowId}">0</span>
@@ -329,6 +360,7 @@
             
             tbody.appendChild(tr);
             calculateGrandTotal();
+            updateAdminRabRowCount();
         }
 
         function removeRow(id) {
@@ -336,7 +368,35 @@
             if (row) {
                 row.remove();
                 calculateGrandTotal();
+                updateAdminRabRowCount();
             }
+        }
+
+        function validateAdminRabForm(e) {
+            const tbody = document.getElementById('rab-body');
+            if (!tbody) return true;
+            const rows = tbody.querySelectorAll('tr');
+            if (rows.length === 0) {
+                alert('Minimal harus ada 1 baris item RAB.');
+                if (e) e.preventDefault();
+                return false;
+            }
+            if (rows.length > MAX_RAB_ROWS) {
+                alert(`Batas maksimal pengajuan RAB adalah ${MAX_RAB_ROWS} baris!`);
+                if (e) e.preventDefault();
+                return false;
+            }
+            const hargaInputs = tbody.querySelectorAll('input[name$="[harga]"]');
+            for (let i = 0; i < hargaInputs.length; i++) {
+                const val = parseFloat(hargaInputs[i].value);
+                if (isNaN(val) || val <= 0) {
+                    alert('Harga satuan tidak boleh 0 rupiah! Harap masukkan harga yang valid (lebih dari Rp 0).');
+                    hargaInputs[i].focus();
+                    if (e) e.preventDefault();
+                    return false;
+                }
+            }
+            return true;
         }
 
         function calculateRow(id) {
@@ -370,7 +430,10 @@
                 total += (qty * harga);
             });
             
-            document.getElementById('grand-total').innerText = formatRupiah(total);
+            const grandTotalEl = document.getElementById('grand-total');
+            if (grandTotalEl) {
+                grandTotalEl.innerText = formatRupiah(total);
+            }
         }
     </script>
 </body>

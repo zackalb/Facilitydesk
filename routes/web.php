@@ -47,6 +47,10 @@ Route::middleware(['auth'])->group(function () {
     // Pengaturan Keamanan & 2FA
     Route::get('/settings/security', [\App\Http\Controllers\SecurityController::class, 'index'])->name('settings.security');
 
+    // Notifikasi Global (Tandai Baca Semua & Per Item)
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+    Route::post('/notifications/mark-read/{id}', [\App\Http\Controllers\NotificationController::class, 'markSingleRead'])->name('notifications.mark-read');
+
     // Pelapor Routes
     Route::get('/pelapor/dashboard', [PelaporController::class, 'dashboard'])->name('pelapor.dashboard');
     Route::get('/pelapor/tickets', [PelaporController::class, 'tickets'])->name('pelapor.tickets');
