@@ -196,6 +196,13 @@ class AdminController extends Controller
         $proposal->status_persetujuan = 'disetujui';
         $proposal->save();
 
+        // Update status laporan kerusakan menjadi 'proses' agar teknisi dapat mengeksekusi perbaikan
+        if ($proposal->verification && $proposal->verification->damageReport) {
+            $report = $proposal->verification->damageReport;
+            $report->status_laporan = 'proses';
+            $report->save();
+        }
+
         if ($request->filled('catatan_keputusan') && $proposal->verification) {
             $proposal->verification->catatan_inspeksi = $request->catatan_keputusan;
             $proposal->verification->save();
@@ -221,6 +228,13 @@ class AdminController extends Controller
         $proposal = BudgetProposal::with(['verification.damageReport'])->findOrFail($id_rab);
         $proposal->status_persetujuan = 'ditolak';
         $proposal->save();
+
+        // Status laporan tetap 'menunggu_rab' agar teknisi mengajukan revisi
+        if ($proposal->verification && $proposal->verification->damageReport) {
+            $report = $proposal->verification->damageReport;
+            $report->status_laporan = 'menunggu_rab';
+            $report->save();
+        }
 
         if ($request->filled('catatan_keputusan') && $proposal->verification) {
             $proposal->verification->catatan_inspeksi = 'Catatan Penolakan/Revisi: ' . $request->catatan_keputusan;

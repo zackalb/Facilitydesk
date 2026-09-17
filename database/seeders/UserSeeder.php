@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'pelapor@sekolah.com'],
             [
-                'nama'     => 'Budi Santoso (Siswa)',
+                'nama'     => 'Pelapor',
                 'password' => Hash::make('password123'),
                 'status'   => 'pelapor',
                 'role'     => 'pelapor',
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'siswa@sekolah.com'],
             [
-                'nama'     => 'Budi Santoso (Siswa)',
+                'nama'     => 'Siswa',
                 'password' => Hash::make('password123'),
                 'status'   => 'pelapor',
                 'role'     => 'pelapor',
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'guru@sekolah.com'],
             [
-                'nama'     => 'Ibu Ratna (Guru)',
+                'nama'     => 'Guru',
                 'password' => Hash::make('password123'),
                 'status'   => 'pelapor',
                 'role'     => 'pelapor',
@@ -95,7 +95,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@sekolah.com'],
             [
-                'nama'     => 'Budi Santoso (Admin Sarpras)',
+                'nama'     => 'Admin Sarpras',
                 'password' => Hash::make('password123'),
                 'status'   => 'admin',
                 'role'     => 'admin',

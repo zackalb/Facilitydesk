@@ -1,16 +1,17 @@
-# Daftar Akun Login Sistem FacilityDesk
+# Daftar Akun Login Sistem SIPERFAS (Sistem Informasi Pelaporan Fasilitas)
 
-Dokumen ini berisi seluruh kredensial akun bawaan (*default seeder*) yang dapat digunakan untuk masuk ke dalam sistem **FacilityDesk**, dikelompokkan berdasarkan peran (*role*) dan spesialisasinya.
+Dokumen ini berisi seluruh kredensial akun bawaan (*default seeder*) yang dapat digunakan untuk masuk ke dalam sistem **SIPERFAS**, dikelompokkan berdasarkan peran (*role*) dan spesialisasinya.
 
 > **URL Halaman Login:** [http://127.0.0.1:8000/login](http://127.0.0.1:8000/login)  
 > **Password Default Semua Akun:** `password123`
 
 ---
 
-## 1. Akun Pelapor (Siswa & Guru)
- 1  **Budi Santoso** | `pelapor@sekolah.com` | `password123` | `pelapor` | Akun Siswa (Default) |
- 2 **Budi Santoso** | `siswa@sekolah.com` | `password123` | `pelapor` | Akun Siswa (Alternatif) |
- 3  **Ibu Ratna** | `guru@sekolah.com` | `password123` | `pelapor` | Akun Guru 
+| No | Nama Akun | Email Login | Password | Role / Peran | Keterangan |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | **Pelapor** | `pelapor@sekolah.com` | `password123` | `pelapor` | Akun Pelapor (Default) |
+| 2 | **Siswa** | `siswa@sekolah.com` | `password123` | `pelapor` | Akun Siswa |
+| 3 | **Guru** | `guru@sekolah.com` | `password123` | `pelapor` | Akun Guru |
 
 **Akses & Dashboard:**
 - Dashboard Pelapor: `/pelapor/dashboard`
@@ -45,7 +46,7 @@ Setiap teknisi memiliki **spesialisasi kategori** masing-masing. Ketika pelapor 
 Akun ini memiliki hak akses tertinggi untuk memantau seluruh *Work Order*, mengelola master inventaris sarana prasarana sekolah, melihat analitik laporan, serta menyetujui, menolak, atau meminta revisi pengajuan RAB dari teknisi.
 
 | No | Nama Pengguna | Email Login | Password | Role / Peran | Keterangan |
-| 1 | **Budi Santoso** | `admin@sekolah.com` | `password123` | `admin` | Koordinator & Kepala Sarpras |
+| 1 | **Admin Sarpras** | `admin@sekolah.com` | `password123` | `admin` | Koordinator & Kepala Sarpras |
 
 **Akses & Dashboard Admin:** 
 - Dashboard Manajemen: `/admin/dashboard`

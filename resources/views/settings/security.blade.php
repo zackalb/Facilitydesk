@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - FacilityDesk</title>
+    <title>Pengaturan Keamanan - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -23,10 +23,8 @@
                 <div class="flex items-center space-x-3 mb-8">
                     <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
                     <div>
-                        <h1 class="text-sm font-bold text-slate-900 leading-tight">facility management</h1>
-                        <p class="text-[10px] text-slate-500 font-medium">
-                            @if(in_array($role, ['admin', 'sarpras', 'admin_sarpras'])) Admin Sarpras @elseif(in_array($role, ['petugas', 'teknisi', 'staf'])) Petugas Teknisi @else Halaman Pelapor @endif
-                        </p>
+                        <h1 class="text-sm font-bold text-slate-900 leading-tight">SIPERFAS</h1>
+                        <p class="text-[10px] text-slate-500 font-medium">Sistem Informasi Pelaporan Fasilitas</p>
                     </div>
                 </div>
 
@@ -43,7 +41,7 @@
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                             </svg>
-                            <span>Work orders</span>
+                            <span>Perintah Kerja</span>
                         </a>
                         <a href="{{ route('admin.inventory.index') }}" class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all group">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,13 +67,13 @@
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <span>Report Issue</span>
+                            <span>Lapor Kerusakan</span>
                         </a>
                         <a href="{{ route('pelapor.tickets') }}" class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all group">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                             </svg>
-                            <span>Tickets</span>
+                            <span>Tiket Saya</span>
                         </a>
                     @endif
                 </nav>
@@ -89,7 +87,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span>Settings</span>
+                        <span>Pengaturan</span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -97,7 +95,7 @@
                             <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
-                            <span>Logout</span>
+                            <span>Keluar</span>
                         </button>
                     </form>
                 </div>
@@ -106,64 +104,83 @@
 
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col h-full overflow-hidden">
-            <!-- Topbar -->
-            <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
+            <!-- Topbar: Responsif Mobile & Desktop -->
+            <header class="bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 py-3.5 z-20 shrink-0">
                 <div class="flex items-center space-x-3">
-                    <a href="{{ route('dashboard') }}" class="md:hidden text-slate-400 hover:text-slate-600 mr-2">
+                    <a href="{{ route('dashboard') }}" class="md:hidden text-slate-500 hover:text-slate-800 mr-1 p-1 rounded-lg hover:bg-slate-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     </a>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800">Pengaturan Keamanan Akun</h2>
-                        <p class="text-xs text-slate-500">Kelola Autentikasi Dua Faktor (2FA) dan perlindungan akun Anda</p>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800">Pengaturan Keamanan</h2>
+                        <p class="text-[11px] sm:text-xs text-slate-500 hidden sm:block">Kelola Autentikasi Dua Faktor (2FA) dan perlindungan akun Anda</p>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-5">
-                    <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <button class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-50">
                         <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                         </svg>
                     </button>
-                    <button class="text-slate-500 hover:text-blue-600 transition-all">
-                        <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
 
-                    <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Nama Pengguna' }}</p>
-                            @php
-                                $statusUser = strtolower($user->status ?? $user->role ?? '');
-                                if ($statusUser === 'admin') {
-                                    $labelJabatan = 'Kepala Sarpras';
-                                } elseif ($statusUser === 'petugas') {
-                                    $labelJabatan = $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi';
-                                } else {
-                                    $labelJabatan = (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa';
-                                }
-                            @endphp
-                            <p class="text-[11px] text-slate-500 font-semibold">{{ $labelJabatan }}</p>
+                    <!-- Avatar Profile Info with Dropdown Toggle -->
+                    <div class="relative pl-3 border-l border-slate-200" id="securityProfileContainer">
+                        @php
+                            $statusUser = strtolower($user->status ?? $user->role ?? '');
+                            if ($statusUser === 'admin') {
+                                $labelJabatan = 'Kepala Sarpras';
+                            } elseif (in_array($statusUser, ['petugas', 'teknisi', 'staf'])) {
+                                $labelJabatan = $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi';
+                            } else {
+                                $labelJabatan = (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa';
+                            }
+                        @endphp
+
+                        <button type="button" onclick="toggleSecurityProfileDropdown()" class="flex items-center space-x-3 focus:outline-none cursor-pointer group">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{{ $user->nama ?? 'Pengguna' }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold">{{ $labelJabatan }}</p>
+                            </div>
+                            @if(($user->status ?? '') === 'admin' || ($user->role ?? '') === 'admin')
+                                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-blue-200 shadow-xs flex items-center justify-center shrink-0 group-hover:ring-2 group-hover:ring-blue-400 transition-all">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="50" fill="#2563eb"/>
+                                        <circle cx="50" cy="38" r="16" fill="#bfdbfe"/>
+                                        <ellipse cx="50" cy="85" rx="33" ry="25" fill="#bfdbfe"/>
+                                    </svg>
+                                </div>
+                            @else
+                                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-sm sm:text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0 group-hover:ring-2 group-hover:ring-blue-400 transition-all">
+                                    {{ strtoupper(substr($user->nama ?? 'U', 0, 1)) }}
+                                </div>
+                            @endif
+                        </button>
+
+                        <!-- Profile Popover / Dropdown Menu -->
+                        <div id="securityProfileDropdown" class="hidden absolute right-0 mt-2.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in duration-150">
+                            <div class="px-4 py-2.5 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Pengguna' }}</p>
+                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ $user->email ?? '' }}</p>
+                                <span class="inline-block mt-1.5 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-md">
+                                    {{ $labelJabatan }}
+                                </span>
+                            </div>
+                            <div class="p-1.5">
+                                <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?');">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        @if(($user->status ?? '') === 'admin' || ($user->role ?? '') === 'admin')
-                            <div class="w-10 h-10 rounded-full overflow-hidden border border-blue-200 shadow-xs flex items-center justify-center shrink-0">
-                                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="50" cy="50" r="50" fill="#2563eb"/>
-                                    <circle cx="50" cy="38" r="16" fill="#bfdbfe"/>
-                                    <ellipse cx="50" cy="85" rx="33" ry="25" fill="#bfdbfe"/>
-                                </svg>
-                            </div>
-                        @else
-                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
-                                {{ strtoupper(substr($user->nama ?? 'U', 0, 1)) }}
-                            </div>
-                        @endif
                     </div>
                 </div>
             </header>
 
-            <!-- Scrollable Content -->
-            <div class="flex-1 overflow-auto p-4 md:p-8 bg-[#f8fafc]">
+            <!-- Scrollable Content with Mobile Bottom Clearance -->
+            <div class="flex-1 overflow-auto p-4 md:p-8 bg-[#f8fafc] pb-24 md:pb-8">
                 <div class="max-w-4xl mx-auto space-y-6">
 
                     <!-- Notification Messages -->
@@ -289,7 +306,7 @@
                                     <div class="max-w-xl">
                                         <h4 class="text-sm font-bold text-slate-800 mb-2">Mengapa Anda perlu mengaktifkan 2FA?</h4>
                                         <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                                            Ketika Autentikasi Dua Faktor diaktifkan, Anda akan diminta memasukkan token 6-digit yang aman dan acak dari aplikasi ponsel (seperti <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong>, atau <strong>Authy</strong>) setiap kali Anda masuk ke sistem FacilityDesk.
+                                            Ketika Autentikasi Dua Faktor diaktifkan, Anda akan diminta memasukkan token 6-digit yang aman dan acak dari aplikasi ponsel (seperti <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong>, atau <strong>Authy</strong>) setiap kali Anda masuk ke sistem SIPERFAS.
                                         </p>
 
                                         <form method="POST" action="{{ route('two-factor.enable') }}">
@@ -434,7 +451,7 @@
                                                     <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                                     </svg>
-                                                    <span>Download .txt</span>
+                                                    <span>Unduh .txt</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -507,7 +524,7 @@
 
         function copyAllRecoveryCodes() {
             const codes = @json($recoveryCodes);
-            const textToCopy = "FACILITYDESK 2FA RECOVERY CODES\nAccount: {{ $user->email }}\n\n" + codes.join("\n");
+            const textToCopy = "KODE PEMULIHAN 2FA SIPERFAS\nAkun: {{ $user->email }}\n\n" + codes.join("\n");
             
             navigator.clipboard.writeText(textToCopy);
             const btnText = document.getElementById("copy-codes-text");
@@ -519,14 +536,75 @@
 
         function downloadRecoveryCodes() {
             const codes = @json($recoveryCodes);
-            const textContent = "FACILITYDESK 2FA RECOVERY CODES\nAccount: {{ $user->email }}\nDate: " + new Date().toLocaleString() + "\n\n" + codes.join("\n") + "\n\nNote: Each code can only be used once.";
+            const textContent = "KODE PEMULIHAN 2FA SIPERFAS\nAkun: {{ $user->email }}\nTanggal: " + new Date().toLocaleString('id-ID') + "\n\n" + codes.join("\n") + "\n\nCatatan: Setiap kode hanya dapat digunakan satu kali.";
             
             const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "facilitydesk-recovery-codes.txt";
+            link.download = "siperfas-kode-pemulihan.txt";
             link.click();
         }
+
+        // Profile Dropdown Toggle
+        function toggleSecurityProfileDropdown() {
+            const menu = document.getElementById('securityProfileDropdown');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('securityProfileContainer');
+            const menu = document.getElementById('securityProfileDropdown');
+            if (container && menu && !container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
     </script>
+
+    @if(!in_array($role, ['admin']))
+        <!-- Mobile Bottom Navigation Bar (Sesuai Role Pengguna) -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 py-2 flex items-center justify-around safe-area-bottom">
+            @if(in_array($role, ['petugas', 'teknisi', 'staf']))
+                <!-- Role Petugas Teknisi -->
+                <a href="{{ route('petugas.dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 tracking-tight">Tugas Perbaikan</span>
+                </a>
+                <a href="{{ route('settings.security') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-blue-600 font-bold">
+                    <svg class="w-5 h-5 text-blue-600 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 tracking-tight">Pengaturan</span>
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mt-0.5"></span>
+                </a>
+            @else
+                <!-- Role Pelapor -->
+                <a href="{{ route('pelapor.dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 tracking-tight">Lapor Kerusakan</span>
+                </a>
+                <a href="{{ route('pelapor.tickets') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 tracking-tight">Tiket Saya</span>
+                </a>
+                <a href="{{ route('settings.security') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-blue-600 font-bold">
+                    <svg class="w-5 h-5 text-blue-600 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 tracking-tight">Pengaturan</span>
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mt-0.5"></span>
+                </a>
+            @endif
+        </nav>
+    @endif
 </body>
 </html>

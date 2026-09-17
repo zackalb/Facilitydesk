@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FacilityDesk</title>
+    <title>Masuk - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
         <!-- Left Side: Illustration Container -->
         <div class="hidden md:flex md:w-[50%] bg-[#F8F9FA] flex-col items-center justify-center p-12 relative border-r border-gray-100">
             <div class="w-full text-center relative z-10">
-                <img src="{{ asset('illustration.png') }}" alt="Ilustrasi FacilityDesk" class="w-full max-w-sm mx-auto object-contain mb-8 mix-blend-multiply">
+                <img src="{{ asset('illustration.png') }}" alt="Ilustrasi SIPERFAS" class="w-full max-w-sm mx-auto object-contain mb-8 mix-blend-multiply">
                 
                 <h2 class="text-[26px] font-bold text-gray-800 italic leading-tight font-serif tracking-tight">Jagalah Fasilitas Sekolah Kita</h2>
                 <p class="text-sm text-gray-600 mt-3 font-medium italic max-w-xs mx-auto leading-relaxed font-serif">
@@ -37,8 +37,8 @@
             <div class="w-full max-w-md mx-auto">
                 <div class="text-center mb-8">
                     <img src="{{ asset('logo.png') }}" class="h-10 mx-auto mb-4 object-contain" alt="Logo">
-                    <h1 class="text-xl font-bold text-[#0B3A82] mb-1.5">Selamat Datang di FacilityDesk</h1>
-                    <p class="text-[13px] text-gray-500 tracking-wide">Masuk ke akun Anda untuk mengelola dan melaporkan fasilitas sekolah.</p>
+                    <h1 class="text-xl font-bold text-[#0B3A82] mb-1.5">Selamat Datang di SIPERFAS</h1>
+                    <p class="text-[13px] text-gray-500 tracking-wide">Sistem Informasi Pelaporan Fasilitas</p>
                 </div>
 
                 <!-- Notifikasi Berhasil (misal setelah reset kata sandi) -->
@@ -74,7 +74,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <input type="text" name="identity" value="{{ old('identity') }}" required class="w-full pl-10 pr-3 py-3 border @error('identity') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm bg-gray-50/50 font-medium placeholder-gray-400 transition-all" placeholder="Masukkan email">
+                            <input type="text" name="identity" value="{{ old('identity') }}" required class="w-full pl-10 pr-3 py-3 border @error('identity') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm bg-gray-50/50 font-medium placeholder-gray-400 transition-all" placeholder="Alamat Email / NIP / NISN">
                         </div>
                     </div>
 
@@ -85,7 +85,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input type="password" name="password" id="password_input" required class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm bg-gray-50/50 font-medium placeholder-gray-400 transition-all" placeholder="Password">
+                            <input type="password" name="password" id="password_input" required class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm bg-gray-50/50 font-medium placeholder-gray-400 transition-all" placeholder="Kata Sandi">
                             
                             <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none" onclick="document.getElementById('password_input').type = document.getElementById('password_input').type === 'password' ? 'text' : 'password'">
                                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,7 +119,7 @@
                 </form>
 
                 <div class="mt-10 flex justify-between items-center text-[11px] text-gray-400 font-medium pt-4 border-t border-gray-100">
-                    <div>© 2024 FacilityDesk.</div>
+                    <div>© {{ date('Y') }} SIPERFAS.</div>
                     <div class="flex space-x-4">
                         <a href="#" class="hover:text-gray-700 transition-colors">Bantuan</a>
                         <a href="#" class="hover:text-gray-700 transition-colors">Kebijakan Privasi</a>

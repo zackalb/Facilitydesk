@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Akses Masuk - FacilityDesk</title>
+    <title>Pilih Akses Masuk - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
         
         <!-- Icon & Header -->
         <div class="flex flex-col items-center text-center mb-8">
-            <img src="{{ asset('logo.png') }}" alt="School Facility Helpdesk Logo" class="h-20 mb-5 object-contain">
+            <img src="{{ asset('logo.png') }}" alt="Logo SIPERFAS" class="h-20 mb-5 object-contain">
             <h1 class="text-[22px] font-bold text-[#0B3A82] mb-2">Pilih Akses Masuk</h1>
             <p class="text-[13px] text-gray-500 max-w-[280px] leading-relaxed">
                 Silakan pilih peran untuk mensimulasikan alur pengguna yang berbeda.
@@ -55,7 +55,7 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="text-[14px] font-bold text-gray-900 group-hover:text-emerald-900 transition-colors">Masuk sebagai Petugas Teknisi</h3>
-                    <p class="text-[12px] text-gray-500 mt-0.5">Eksekusi Perbaikan & Upload Bukti.</p>
+                    <p class="text-[12px] text-gray-500 mt-0.5">Eksekusi Perbaikan & Unggah Bukti.</p>
                 </div>
                 <div class="text-gray-300 group-hover:text-emerald-500 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

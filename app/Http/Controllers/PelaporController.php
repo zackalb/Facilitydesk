@@ -49,7 +49,7 @@ class PelaporController extends Controller
                     $q->orWhereIn('id_user', [1, 4]);
                 }
             })
-            ->with(['facility', 'category', 'technician', 'verification.workOrder'])
+            ->with(['facility', 'category', 'technician', 'verification.workOrder', 'verification.budgetProposal'])
             ->latest()
             ->take(5)
             ->get();
@@ -68,15 +68,17 @@ class PelaporController extends Controller
             'category_id'         => 'nullable|exists:categories,id',
             'tingkat_urgensi'     => 'required|string|in:rendah,sedang,tinggi,darurat,Rendah,Sedang,Tinggi,Darurat',
             'deskripsi_kerusakan' => 'required|string|min:10',
-            'foto_bukti'          => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            'foto_kamera_base64'  => 'nullable|string',
+            'foto_bukti'          => 'required_without:foto_kamera_base64|file|mimes:jpg,jpeg,png|max:5120',
+            'foto_kamera_base64'  => 'required_without:foto_bukti|nullable|string',
         ], [
-            'id_fasilitas.required'        => 'Lokasi fasilitas harus dipilih.',
-            'tingkat_urgensi.required'     => 'Tingkat urgensi harus dipilih.',
-            'deskripsi_kerusakan.required' => 'Deskripsi masalah wajib diisi.',
-            'deskripsi_kerusakan.min'      => 'Deskripsi minimal 10 karakter.',
-            'foto_bukti.mimes'             => 'Format file tidak sesuai! Lampiran bukti harus berformat JPG atau PNG.',
-            'foto_bukti.max'               => 'Ukuran file lampiran maksimal 5MB.',
+            'id_fasilitas.required'               => 'Lokasi fasilitas harus dipilih.',
+            'tingkat_urgensi.required'            => 'Tingkat urgensi harus dipilih.',
+            'deskripsi_kerusakan.required'        => 'Deskripsi masalah wajib diisi.',
+            'deskripsi_kerusakan.min'             => 'Deskripsi minimal 10 karakter.',
+            'foto_bukti.required_without'         => 'Foto bukti kerusakan wajib dilampirkan (unggah foto atau ambil melalui kamera).',
+            'foto_kamera_base64.required_without' => 'Foto bukti kerusakan wajib dilampirkan (unggah foto atau ambil melalui kamera).',
+            'foto_bukti.mimes'                    => 'Format file tidak sesuai! Lampiran bukti harus berformat JPG atau PNG.',
+            'foto_bukti.max'                      => 'Ukuran file lampiran maksimal 5MB.',
         ]);
 
         $fotoPath = null;
@@ -97,6 +99,12 @@ class PelaporController extends Controller
                     }
                 }
             }
+        }
+
+        if (!$fotoPath) {
+            return back()->withInput()->withErrors([
+                'foto_bukti' => 'Foto bukti kerusakan wajib dilampirkan (unggah foto atau ambil melalui kamera).'
+            ]);
         }
 
         // Validasi: Fasilitas tidak boleh dilaporkan jika sedang dalam penanganan aktif
@@ -277,7 +285,7 @@ class PelaporController extends Controller
                                 $q->orWhereIn('id_user', [1, 4]);
                             }
                         })
-                        ->with(['facility', 'category', 'technician', 'verification.workOrder'])
+                        ->with(['facility', 'category', 'technician', 'verification.workOrder', 'verification.budgetProposal'])
                         ->first();
         }
 
@@ -308,7 +316,7 @@ class PelaporController extends Controller
                                 $q->orWhereIn('id_user', [1, 4]);
                             }
                         })
-                        ->with(['facility', 'user', 'category', 'technician', 'verification.workOrder'])
+                        ->with(['facility', 'user', 'category', 'technician', 'verification.workOrder', 'verification.budgetProposal'])
                         ->latest()
                         ->get();
 

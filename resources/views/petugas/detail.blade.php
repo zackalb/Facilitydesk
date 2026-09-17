@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Tugas - FacilityDesk</title>
+    <title>Detail Tugas - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
                 <div class="flex items-center space-x-3 mb-8">
                     <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
                     <div>
-                        <h1 class="text-sm font-bold text-slate-900 leading-tight">facility management</h1>
+                        <h1 class="text-sm font-bold text-slate-900 leading-tight">SIPERFAS</h1>
                         <p class="text-[10px] text-slate-500 font-medium">Petugas Teknisi</p>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span>Settings</span>
+                        <span>Pengaturan</span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -64,7 +64,7 @@
                             <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
-                            <span>Logout</span>
+                            <span>Keluar</span>
                         </button>
                     </form>
                 </div>
@@ -73,41 +73,72 @@
 
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col h-full overflow-hidden">
-            <!-- Topbar: Konsisten seperti Admin SarPras -->
-            <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
-                <h2 class="text-xl font-extrabold text-blue-950 tracking-tight">Petugas Teknisi</h2>
+            <!-- Topbar: Responsif Mobile & Desktop -->
+            <header class="bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 py-3.5 z-20 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <!-- Mobile Logo & Nama Aplikasi -->
+                    <div class="flex items-center space-x-2.5 md:hidden">
+                        <img src="{{ asset('logo.png') }}" alt="Logo" class="w-7 h-7 object-contain">
+                        <div>
+                            <h1 class="text-sm font-bold text-gray-900 leading-tight">SIPERFAS</h1>
+                            <p class="text-[9px] text-gray-500 font-medium">Petugas Teknisi</p>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-extrabold text-blue-950 tracking-tight hidden md:block">Petugas Teknisi</h2>
+                </div>
 
-                <!-- Notifications & Profile -->
-                <div class="flex items-center space-x-5">
-                    <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+                <!-- Notifications & Profile Dropdown -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <button class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-50">
                         <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                         </svg>
                         @if($hasEmergency ?? false)
-                            <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white animate-pulse"></span>
+                            <span class="absolute 1 top-1 right-1 w-2 h-2 bg-red-600 rounded-full border-2 border-white animate-pulse"></span>
                         @endif
                     </button>
-                    <button class="text-slate-500 hover:text-blue-600 transition-all">
-                        <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
 
-                    <!-- Avatar Profile Info -->
-                    <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Andi Saputra' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold">{{ $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi' }}</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
-                            {{ strtoupper(substr($user->nama ?? 'T', 0, 1)) }}
+                    <!-- Avatar Profile Info with Dropdown Toggle -->
+                    <div class="relative pl-3 border-l border-slate-200" id="petugasDetailProfileContainer">
+                        <button type="button" onclick="togglePetugasDetailProfileDropdown()" class="flex items-center space-x-3 focus:outline-none cursor-pointer group">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{{ $user->nama ?? 'Petugas Teknisi' }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold">{{ $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi' }}</p>
+                            </div>
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-sm sm:text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0 group-hover:ring-2 group-hover:ring-blue-400 transition-all">
+                                {{ strtoupper(substr($user->nama ?? 'T', 0, 1)) }}
+                            </div>
+                        </button>
+
+                        <!-- Profile Popover / Dropdown Menu -->
+                        <div id="petugasDetailProfileDropdown" class="hidden absolute right-0 mt-2.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in duration-150">
+                            <div class="px-4 py-2.5 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Petugas Teknisi' }}</p>
+                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ $user->email ?? '' }}</p>
+                                <span class="inline-block mt-1.5 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-md">
+                                    {{ $user->category ? 'Teknisi ' . $user->category->name : 'Petugas Teknisi' }}
+                                </span>
+                            </div>
+                            <div class="p-1.5">
+                                <a href="{{ route('settings.security') }}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span>Pengaturan Akun</span>
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?');">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Scrollable Page Content -->
-            <div class="flex-1 overflow-auto p-8">
+            <!-- Scrollable Page Content with Mobile Bottom Clearance -->
+            <div class="flex-1 overflow-auto p-4 sm:p-8 pb-24 md:pb-8">
                 <div class="max-w-6xl mx-auto space-y-6">
 
                     <!-- Flash Message -->
@@ -251,6 +282,8 @@
                                 $isEmergency = ($report->is_emergency || $report->status_laporan === 'darurat' || $report->tingkat_urgensi === 'darurat');
                                 // Pengajuan RAB HANYA untuk laporan berurgensi TINGGI (BUKAN DARURAT)
                                 $needRab = ($report->tingkat_urgensi === 'tinggi' && !$isEmergency);
+                                $isRabApproved = $proposal && $proposal->status_persetujuan === 'disetujui';
+                                $isRabPending = ($needRab || $proposal) && !$isRabApproved;
                             @endphp
 
                             <!-- Banner Fast-Track: Khusus Insiden Darurat (Langsung Eksekusi Tanpa RAB) -->
@@ -510,24 +543,59 @@
                                         </form>
                                     </div>
                                 @elseif(!in_array($report->status_laporan, ['selesai']))
-                                    <div class="mb-6 p-4.5 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    @if($isRabPending)
+                                        <div class="mb-6 p-4.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                            <div class="flex items-start gap-3.5">
+                                                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                </div>
+                                                <div>
+                                                    <div class="flex items-center gap-2">
+                                                        <h5 class="text-sm font-bold text-amber-950">Status: Menunggu Persetujuan RAB</h5>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-200 text-amber-900">Terkunci</span>
+                                                    </div>
+                                                    @if($proposal && $proposal->status_persetujuan === 'ditolak')
+                                                        <p class="text-xs text-amber-800 mt-1 leading-relaxed">Pengajuan RAB sebelumnya <strong>ditolak</strong> oleh Admin Sarpras. Silakan periksa catatan dan ajukan revisi di atas. Pekerjaan lapangan tidak dapat dimulai sebelum RAB disetujui.</p>
+                                                    @elseif($proposal)
+                                                        <p class="text-xs text-amber-800 mt-1 leading-relaxed">Pengajuan RAB (Rp {{ number_format($proposal->total_anggaran, 0, ',', '.') }}) telah diajukan ke Admin Sarpras. Menunggu persetujuan sebelum Anda dapat memulai pengerjaan fisik di lapangan.</p>
+                                                    @else
+                                                        <p class="text-xs text-amber-800 mt-1 leading-relaxed">Laporan urgensi tinggi memerlukan pengajuan Rencana Anggaran Biaya (RAB). Harap kirimkan pengajuan RAB di atas dan tunggu persetujuan Admin Sarpras.</p>
+                                                    @endif
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h5 class="text-sm font-bold text-amber-950">Status: Belum Dimulai (Perlu Ditangani)</h5>
-                                                <p class="text-xs text-amber-800 mt-0.5">Ubah status ke "Sedang Dikerjakan" untuk menginformasikan bahwa Anda sudah berada di lokasi fasilitas.</p>
-                                            </div>
-                                        </div>
-                                        <form action="{{ route('petugas.tasks.start', $report->id_laporan) }}" method="POST" class="shrink-0">
-                                            @csrf
-                                            <button type="submit" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                <span>Mulai Pengerjaan</span>
+                                            <button type="button" disabled class="shrink-0 px-4 py-2.5 bg-slate-200 text-slate-400 font-bold rounded-xl text-xs cursor-not-allowed flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                <span>Pengerjaan Terkunci</span>
                                             </button>
-                                        </form>
-                                    </div>
+                                        </div>
+                                    @else
+                                        @if($isRabApproved)
+                                            <div class="mb-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-900">
+                                                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <div class="text-xs font-semibold">
+                                                    RAB Disetujui Admin Sarpras (Rp {{ number_format($proposal->total_anggaran, 0, ',', '.') }}). Anda dapat memulai pengerjaan fisik sekarang.
+                                                </div>
+                                            </div>
+                                        @endif
+                                        <div class="mb-6 p-4.5 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div class="flex items-center gap-3.5">
+                                                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                </div>
+                                                <div>
+                                                    <h5 class="text-sm font-bold text-amber-950">Status: Belum Dimulai (Perlu Ditangani)</h5>
+                                                    <p class="text-xs text-amber-800 mt-0.5">Ubah status ke "Sedang Dikerjakan" untuk menginformasikan bahwa Anda sudah berada di lokasi fasilitas.</p>
+                                                </div>
+                                            </div>
+                                            <form action="{{ route('petugas.tasks.start', $report->id_laporan) }}" method="POST" class="shrink-0">
+                                                @csrf
+                                                <button type="submit" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                    <span>Mulai Pengerjaan</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 @endif
 
                                 @if($report->status_laporan === 'selesai')
@@ -562,16 +630,27 @@
                                             </div>
                                         @endif
                                     </div>
+                                @elseif($isRabPending)
+                                    <!-- Locked Execution Form State -->
+                                    <div class="py-10 px-6 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/60">
+                                        <div class="w-14 h-14 bg-amber-50 text-amber-600 border border-amber-200 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        </div>
+                                        <h5 class="text-sm font-bold text-slate-800">Formulir Eksekusi & Bukti Pengerjaan Terkunci</h5>
+                                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+                                            Formulir unggah foto hasil perbaikan ('After') dan catatan penyelesaian baru dapat diisi setelah Admin Sarpras menyetujui pengajuan Rencana Anggaran Biaya (RAB).
+                                        </p>
+                                    </div>
                                 @else
                                     <!-- Complete Task Form -->
-                                    <form action="{{ route('petugas.tasks.complete', $report->id_laporan) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                                    <form action="{{ route('petugas.tasks.complete', $report->id_laporan) }}" method="POST" enctype="multipart/form-data" class="space-y-6" onsubmit="return validateCompleteForm(event)">
                                         @csrf
 
                                         <!-- 1. Unggah Foto 'After' -->
                                         <div>
-                                            <label class="block text-sm font-bold text-slate-700 mb-2">1. Unggah Bukti Foto 'After' (Hasil Perbaikan)</label>
+                                            <label class="block text-sm font-bold text-slate-700 mb-2">1. Unggah Bukti Foto 'After' (Hasil Perbaikan) <span class="text-red-500 font-extrabold">* (Wajib Diisi)</span></label>
                                             <div onclick="document.getElementById('file-upload-after').click()" class="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex items-center justify-center text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/10 transition-all relative overflow-hidden group">
-                                                <input type="file" name="foto_after" id="file-upload-after" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                                <input type="file" name="foto_after" id="file-upload-after" class="hidden" accept="image/*" required onchange="previewImage(this)">
                                                 
                                                 <!-- Default State UI -->
                                                 <div id="upload-default-state" class="space-y-1.5 p-6">
@@ -734,6 +813,53 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        function validateCompleteForm(e) {
+            const fileInput = document.getElementById('file-upload-after');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                if (e) e.preventDefault();
+                alert('Bukti foto hasil perbaikan (After) wajib diunggah sebelum menyelesaikan tugas!');
+                return false;
+            }
+            return true;
+        }
+
+        // Profile Dropdown Toggle
+        function togglePetugasDetailProfileDropdown() {
+            const menu = document.getElementById('petugasDetailProfileDropdown');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('petugasDetailProfileContainer');
+            const menu = document.getElementById('petugasDetailProfileDropdown');
+            if (container && menu && !container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
     </script>
+
+    <!-- Mobile Bottom Navigation Bar (Petugas Teknisi) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-8 py-2 flex items-center justify-around safe-area-bottom">
+        <!-- 1. Tugas Perbaikan (Indikator Aktif / Induk) -->
+        <a href="{{ route('petugas.dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-blue-600 font-bold">
+            <svg class="w-5 h-5 text-blue-600 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+            <span class="text-[10px] mt-1 tracking-tight">Tugas Perbaikan</span>
+            <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mt-0.5"></span>
+        </a>
+
+        <!-- 2. Pengaturan -->
+        <a href="{{ route('settings.security') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="text-[10px] mt-1 tracking-tight">Pengaturan</span>
+        </a>
+    </nav>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Issue - FacilityDesk</title>
+    <title>Lapor Kerusakan - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,8 +20,8 @@
             <div class="flex items-center space-x-3 mb-8">
                 <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
                 <div>
-                    <h1 class="text-sm font-bold text-gray-900 leading-tight">facility management</h1>
-                    <p class="text-[10px] text-gray-500 font-medium">Administrative Office</p>
+                    <h1 class="text-sm font-bold text-gray-900 leading-tight">SIPERFAS</h1>
+                    <p class="text-[10px] text-gray-500 font-medium">Sistem Informasi Pelaporan Fasilitas</p>
                 </div>
             </div>
             
@@ -29,11 +29,11 @@
             <nav class="space-y-1">
                 <a href="{{ route('pelapor.dashboard') }}" class="flex items-center space-x-3 px-4 py-2.5 bg-blue-50/50 text-blue-700 rounded-lg text-sm font-semibold border-l-2 border-blue-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span>Report Issue</span>
+                    <span>Lapor Kerusakan</span>
                 </a>
                 <a href="{{ route('pelapor.tickets') }}" class="flex items-center space-x-3 px-4 py-2.5 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
-                    <span>Tickets</span>
+                    <span>Tiket Saya</span>
                 </a>
             </nav>
         </div>
@@ -45,13 +45,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span>Settings</span>
+                    <span>Pengaturan</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        <span>Logout</span>
+                        <span>Keluar</span>
                     </button>
                 </form>
             </div>
@@ -60,39 +60,70 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Topbar: Konsisten seperti Admin SarPras -->
-        <header class="bg-white border-b border-slate-100 flex items-center justify-between px-8 py-4 z-10 shrink-0">
-            <h2 class="text-xl font-extrabold text-blue-950 tracking-tight">Pelapor SarPras</h2>
+        <!-- Topbar: Responsif Mobile & Desktop -->
+        <header class="bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 py-3.5 z-20 shrink-0">
+            <div class="flex items-center space-x-3">
+                <!-- Mobile Logo & Nama Aplikasi -->
+                <div class="flex items-center space-x-2.5 md:hidden">
+                    <img src="{{ asset('logo.png') }}" alt="Logo" class="w-7 h-7 object-contain">
+                    <div>
+                        <h1 class="text-sm font-bold text-gray-900 leading-tight">SIPERFAS</h1>
+                        <p class="text-[9px] text-gray-500 font-medium">Pelapor</p>
+                    </div>
+                </div>
+                <h2 class="text-xl font-extrabold text-blue-950 tracking-tight hidden md:block">Pelapor</h2>
+            </div>
 
-            <!-- Notifications & Profile -->
-            <div class="flex items-center space-x-5">
-                <button class="text-slate-500 hover:text-blue-600 transition-all relative">
+            <!-- Notifications & Profile Dropdown -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <button class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-50">
                     <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white"></span>
-                </button>
-                <button class="text-slate-500 hover:text-blue-600 transition-all">
-                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                    </svg>
+                    <span class="absolute 1 top-1 right-1 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
                 </button>
 
-                <!-- Avatar Profile Info -->
-                <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Siswa / Guru' }}</p>
-                        <p class="text-[11px] text-slate-500 font-semibold">{{ (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa' }}</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0">
-                        {{ strtoupper(substr($user->nama ?? 'P', 0, 1)) }}
+                <!-- Avatar Profile Info with Dropdown Toggle -->
+                <div class="relative pl-3 border-l border-slate-200" id="pelaporProfileContainer">
+                    <button type="button" onclick="togglePelaporProfileDropdown()" class="flex items-center space-x-3 focus:outline-none cursor-pointer group">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{{ $user->nama ?? 'Pelapor' }}</p>
+                            <p class="text-[11px] text-slate-500 font-semibold">{{ (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa' }}</p>
+                        </div>
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-sm sm:text-base flex items-center justify-center border border-blue-200 shadow-xs shrink-0 group-hover:ring-2 group-hover:ring-blue-400 transition-all">
+                            {{ strtoupper(substr($user->nama ?? 'P', 0, 1)) }}
+                        </div>
+                    </button>
+
+                    <!-- Profile Popover / Dropdown Menu -->
+                    <div id="pelaporProfileDropdown" class="hidden absolute right-0 mt-2.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in duration-150">
+                        <div class="px-4 py-2.5 border-b border-slate-100">
+                            <p class="text-xs font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Pelapor' }}</p>
+                            <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ $user->email ?? '' }}</p>
+                            <span class="inline-block mt-1.5 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-md">
+                                {{ (str_contains(strtolower($user->nama ?? ''), 'guru') || str_contains(strtolower($user->email ?? ''), 'guru')) ? 'Guru Sekolah' : 'Siswa' }}
+                            </span>
+                        </div>
+                        <div class="p-1.5">
+                            <a href="{{ route('settings.security') }}" class="flex items-center space-x-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <span>Pengaturan Akun</span>
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?');">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                    <span>Keluar</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Scrollable Content -->
-        <div class="flex-1 overflow-auto p-4 md:p-8">
+        <!-- Scrollable Content with Mobile Bottom Clearance -->
+        <div class="flex-1 overflow-auto p-4 md:p-8 pb-24 md:pb-8">
             <div class="max-w-6xl mx-auto">
 
                 @if(session('success'))
@@ -140,7 +171,7 @@
                                 <span class="bg-gray-100 text-gray-600 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Standard Form</span>
                             </div>
                             
-                            <form action="{{ route('pelapor.lapor') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+                            <form action="{{ route('pelapor.lapor') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5" onsubmit="return validateReportForm(event)">
                                 @csrf
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -217,8 +248,8 @@
 
                                 <div>
                                     <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                                        <label class="block text-[13px] font-bold text-gray-700">Lampiran Bukti (Opsional)</label>
-                                        <span class="text-xs text-gray-500 font-medium">Pilih metode pengambilan foto:</span>
+                                        <label class="block text-[13px] font-bold text-gray-700">Lampiran Bukti Foto Kerusakan <span class="text-red-500 font-extrabold">* (Wajib Diisi)</span></label>
+                                        <span class="text-xs text-gray-500 font-medium">Pilih salah satu cara pengambilan foto:</span>
                                     </div>
 
                                     <!-- Switcher Opsi 1 (Kamera Real-Time) vs Opsi 2 (Unggah File) -->
@@ -462,7 +493,7 @@
             </div>
             
             <footer class="mt-12 text-center text-[11px] font-medium text-gray-400 border-t border-gray-100 pt-6 pb-4">
-                &copy; {{ date('Y') }} FacilityDesk Administrative Office. All rights reserved.
+                &copy; {{ date('Y') }} SIPERFAS - Sistem Informasi Pelaporan Fasilitas. All rights reserved.
             </footer>
         </div>
     </main>
@@ -512,8 +543,8 @@
                             <span class="text-[11px] text-slate-500 font-medium" id="modal-tracking-summary">Diperbarui otomatis oleh sistem</span>
                         </div>
 
-                        <!-- 4-Stage Stepper Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
+                        <!-- 4 or 5-Stage Stepper Grid -->
+                        <div id="tracking-stepper-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
                             
                             <!-- Step 1: Terkirim -->
                             <div class="p-3.5 rounded-xl border relative overflow-hidden transition-all" id="step-1-card">
@@ -539,22 +570,33 @@
                                 <span class="text-[10px] text-slate-400 font-semibold block" id="step-2-time">-</span>
                             </div>
 
-                            <!-- Step 3: Pengerjaan Fisik -->
+                            <!-- Step 3: Persetujuan RAB (Khusus Urgensi Tinggi) -->
+                            <div class="p-3.5 rounded-xl border relative overflow-hidden transition-all hidden" id="step-rab-card">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold" id="step-rab-icon"></div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100/70 px-1.5 py-0.5 rounded" id="step-rab-badge">Tahap 3</span>
+                                </div>
+                                <h5 class="text-xs font-bold text-slate-800 leading-tight mb-1">Persetujuan RAB</h5>
+                                <p class="text-[11px] text-slate-600 font-medium leading-snug mb-1" id="step-rab-desc">Menunggu persetujuan</p>
+                                <span class="text-[10px] text-slate-400 font-semibold block" id="step-rab-time">-</span>
+                            </div>
+
+                            <!-- Step Pengerjaan Fisik (Tahap 3 biasa / Tahap 4 saat Urgensi Tinggi) -->
                             <div class="p-3.5 rounded-xl border relative overflow-hidden transition-all" id="step-3-card">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold" id="step-3-icon"></div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tahap 3</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="step-3-badge">Tahap 3</span>
                                 </div>
                                 <h5 class="text-xs font-bold text-slate-800 leading-tight mb-1">Pengerjaan Fisik</h5>
                                 <p class="text-[11px] text-slate-600 font-medium leading-snug mb-1" id="step-3-desc">Menunggu giliran</p>
                                 <span class="text-[10px] text-slate-400 font-semibold block" id="step-3-time">-</span>
                             </div>
 
-                            <!-- Step 4: Perbaikan Selesai -->
+                            <!-- Step Perbaikan Selesai (Tahap 4 biasa / Tahap 5 saat Urgensi Tinggi) -->
                             <div class="p-3.5 rounded-xl border relative overflow-hidden transition-all" id="step-4-card">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold" id="step-4-icon"></div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tahap 4</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="step-4-badge">Tahap 4</span>
                                 </div>
                                 <h5 class="text-xs font-bold text-slate-800 leading-tight mb-1">Perbaikan Selesai</h5>
                                 <p class="text-[11px] text-slate-600 font-medium leading-snug mb-1" id="step-4-desc">Menunggu perbaikan</p>
@@ -716,7 +758,7 @@
 
                 <!-- Modal Footer -->
                 <div class="shrink-0 bg-white px-6 sm:px-8 py-4 border-t border-slate-100 flex items-center justify-between">
-                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">FacilityDesk Pelaporan Sarana & Prasarana</span>
+                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">SIPERFAS - Sistem Informasi Pelaporan Fasilitas</span>
                     <button type="button" class="px-5 py-2 text-sm font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer ml-auto" onclick="closeTicketDetail()">Tutup</button>
                 </div>
 
@@ -938,6 +980,32 @@
             try {
                 const status = ticket.status_laporan;
                 const techName = ticket.technician?.nama || 'Teknisi Lapangan';
+                const urgency = (ticket.tingkat_urgensi || '').toLowerCase();
+                const proposal = ticket.verification?.budget_proposal || ticket.verification?.budgetProposal;
+                const isHighUrgency = (urgency === 'tinggi') || !!proposal;
+
+                const grid = document.getElementById('tracking-stepper-grid');
+                const stepRabCard = document.getElementById('step-rab-card');
+                const step3Badge = document.getElementById('step-3-badge');
+                const step4Badge = document.getElementById('step-4-badge');
+
+                // Sesuaikan kolom grid & nomor tahap berdasarkan urgensi
+                if (grid) {
+                    if (isHighUrgency) {
+                        grid.classList.remove('lg:grid-cols-4');
+                        grid.classList.add('lg:grid-cols-5');
+                    } else {
+                        grid.classList.remove('lg:grid-cols-5');
+                        grid.classList.add('lg:grid-cols-4');
+                    }
+                }
+
+                if (step3Badge) {
+                    step3Badge.textContent = isHighUrgency ? 'Tahap 4' : 'Tahap 3';
+                }
+                if (step4Badge) {
+                    step4Badge.textContent = isHighUrgency ? 'Tahap 5' : 'Tahap 4';
+                }
 
                 // 1. Step 1: Laporan Terkirim
                 const step1Card = document.getElementById('step-1-card');
@@ -979,7 +1047,63 @@
                     if (step2Time) step2Time.textContent = 'Dalam antrean';
                 }
 
-                // 3. Step 3: Dalam Pengerjaan
+                // 3. Step RAB: Persetujuan RAB (Tahap 3 Khusus Urgensi Tinggi)
+                if (isHighUrgency && stepRabCard) {
+                    stepRabCard.classList.remove('hidden');
+                    const stepRabIcon = document.getElementById('step-rab-icon');
+                    const stepRabTime = document.getElementById('step-rab-time');
+                    const stepRabDesc = document.getElementById('step-rab-desc');
+
+                    const isRabApproved = (proposal && proposal.status_persetujuan === 'disetujui') || ['proses', 'proses_perbaikan', 'selesai'].includes(status);
+                    const isRabRejected = (proposal && proposal.status_persetujuan === 'ditolak');
+
+                    if (isRabApproved) {
+                        stepRabCard.className = 'p-3.5 rounded-xl border border-emerald-200 shadow-xs relative overflow-hidden bg-emerald-50/20';
+                        if (stepRabIcon) {
+                            stepRabIcon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-emerald-100 text-emerald-700';
+                            stepRabIcon.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>`;
+                        }
+                        if (stepRabDesc) {
+                            stepRabDesc.textContent = proposal?.total_anggaran 
+                                ? `Disetujui (Rp ${Number(proposal.total_anggaran).toLocaleString('id-ID')})`
+                                : 'RAB Disetujui Admin Sarpras';
+                        }
+                        if (stepRabTime) stepRabTime.textContent = formatDateTimeID(proposal?.tanggal_persetujuan || proposal?.updated_at) || 'Telah disetujui';
+                    } else if (isRabRejected) {
+                        stepRabCard.className = 'p-3.5 rounded-xl border border-rose-200 shadow-xs relative overflow-hidden bg-rose-50/20';
+                        if (stepRabIcon) {
+                            stepRabIcon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-rose-100 text-rose-700';
+                            stepRabIcon.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                        }
+                        if (stepRabDesc) stepRabDesc.textContent = 'RAB ditolak / butuh revisi';
+                        if (stepRabTime) stepRabTime.textContent = formatDateTimeID(proposal?.updated_at) || 'Ditolak Sarpras';
+                    } else if (status === 'menunggu_rab' || (proposal && proposal.status_persetujuan === 'menunggu_persetujuan')) {
+                        stepRabCard.className = 'p-3.5 rounded-xl border border-purple-200 shadow-xs relative overflow-hidden bg-purple-50/30';
+                        if (stepRabIcon) {
+                            stepRabIcon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-purple-600 text-white animate-pulse';
+                            stepRabIcon.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                        }
+                        if (stepRabDesc) {
+                            stepRabDesc.textContent = proposal?.total_anggaran 
+                                ? `Menunggu ACC (Rp ${Number(proposal.total_anggaran).toLocaleString('id-ID')})`
+                                : 'Menunggu persetujuan Admin';
+                        }
+                        if (stepRabTime) stepRabTime.textContent = formatDateTimeID(proposal?.tanggal_pengajuan || proposal?.created_at) || 'Ditinjau Sarpras';
+                    } else {
+                        // Belum diajukan
+                        stepRabCard.className = 'p-3.5 rounded-xl border border-slate-200 shadow-xs relative overflow-hidden bg-white';
+                        if (stepRabIcon) {
+                            stepRabIcon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-slate-100 text-slate-400';
+                            stepRabIcon.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`;
+                        }
+                        if (stepRabDesc) stepRabDesc.textContent = 'Menunggu pengajuan RAB';
+                        if (stepRabTime) stepRabTime.textContent = 'Dalam antrean';
+                    }
+                } else if (stepRabCard) {
+                    stepRabCard.classList.add('hidden');
+                }
+
+                // 4. Step Fisik: Pengerjaan Fisik (Tahap 3 biasa / Tahap 4 saat Urgensi Tinggi)
                 const step3Card = document.getElementById('step-3-card');
                 const step3Icon = document.getElementById('step-3-icon');
                 const step3Time = document.getElementById('step-3-time');
@@ -1001,7 +1125,7 @@
                     }
                     if (step3Desc) step3Desc.textContent = 'Sedang dikerjakan di lokasi';
                     if (step3Time) step3Time.textContent = formatDateTimeID(wo?.tanggal_mulai) || 'Sedang Berjalan';
-                } else if (status === 'menunggu_rab') {
+                } else if (status === 'menunggu_rab' && !isHighUrgency) {
                     if (step3Card) step3Card.className = 'p-3.5 rounded-xl border border-purple-200 shadow-xs relative overflow-hidden bg-purple-50/30';
                     if (step3Icon) {
                         step3Icon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-purple-100 text-purple-700';
@@ -1015,11 +1139,11 @@
                         step3Icon.className = 'w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold bg-slate-100 text-slate-400';
                         step3Icon.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
                     }
-                    if (step3Desc) step3Desc.textContent = 'Menunggu tindakan';
+                    if (step3Desc) step3Desc.textContent = isHighUrgency ? 'Menunggu persetujuan RAB' : 'Menunggu giliran';
                     if (step3Time) step3Time.textContent = 'Belum dimulai';
                 }
 
-                // 4. Step 4: Selesai
+                // 5. Step Selesai (Tahap 4 biasa / Tahap 5 saat Urgensi Tinggi)
                 const step4Card = document.getElementById('step-4-card');
                 const step4Icon = document.getElementById('step-4-icon');
                 const step4Time = document.getElementById('step-4-time');
@@ -1414,6 +1538,20 @@
             if (catIdInput) catIdInput.value = '';
         }
 
+        function validateReportForm(e) {
+            const fileInput = document.getElementById('file-upload');
+            const base64Input = document.getElementById('foto-kamera-base64');
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+            const hasBase64 = base64Input && base64Input.value && base64Input.value.trim() !== '';
+
+            if (!hasFile && !hasBase64) {
+                if (e) e.preventDefault();
+                alert('Foto bukti kerusakan wajib dilampirkan!\nSilakan gunakan Opsi 1 (Kamera Real-Time) untuk memotret atau Opsi 2 (Unggah File) untuk memilih foto bukti.');
+                return false;
+            }
+            return true;
+        }
+
         function previewImage(input) {
             const file = input.files && input.files[0];
             const defaultState = document.getElementById('upload-default-state');
@@ -1575,5 +1713,51 @@
             </form>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation Bar (Khusus Layar Ponsel) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 py-2 flex items-center justify-around safe-area-bottom">
+        <!-- 1. Lapor Kerusakan (Aktif) -->
+        <a href="{{ route('pelapor.dashboard') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-blue-600 font-bold">
+            <svg class="w-5 h-5 text-blue-600 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span class="text-[10px] mt-1 tracking-tight">Lapor Kerusakan</span>
+            <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mt-0.5"></span>
+        </a>
+
+        <!-- 2. Tiket Saya -->
+        <a href="{{ route('pelapor.tickets') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+            </svg>
+            <span class="text-[10px] mt-1 tracking-tight">Tiket Saya</span>
+        </a>
+
+        <!-- 3. Pengaturan -->
+        <a href="{{ route('settings.security') }}" class="flex flex-col items-center justify-center flex-1 py-1 transition-all text-slate-400 hover:text-slate-600 font-medium">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="text-[10px] mt-1 tracking-tight">Pengaturan</span>
+        </a>
+    </nav>
+
+    <script>
+        function togglePelaporProfileDropdown() {
+            const menu = document.getElementById('pelaporProfileDropdown');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('pelaporProfileContainer');
+            const menu = document.getElementById('pelaporProfileDropdown');
+            if (container && menu && !container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

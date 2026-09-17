@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin Sarpras - FacilityDesk</title>
+    <title>Dashboard Admin Sarpras - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,8 +21,8 @@
             <div class="flex items-center space-x-3 mb-8">
                 <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
                 <div>
-                    <h1 class="text-sm font-bold text-slate-900 leading-tight">facility management</h1>
-                    <p class="text-[10px] text-slate-500 font-medium">Administrative Office</p>
+                    <h1 class="text-sm font-bold text-slate-900 leading-tight">SIPERFAS</h1>
+                    <p class="text-[10px] text-slate-500 font-medium">Sistem Informasi Pelaporan Fasilitas</p>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@
                     <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                     </svg>
-                    <span>Work orders</span>
+                    <span>Perintah Kerja</span>
                 </a>
                 <a href="{{ route('admin.inventory.index') }}" class="flex items-center space-x-3 px-4 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all group">
                     <svg class="w-5 h-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span>Settings</span>
+                    <span>Pengaturan</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -77,7 +77,7 @@
                         <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
-                        <span>Logout</span>
+                        <span>Keluar</span>
                     </button>
                 </form>
             </div>
@@ -109,8 +109,8 @@
                 <!-- Avatar Profile Info -->
                 <div class="flex items-center space-x-3 border-l border-slate-200 pl-5">
                     <div class="text-right hidden sm:block">
-                        <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Budi Santoso' }}</p>
-                        <p class="text-[11px] text-slate-500 font-semibold">Kepala Sarpras</p>
+                        <p class="text-sm font-bold text-slate-900 leading-tight">{{ $user->nama ?? 'Admin Sarpras' }}</p>
+                        <p class="text-[11px] text-slate-500 font-semibold">Sarana & Prasarana</p>
                     </div>
                     <div class="w-10 h-10 rounded-full overflow-hidden border border-blue-200 shadow-xs flex items-center justify-center shrink-0">
                         <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -562,10 +562,10 @@
                                 <div>
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pelapor</span>
                                     <div class="flex items-center gap-2 mt-1">
-                                        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px]" id="modal-pelapor-avatar">B</div>
+                                        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px]" id="modal-pelapor-avatar">P</div>
                                         <div>
-                                            <p class="font-bold text-slate-800 leading-tight" id="modal-pelapor-name">Budi Santoso</p>
-                                            <p class="text-[10px] text-slate-400" id="modal-pelapor-role">Kepala Teknisi</p>
+                                            <p class="font-bold text-slate-800 leading-tight" id="modal-pelapor-name">Pelapor</p>
+                                            <p class="text-[10px] text-slate-400" id="modal-pelapor-role">Siswa / Guru</p>
                                         </div>
                                     </div>
                                 </div>
@@ -573,7 +573,7 @@
 
                             <!-- Right Photo Before -->
                             <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Photo Before</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Foto Sebelum Perbaikan</span>
                                 <div class="border-2 border-dashed border-slate-200 rounded-2xl h-44 flex flex-col items-center justify-center text-center p-4 bg-slate-50/40 relative overflow-hidden" id="modal-photo-container">
                                     <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -665,17 +665,17 @@
             const user = rep && rep.user ? rep.user : null;
 
             // Update Title & Subtitle
-            document.getElementById('modal-title').innerText = 'Approval RAB: ' + (fac ? fac.nama_fasilitas : 'Perbaikan Fasilitas');
+            document.getElementById('modal-title').innerText = 'Persetujuan RAB: ' + (fac ? fac.nama_fasilitas : 'Perbaikan Fasilitas');
             const ticketCode = rep ? '#TCK-' + (rep.tanggal_waktu ? new Date(rep.tanggal_waktu).getFullYear() : '2023') + '-' + String(rep.id_laporan).padStart(4, '0') : '#TCK-2023-0894';
-            document.getElementById('modal-subtitle').innerText = 'Ticket ID: ' + ticketCode + ' • Submitted: ' + (rep && rep.tanggal_waktu ? new Date(rep.tanggal_waktu).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : 'Oct 24, 2023');
+            document.getElementById('modal-subtitle').innerText = 'ID Tiket: ' + ticketCode + ' • Diajukan: ' + (rep && rep.tanggal_waktu ? new Date(rep.tanggal_waktu).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : '24 Okt 2023');
 
             // Update Location & Description
             document.getElementById('modal-lokasi').innerText = fac && fac.lokasi_detail ? fac.lokasi_detail : 'Gedung A, Lantai 3, Ruang Kelas 302';
             document.getElementById('modal-deskripsi').innerText = rep && rep.deskripsi_kerusakan ? rep.deskripsi_kerusakan : 'Plafon jebol akibat rembesan air hujan dari atap. Rangka kayu sebagian lapuk dan perlu diganti.';
             
             // Reporter
-            document.getElementById('modal-pelapor-name').innerText = user ? user.nama : 'Budi Santoso';
-            document.getElementById('modal-pelapor-avatar').innerText = user ? user.nama.charAt(0).toUpperCase() : 'B';
+            document.getElementById('modal-pelapor-name').innerText = user ? user.nama : 'Pelapor';
+            document.getElementById('modal-pelapor-avatar').innerText = user ? user.nama.charAt(0).toUpperCase() : 'P';
 
             // Photo Before
             const photoContainer = document.getElementById('modal-photo-container');

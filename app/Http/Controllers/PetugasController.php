@@ -206,13 +206,13 @@ class PetugasController extends Controller
                 ]);
             }
 
-            // 7. Update status laporan ke 'proses'
-            $report->status_laporan = 'proses';
+            // 7. Update status laporan ke 'menunggu_rab' (Menunggu Persetujuan Admin Sarpras)
+            $report->status_laporan = 'menunggu_rab';
             $report->save();
 
             DB::commit();
 
-            return back()->with('success', 'RAB sebesar Rp ' . number_format($totalEstimasi, 0, ',', '.') . ' berhasil diajukan ke Admin Sarpras!');
+            return back()->with('success', 'Proposal RAB sebesar Rp ' . number_format($totalEstimasi, 0, ',', '.') . ' berhasil diajukan! Menunggu persetujuan dari Admin Sarpras sebelum pengerjaan dapat dimulai.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal mengajukan RAB: ' . $e->getMessage());
@@ -228,7 +228,14 @@ class PetugasController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $report = DamageReport::with(['facility', 'verification.workOrder'])->findOrFail($id);
+        $report = DamageReport::with(['facility', 'verification.workOrder', 'verification.budgetProposal'])->findOrFail($id);
+
+        // Validasi: Jika urgensi tinggi atau ada RAB, wajib disetujui Admin Sarpras terlebih dahulu
+        $proposal = $report->verification ? $report->verification->budgetProposal : null;
+        if (($report->tingkat_urgensi === 'tinggi' || $proposal) && (!$proposal || $proposal->status_persetujuan !== 'disetujui')) {
+            return back()->with('error', 'Pengerjaan fisik belum dapat dimulai! Menunggu persetujuan proposal RAB dari Admin Sarpras.');
+        }
+
         $report->status_laporan = 'proses';
         $report->save();
 
@@ -287,9 +294,22 @@ class PetugasController extends Controller
             return redirect()->route('dashboard');
         }
 
+        $report = DamageReport::with(['facility', 'verification.workOrder', 'verification.budgetProposal'])->findOrFail($id);
+
+        // Validasi: Jika urgensi tinggi atau ada RAB, wajib disetujui Admin Sarpras sebelum diselesaikan
+        $proposal = $report->verification ? $report->verification->budgetProposal : null;
+        if (($report->tingkat_urgensi === 'tinggi' || $proposal) && (!$proposal || $proposal->status_persetujuan !== 'disetujui')) {
+            return back()->with('error', 'Perbaikan belum dapat diselesaikan! Menunggu persetujuan proposal RAB dari Admin Sarpras.');
+        }
+
         $request->validate([
-            'foto_after'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'foto_after'        => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'catatan_perbaikan' => 'nullable|string|max:1000',
+        ], [
+            'foto_after.required' => 'Foto bukti hasil perbaikan (After) wajib diunggah untuk menyelesaikan tugas.',
+            'foto_after.image'    => 'File bukti hasil perbaikan harus berupa gambar.',
+            'foto_after.mimes'    => 'Format gambar bukti harus jpeg, png, jpg, atau webp.',
+            'foto_after.max'      => 'Ukuran foto maksimal 5MB.',
         ]);
 
         $report = DamageReport::with(['facility', 'verification.workOrder'])->findOrFail($id);

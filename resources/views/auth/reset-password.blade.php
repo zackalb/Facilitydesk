@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atur Ulang Kata Sandi - FacilityDesk</title>
+    <title>Atur Ulang Kata Sandi - SIPERFAS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
         <!-- Left Side: Illustration Container -->
         <div class="hidden md:flex md:w-[50%] bg-[#F8F9FA] flex-col items-center justify-center p-12 relative border-r border-gray-100">
             <div class="w-full text-center relative z-10">
-                <img src="{{ asset('illustration.png') }}" alt="Ilustrasi FacilityDesk" class="w-full max-w-sm mx-auto object-contain mb-8 mix-blend-multiply">
+                <img src="{{ asset('illustration.png') }}" alt="Ilustrasi SIPERFAS" class="w-full max-w-sm mx-auto object-contain mb-8 mix-blend-multiply">
                 
                 <h2 class="text-[26px] font-bold text-gray-800 italic leading-tight font-serif tracking-tight">Perbarui Kata Sandi Anda</h2>
                 <p class="text-sm text-gray-600 mt-3 font-medium italic max-w-xs mx-auto leading-relaxed font-serif">
@@ -118,13 +118,13 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
-                            <span>Batal & Kembali ke Login</span>
+                            <span>Batal & Kembali ke Halaman Masuk</span>
                         </a>
                     </div>
                 </form>
 
                 <div class="mt-10 flex justify-between items-center text-[11px] text-gray-400 font-medium pt-4 border-t border-gray-100">
-                    <div>© 2024 FacilityDesk.</div>
+                    <div>© {{ date('Y') }} SIPERFAS.</div>
                     <div class="flex space-x-4">
                         <a href="#" class="hover:text-gray-700 transition-colors">Bantuan</a>
                         <a href="#" class="hover:text-gray-700 transition-colors">Kebijakan Privasi</a>

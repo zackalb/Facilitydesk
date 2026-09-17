@@ -25,7 +25,9 @@ class ReportController extends Controller
             'category_id'         => 'required|exists:categories,id',
             'tingkat_urgensi'     => 'required|string|in:rendah,sedang,tinggi,darurat,Rendah,Sedang,Tinggi,Darurat',
             'deskripsi_kerusakan' => 'required|string|min:10',
-            'foto_bukti'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'foto_bukti'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'foto_bukti.required' => 'Foto bukti kerusakan wajib dilampirkan.',
         ]);
 
         $fotoPath = null;
