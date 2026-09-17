@@ -89,14 +89,92 @@
 
                 <!-- Notifications & Profile Dropdown -->
                 <div class="flex items-center space-x-3 sm:space-x-4">
-                    <button class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-50">
+                <!-- Notifications Dropdown (Petugas: Ketika ada laporan masuk dari pelapor) -->
+                <div class="relative" id="petugasNotificationContainer">
+                    <button type="button" onclick="togglePetugasNotificationDropdown()" class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer focus:outline-none" title="Notifikasi Laporan Masuk">
                         <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                         </svg>
-                        @if($hasEmergency ?? false)
-                            <span class="absolute 1 top-1 right-1 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white animate-pulse"></span>
+                        @if(($petugasNotificationCount ?? 0) > 0 || ($hasEmergency ?? false))
+                            <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ ($hasEmergency ?? false) || ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-400' : 'bg-blue-400' }} opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 {{ ($hasEmergency ?? false) || ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-600' : 'bg-blue-600' }} border-2 border-white"></span>
+                            </span>
                         @endif
                     </button>
+
+                    <!-- Dropdown Popover Panel -->
+                    <div id="petugasNotificationDropdown" class="hidden absolute right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 md:translate-x-0 md:left-auto md:right-0 mt-2.5 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden transform transition-all duration-200 origin-top-right">
+                        <!-- Header -->
+                        <div class="p-3.5 sm:p-4 bg-gradient-to-r from-slate-50 to-blue-50/40 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-tight">Laporan Masuk</h4>
+                                    <p class="text-[10px] sm:text-[11px] text-slate-500">Dari Pelapor Sekolah</p>
+                                </div>
+                            </div>
+                            @if(($petugasNotificationCount ?? 0) > 0)
+                                <span class="px-2 py-0.5 {{ ($petugasNotifications ?? collect())->contains('is_emergency', true) ? 'bg-red-100 text-red-700 border-red-200 animate-pulse' : 'bg-blue-100 text-blue-700 border-blue-200' }} text-[10px] sm:text-[11px] font-bold rounded-full border">
+                                    {{ $petugasNotificationCount }} Laporan Baru
+                                </span>
+                            @else
+                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                    0 Baru
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- List Notifikasi Laporan Masuk -->
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse($petugasNotifications ?? [] as $item)
+                                <a href="{{ route('petugas.tasks.show', $item->id_laporan) }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 rounded-lg {{ $item->is_emergency || $item->status_laporan === 'darurat' ? 'bg-red-50 text-red-600 border-red-100 group-hover:bg-red-600' : ($item->tingkat_urgensi === 'tinggi' ? 'bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-600' : 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-600') }} flex items-center justify-center shrink-0 mt-0.5 border group-hover:text-white transition-colors">
+                                            @if($item->is_emergency || $item->status_laporan === 'darurat')
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                            @else
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-0.5">
+                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $item->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $item->created_at ? $item->created_at->diffForHumans() : 'Baru saja' }}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
+                                                Dilaporkan oleh <strong class="text-slate-800">{{ $item->user->nama ?? 'Pelapor' }}</strong>: {{ $item->deskripsi_kerusakan }}
+                                            </p>
+                                            <div class="mt-2 flex items-center justify-between">
+                                                <span class="inline-block px-1.5 py-0.5 text-[9px] font-bold rounded {{ $item->is_emergency || $item->status_laporan === 'darurat' ? 'bg-red-100 text-red-700' : ($item->tingkat_urgensi === 'tinggi' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700') }}">
+                                                    Urgensi {{ ucfirst($item->tingkat_urgensi) }}
+                                                </span>
+                                                <span class="text-[10px] font-bold text-blue-600 group-hover:text-blue-700">Tinjau Tugas &rarr;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-8 text-center">
+                                    <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-700 mb-1">Tidak Ada Laporan Baru</p>
+                                    <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Semua laporan dari pelapor telah ditangani atau belum ada laporan baru yang masuk.</p>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('petugas.dashboard') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline">
+                                Buka Semua Daftar Tugas &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                     <!-- Avatar Profile Info with Dropdown Toggle -->
                     <div class="relative pl-3 border-l border-slate-200" id="petugasProfileContainer">
@@ -365,19 +443,42 @@
             });
         }
 
-        // Profile Dropdown Toggle
-        function togglePetugasProfileDropdown() {
-            const menu = document.getElementById('petugasProfileDropdown');
-            if (menu) {
-                menu.classList.toggle('hidden');
+        // Notification Dropdown Toggle
+        function togglePetugasNotificationDropdown() {
+            const notifDropdown = document.getElementById('petugasNotificationDropdown');
+            const profileDropdown = document.getElementById('petugasProfileDropdown');
+            if (profileDropdown && !profileDropdown.classList.contains('hidden')) {
+                profileDropdown.classList.add('hidden');
+            }
+            if (notifDropdown) {
+                notifDropdown.classList.toggle('hidden');
             }
         }
 
+        // Profile Dropdown Toggle
+        function togglePetugasProfileDropdown() {
+            const profileDropdown = document.getElementById('petugasProfileDropdown');
+            const notifDropdown = document.getElementById('petugasNotificationDropdown');
+            if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
+                notifDropdown.classList.add('hidden');
+            }
+            if (profileDropdown) {
+                profileDropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdowns on outside click
         document.addEventListener('click', function(e) {
-            const container = document.getElementById('petugasProfileContainer');
-            const menu = document.getElementById('petugasProfileDropdown');
-            if (container && menu && !container.contains(e.target)) {
-                menu.classList.add('hidden');
+            const notifContainer = document.getElementById('petugasNotificationContainer');
+            const notifDropdown = document.getElementById('petugasNotificationDropdown');
+            if (notifContainer && notifDropdown && !notifContainer.contains(e.target)) {
+                notifDropdown.classList.add('hidden');
+            }
+
+            const profileContainer = document.getElementById('petugasProfileContainer');
+            const profileDropdown = document.getElementById('petugasProfileDropdown');
+            if (profileContainer && profileDropdown && !profileContainer.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
             }
         });
     </script>

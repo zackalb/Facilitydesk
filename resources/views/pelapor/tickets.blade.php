@@ -75,12 +75,85 @@
 
             <!-- Notifications & Profile Dropdown -->
             <div class="flex items-center space-x-3 sm:space-x-4">
-                <button class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-50">
-                    <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                    </svg>
-                    <span class="absolute 1 top-1 right-1 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
-                </button>
+                <!-- Notifications Dropdown (Pelapor: Hanya ketika tugas sudah selesai) -->
+                <div class="relative" id="pelaporNotificationContainer">
+                    <button type="button" onclick="togglePelaporNotificationDropdown()" class="text-slate-500 hover:text-blue-600 transition-all relative p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer focus:outline-none" title="Notifikasi Tugas Selesai">
+                        <svg class="w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                        @if(($pelaporNotificationCount ?? 0) > 0)
+                            <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-white"></span>
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Dropdown Popover Panel -->
+                    <div id="pelaporNotificationDropdown" class="hidden absolute right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 md:translate-x-0 md:left-auto md:right-0 mt-2.5 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden transform transition-all duration-200 origin-top-right">
+                        <!-- Header -->
+                        <div class="p-3.5 sm:p-4 bg-gradient-to-r from-slate-50 to-blue-50/40 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-tight">Pemberitahuan</h4>
+                                    <p class="text-[10px] sm:text-[11px] text-slate-500">Tugas Perbaikan Selesai</p>
+                                </div>
+                            </div>
+                            @if(($pelaporNotificationCount ?? 0) > 0)
+                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] sm:text-[11px] font-bold rounded-full border border-emerald-200">
+                                    {{ $pelaporNotificationCount }} Selesai
+                                </span>
+                            @else
+                                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] sm:text-[11px] font-medium rounded-full">
+                                    0 Baru
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- List Notifikasi -->
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse($pelaporNotifications ?? [] as $notif)
+                                <a href="{{ route('pelapor.tickets') }}" class="block p-3.5 hover:bg-slate-50/90 transition-colors group">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-0.5">
+                                                <span class="text-xs font-bold text-slate-900 truncate">{{ $notif->facility->nama_fasilitas ?? 'Fasilitas' }}</span>
+                                                <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ $notif->updated_at ? $notif->updated_at->diffForHumans() : 'Selesai' }}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 leading-snug line-clamp-2">
+                                                Perbaikan kerusakan telah selesai ditangani oleh <strong class="text-slate-800">{{ $notif->technician->nama ?? 'Petugas Teknisi' }}</strong>.
+                                            </p>
+                                            <div class="mt-2 flex items-center text-[10px] font-bold text-emerald-600 group-hover:text-emerald-700">
+                                                <span>Lihat Bukti Hasil Perbaikan &rarr;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-8 text-center">
+                                    <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-700 mb-1">Belum Ada Tugas Selesai</p>
+                                    <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto">Notifikasi hanya muncul saat teknisi telah menyelesaikan perbaikan fasilitas yang Anda laporkan.</p>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('pelapor.tickets') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline">
+                                Lihat Semua Tiket & Riwayat &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Avatar Profile Info with Dropdown Toggle -->
                 <div class="relative pl-3 border-l border-slate-200" id="pelaporProfileContainer">
@@ -993,19 +1066,42 @@
             }
         });
 
-        // Profile Dropdown Toggle
-        function togglePelaporProfileDropdown() {
-            const menu = document.getElementById('pelaporProfileDropdown');
-            if (menu) {
-                menu.classList.toggle('hidden');
+        // Notification Dropdown Toggle
+        function togglePelaporNotificationDropdown() {
+            const notifDropdown = document.getElementById('pelaporNotificationDropdown');
+            const profileDropdown = document.getElementById('pelaporProfileDropdown');
+            if (profileDropdown && !profileDropdown.classList.contains('hidden')) {
+                profileDropdown.classList.add('hidden');
+            }
+            if (notifDropdown) {
+                notifDropdown.classList.toggle('hidden');
             }
         }
 
+        // Profile Dropdown Toggle
+        function togglePelaporProfileDropdown() {
+            const profileDropdown = document.getElementById('pelaporProfileDropdown');
+            const notifDropdown = document.getElementById('pelaporNotificationDropdown');
+            if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
+                notifDropdown.classList.add('hidden');
+            }
+            if (profileDropdown) {
+                profileDropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdowns on outside click
         document.addEventListener('click', function(e) {
-            const container = document.getElementById('pelaporProfileContainer');
-            const menu = document.getElementById('pelaporProfileDropdown');
-            if (container && menu && !container.contains(e.target)) {
-                menu.classList.add('hidden');
+            const notifContainer = document.getElementById('pelaporNotificationContainer');
+            const notifDropdown = document.getElementById('pelaporNotificationDropdown');
+            if (notifContainer && notifDropdown && !notifContainer.contains(e.target)) {
+                notifDropdown.classList.add('hidden');
+            }
+
+            const profileContainer = document.getElementById('pelaporProfileContainer');
+            const profileDropdown = document.getElementById('pelaporProfileDropdown');
+            if (profileContainer && profileDropdown && !profileContainer.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
             }
         });
     </script>
