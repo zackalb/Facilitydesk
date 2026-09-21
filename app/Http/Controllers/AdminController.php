@@ -474,6 +474,220 @@ class AdminController extends Controller
     }
 
     /**
+     * Ekspor Laporan Pertanggungjawaban Realisasi Anggaran ke PDF Asli (DomPDF).
+     */
+    public function exportPdf(Request $request)
+    {
+        $user = Auth::user();
+        $status = strtolower(trim($user->status ?? ''));
+        if (!in_array($status, ['admin', 'sarpras', 'admin_sarpras'])) {
+            return redirect()->route('pelapor.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman Admin.');
+        }
+
+        $now = now();
+        $period = $request->get('period', 'tahun');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($period === 'triwulan') {
+            $periodStart = $now->copy()->subMonths(3)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Triwulan (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'semester') {
+            $periodStart = $now->copy()->subMonths(6)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Semester (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $periodStart = \Carbon\Carbon::parse($startDate)->startOfDay();
+            $periodEnd = \Carbon\Carbon::parse($endDate)->endOfDay();
+            $periodLabel = $periodStart->format('d M Y') . ' - ' . $periodEnd->format('d M Y');
+        } else {
+            $period = 'tahun';
+            $periodStart = $now->copy()->startOfYear();
+            $periodEnd = $now->copy()->endOfYear();
+            $periodLabel = 'Tahun Berjalan (' . $now->format('Y') . ')';
+        }
+
+        $budget = SchoolBudget::first();
+        if (!$budget) {
+            $budget = SchoolBudget::create([
+                'tahun_ajaran' => '2026/2027',
+                'total_anggaran' => 50000000,
+                'sisa_saldo' => 50000000,
+            ]);
+        }
+        $totalAnggaran = (float) $budget->total_anggaran;
+        $tahunAjaran = $budget->tahun_ajaran;
+
+        $approvedProposals = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->where('status_persetujuan', 'disetujui')
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
+            ->get();
+
+        $pengeluaranTerealisasi = 0;
+        foreach ($approvedProposals as $prop) {
+            $sum = $prop->items->sum('subtotal');
+            if ($sum == 0 && $prop->total_estimasi > 0) {
+                $sum = $prop->total_estimasi;
+            }
+            $pengeluaranTerealisasi += $sum;
+        }
+
+        $sisaSaldo = max(0, $totalAnggaran - $pengeluaranTerealisasi);
+        $persenTerpakai = $totalAnggaran > 0 ? round(($pengeluaranTerealisasi / $totalAnggaran) * 100, 1) : 0;
+
+        $proposalsWithReports = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
+            ->latest()
+            ->get();
+
+        $transaksi = [];
+        foreach ($proposalsWithReports as $p) {
+            $rep = $p->verification ? $p->verification->damageReport : null;
+            $fac = $rep ? $rep->facility : null;
+            $cat = ($rep && $rep->category) ? $rep->category->name : ($fac ? ($fac->kategori_area ?? 'Umum') : 'Umum');
+            $sum = $p->items->sum('subtotal');
+            if ($sum == 0) $sum = $p->total_estimasi;
+
+            $statusLabel = 'Menunggu Persetujuan';
+            if ($p->status_persetujuan === 'disetujui') $statusLabel = 'Disetujui / Terbayar';
+            elseif ($p->status_persetujuan === 'ditolak') $statusLabel = 'Ditolak';
+
+            $transaksi[] = (object)[
+                'tanggal' => $p->created_at ? $p->created_at->format('Y-m-d') : now()->format('Y-m-d'),
+                'deskripsi' => $rep ? ($rep->deskripsi_laporan ?: ($fac ? $fac->nama_fasilitas : 'Perbaikan Fasilitas')) : 'Pengajuan Perbaikan Sarpras',
+                'damageReport' => $rep,
+                'kategori' => $cat,
+                'status' => $statusLabel,
+                'jumlah' => $sum,
+            ];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.analytics_pdf', compact(
+            'totalAnggaran',
+            'tahunAjaran',
+            'pengeluaranTerealisasi',
+            'sisaSaldo',
+            'persenTerpakai',
+            'periodLabel',
+            'transaksi'
+        ))->setPaper('a4', 'portrait');
+
+        $filename = 'Laporan_Realisasi_Anggaran_Sarpras_' . str_replace([' ', '/', '\\'], '_', $tahunAjaran) . '_' . date('Ymd_His') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Ekspor Laporan Pertanggungjawaban Realisasi Anggaran ke Excel (.xls) Rapi & Terstruktur.
+     */
+    public function exportExcel(Request $request)
+    {
+        $user = Auth::user();
+        $status = strtolower(trim($user->status ?? ''));
+        if (!in_array($status, ['admin', 'sarpras', 'admin_sarpras'])) {
+            return redirect()->route('pelapor.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman Admin.');
+        }
+
+        $now = now();
+        $period = $request->get('period', 'tahun');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($period === 'triwulan') {
+            $periodStart = $now->copy()->subMonths(3)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Triwulan (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'semester') {
+            $periodStart = $now->copy()->subMonths(6)->startOfDay();
+            $periodEnd = $now->copy()->endOfDay();
+            $periodLabel = 'Semester (' . $periodStart->format('d M') . ' - ' . $periodEnd->format('d M Y') . ')';
+        } elseif ($period === 'custom' && $startDate && $endDate) {
+            $periodStart = \Carbon\Carbon::parse($startDate)->startOfDay();
+            $periodEnd = \Carbon\Carbon::parse($endDate)->endOfDay();
+            $periodLabel = $periodStart->format('d M Y') . ' - ' . $periodEnd->format('d M Y');
+        } else {
+            $period = 'tahun';
+            $periodStart = $now->copy()->startOfYear();
+            $periodEnd = $now->copy()->endOfYear();
+            $periodLabel = 'Tahun Berjalan (' . $now->format('Y') . ')';
+        }
+
+        $budget = SchoolBudget::first();
+        if (!$budget) {
+            $budget = SchoolBudget::create([
+                'tahun_ajaran' => '2026/2027',
+                'total_anggaran' => 50000000,
+                'sisa_saldo' => 50000000,
+            ]);
+        }
+        $totalAnggaran = (float) $budget->total_anggaran;
+        $tahunAjaran = $budget->tahun_ajaran;
+
+        $approvedProposals = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->where('status_persetujuan', 'disetujui')
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
+            ->get();
+
+        $pengeluaranTerealisasi = 0;
+        foreach ($approvedProposals as $prop) {
+            $sum = $prop->items->sum('subtotal');
+            if ($sum == 0 && $prop->total_estimasi > 0) {
+                $sum = $prop->total_estimasi;
+            }
+            $pengeluaranTerealisasi += $sum;
+        }
+
+        $sisaSaldo = max(0, $totalAnggaran - $pengeluaranTerealisasi);
+        $persenTerpakai = $totalAnggaran > 0 ? round(($pengeluaranTerealisasi / $totalAnggaran) * 100, 1) : 0;
+
+        $proposalsWithReports = BudgetProposal::with(['verification.damageReport.category', 'verification.damageReport.facility', 'items'])
+            ->whereBetween('created_at', [$periodStart, $periodEnd])
+            ->latest()
+            ->get();
+
+        $transaksi = [];
+        foreach ($proposalsWithReports as $p) {
+            $rep = $p->verification ? $p->verification->damageReport : null;
+            $fac = $rep ? $rep->facility : null;
+            $cat = ($rep && $rep->category) ? $rep->category->name : ($fac ? ($fac->kategori_area ?? 'Umum') : 'Umum');
+            $sum = $p->items->sum('subtotal');
+            if ($sum == 0) $sum = $p->total_estimasi;
+
+            $statusLabel = 'Menunggu Persetujuan';
+            if ($p->status_persetujuan === 'disetujui') $statusLabel = 'Terbayar';
+            elseif ($p->status_persetujuan === 'ditolak') $statusLabel = 'Ditolak';
+
+            $transaksi[] = (object)[
+                'tanggal' => $p->created_at ? $p->created_at->format('Y-m-d') : now()->format('Y-m-d'),
+                'deskripsi' => $rep ? ($rep->deskripsi_laporan ?: ($fac ? $fac->nama_fasilitas : 'Perbaikan Fasilitas')) : 'Pengajuan Perbaikan Sarpras',
+                'damageReport' => $rep,
+                'kategori' => $cat,
+                'status' => $statusLabel,
+                'jumlah' => $sum,
+            ];
+        }
+
+        $html = view('admin.analytics_excel', compact(
+            'totalAnggaran',
+            'tahunAjaran',
+            'pengeluaranTerealisasi',
+            'sisaSaldo',
+            'persenTerpakai',
+            'periodLabel',
+            'transaksi'
+        ))->render();
+
+        $filename = 'Laporan_Keuangan_Sarpras_' . str_replace([' ', '/', '\\'], '_', $tahunAjaran) . '_' . date('Ymd_His') . '.xls';
+
+        return response("\xEF\xBB\xBF" . $html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0, no-cache, must-revalidate, proxy-revalidate'
+        ]);
+    }
+
+    /**
      * Perbarui Alokasi Total Anggaran Sekolah.
      */
     public function updateBudget(Request $request)

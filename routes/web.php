@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/technicians/{id}', [\App\Http\Controllers\AdminController::class, 'destroyTechnician'])->name('technicians.destroy');
 
         Route::get('/analytics', [\App\Http\Controllers\AdminController::class, 'analyticsIndex'])->name('analytics.index');
+        Route::get('/analytics/export-pdf', [\App\Http\Controllers\AdminController::class, 'exportPdf'])->name('analytics.exportPdf');
+        Route::get('/analytics/export-excel', [\App\Http\Controllers\AdminController::class, 'exportExcel'])->name('analytics.exportExcel');
         Route::post('/budget', [\App\Http\Controllers\AdminController::class, 'updateBudget'])->name('budget.update');
 
         Route::get('/rab/{id_laporan}/create', [\App\Http\Controllers\AdminController::class, 'createRab'])->name('rab.create');

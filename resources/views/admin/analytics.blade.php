@@ -41,8 +41,53 @@
         }
 
         @media print {
-            .trx-row { display: table-row !important; }
-            .no-print-pagination { display: none !important; }
+            @page {
+                size: A4 portrait;
+                margin: 12mm 12mm 15mm 12mm;
+            }
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                font-size: 10pt !important;
+            }
+            aside, header, .no-print, #budgetModal, #customDateModal {
+                display: none !important;
+            }
+            .flex-1.overflow-auto {
+                overflow: visible !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .trx-row {
+                display: table-row !important;
+            }
+            .no-print-pagination {
+                display: none !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                page-break-inside: auto !important;
+            }
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+            }
+            thead {
+                display: table-header-group !important;
+            }
+            tfoot {
+                display: table-footer-group !important;
+            }
+            .bg-white, .bg-slate-50 {
+                box-shadow: none !important;
+            }
+            .progress-bar-animated {
+                transition: none !important;
+            }
         }
     </style>
 </head>
@@ -184,31 +229,46 @@
             @endif
 
             <!-- 1. Page Header & Export Buttons -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
                 <div>
                     <h3 class="text-2xl font-black text-blue-950 tracking-tight">Laporan & Analitik Strategis</h3>
                     <p class="text-xs text-slate-500 font-medium mt-1">Tinjauan komprehensif alokasi dan realisasi pengeluaran anggaran fasilitas sekolah secara waktu nyata.</p>
                 </div>
                 <div class="flex items-center gap-2.5">
-                    <button type="button" onclick="exportAnalyticsToExcel()" class="px-4 py-2 bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer">
+                    <!-- Tombol Ekspor PDF (Dokumen PDF Asli / Unduh Berkas PDF) -->
+                    <a href="{{ route('admin.analytics.exportPdf', ['period' => request('period', 'tahun'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-95" title="Unduh Berkas Resmi PDF">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9h1m-1 4h6m-6 4h6"/>
+                        </svg>
+                        <span>Ekspor PDF</span>
+                    </a>
+
+                    <!-- Tombol Ekspor Excel -->
+                    <a href="{{ route('admin.analytics.exportExcel', ['period' => request('period', 'tahun'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-95" title="Unduh Lembar Kerja Excel (.xls) Rapi & Terstruktur">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         <span>Ekspor Excel</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
-            <!-- Print Header Dokumen Resmi -->
+            <!-- Print Header Dokumen Resmi (Hanya Muncul Saat Ekspor PDF / Cetak) -->
             <div class="hidden print:block mb-6 border-b-2 border-slate-900 pb-4">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-xl font-black text-slate-900 uppercase tracking-wide">SIPERFAS - LAPORAN KEUANGAN & ANALITIK SARPRAS</h1>
-                        <p class="text-xs text-slate-600 font-bold mt-0.5">Badan Pengelola Sarana, Prasarana & Manajemen Aset Sekolah</p>
+                    <div class="flex items-center gap-3.5">
+                        <img src="{{ asset('logo.png') }}" alt="Logo" class="w-12 h-12 object-contain">
+                        <div>
+                            <h1 class="text-lg font-black text-slate-900 uppercase tracking-wide">SIPERFAS - LAPORAN KEUANGAN & REALISASI ANGGARAN SARPRAS</h1>
+                            <p class="text-xs text-slate-600 font-bold mt-0.5">Badan Pengelola Sarana, Prasarana & Manajemen Aset Sekolah</p>
+                            <p class="text-[11px] text-slate-500 font-medium">Periode: <strong class="text-slate-800">{{ $periodLabel ?? 'Tahun Berjalan' }}</strong></p>
+                        </div>
                     </div>
-                    <div class="text-right text-[11px] text-slate-500 font-medium">
-                        <p>Tahun Ajaran: {{ $tahunAjaran }}</p>
-                        <p>Tanggal Cetak: {{ now()->format('d F Y, H:i') }} WIB</p>
+                    <div class="text-right text-[11px] text-slate-600 font-medium space-y-0.5">
+                        <p>Tahun Ajaran: <strong class="text-slate-900">{{ $tahunAjaran }}</strong></p>
+                        <p>Tanggal Cetak: <strong class="text-slate-900">{{ now()->format('d F Y, H:i') }} WIB</strong></p>
+                        <p>Koordinator: <strong class="text-slate-900">{{ $user->nama ?? 'Admin Sarpras' }}</strong></p>
                     </div>
                 </div>
             </div>
@@ -284,7 +344,7 @@
                                 </svg>
                             </div>
                             <!-- SATU-SATUNYA TOMBOL PENGATURAN ANGGARAN -->
-                            <button type="button" onclick="openBudgetModal()" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 border border-blue-200 shadow-2xs cursor-pointer group/btn" title="Klik untuk mengatur atau mengubah pagu anggaran">
+                            <button type="button" onclick="openBudgetModal()" class="no-print px-3 py-1.5 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 border border-blue-200 shadow-2xs cursor-pointer group/btn" title="Klik untuk mengatur atau mengubah pagu anggaran">
                                 <svg class="w-3.5 h-3.5 text-blue-600 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                 </svg>
@@ -641,10 +701,37 @@
             <form method="POST" action="{{ route('admin.budget.update') }}" class="mt-5 space-y-4">
                 @csrf
 
-                <!-- Tahun Ajaran -->
+                <!-- Tahun Ajaran (Pilih Langsung Tanpa Ketik Manual) -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Ajaran <span class="text-red-500">*</span></label>
-                    <input type="text" name="tahun_ajaran" value="{{ $tahunAjaran }}" required placeholder="Contoh: 2026/2027" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <label for="select_tahun_ajaran" class="block text-xs font-bold text-slate-700 mb-1">Tahun Ajaran <span class="text-red-500">*</span></label>
+                    @php
+                        $baseYear = (int) date('Y');
+                        $academicYears = [];
+                        for ($y = $baseYear; $y <= $baseYear + 5; $y++) {
+                            $academicYears[] = $y . '/' . ($y + 1);
+                        }
+                    @endphp
+                    <div class="relative">
+                        <select id="select_tahun_ajaran" name="tahun_ajaran" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer pr-10">
+                            @foreach($academicYears as $year)
+                                <option value="{{ $year }}" {{ ($tahunAjaran ?? '') === $year ? 'selected' : '' }}>
+                                    Tahun Ajaran {{ $year }} {{ ($year === $baseYear . '/' . ($baseYear + 1)) ? '(Tahun Berjalan)' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Pills untuk Tahun Ajaran -->
+                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                        @foreach(array_slice($academicYears, 0, 4) as $quickYear)
+                            <button type="button" onclick="document.getElementById('select_tahun_ajaran').value='{{ $quickYear }}'" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 rounded-lg text-[10px] font-bold transition-colors cursor-pointer">
+                                {{ $quickYear }}
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- Nominal Total Anggaran -->
@@ -978,29 +1065,116 @@
             return btn;
         }
 
-        // Export Excel CSV
-        function exportAnalyticsToExcel() {
-            const data = @json($logTransaksi);
-            let csv = [];
-            csv.push(['TANGGAL', 'DESKRIPSI TRANSAKSI', 'KATEGORI', 'STATUS', 'JUMLAH (RP)'].join(','));
-
-            data.forEach(item => {
-                csv.push([
-                    `"${item.tanggal}"`,
-                    `"${item.deskripsi}"`,
-                    `"${item.kategori}"`,
-                    `"${item.status}"`,
-                    `"${item.jumlah}"`
-                ].join(','));
+        // Ekspor Dokumen Resmi ke PDF (Vektor Asli / Non-Screenshot)
+        function exportAnalyticsToPdf() {
+            // 1. Tampilkan semua baris transaksi untuk dicetak
+            const allRows = document.querySelectorAll('.trx-row');
+            allRows.forEach(row => {
+                row.style.setProperty('display', 'table-row', 'important');
             });
 
-            const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv.join('\n'));
+            // 2. Trigger dialog cetak / Simpan sebagai PDF native browser
+            setTimeout(() => {
+                window.print();
+
+                // 3. Kembalikan state paginasi normal setelah dialog print selesai
+                setTimeout(() => {
+                    renderTrxPagination();
+                }, 800);
+            }, 150);
+        }
+
+        // Export Excel Spreadsheet Terstruktur (.xls)
+        function exportAnalyticsToExcel() {
+            const data = @json($logTransaksi);
+            const totalAnggaran = {{ $totalAnggaran }};
+            const realisasi = {{ $pengeluaranTerealisasi }};
+            const sisa = {{ $sisaSaldo }};
+            const persen = {{ $persenTerpakai }};
+            const tahunAjaran = @json($tahunAjaran);
+            const periodLabel = @json($periodLabel ?? 'Tahun Berjalan');
+
+            let html = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: Arial, sans-serif; font-size: 11pt; }
+                        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                        th { background-color: #0f172a; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+                        td { border: 1px solid #cbd5e1; padding: 6px 8px; }
+                        .title { font-size: 14pt; font-weight: bold; color: #0f172a; }
+                        .subtitle { font-size: 10pt; font-weight: bold; color: #475569; }
+                        .kpi-th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; text-align: left; }
+                        .num { text-align: right; }
+                        .bold { font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <tr><td colspan="6" class="title">SIPERFAS - LAPORAN REALISASI ANGGARAN & PEMELIHARAAN SARPRAS</td></tr>
+                        <tr><td colspan="6" class="subtitle">Badan Pengelola Sarana, Prasarana & Manajemen Aset Sekolah</td></tr>
+                        <tr><td colspan="6">Tahun Ajaran: ${tahunAjaran} | Periode: ${periodLabel} | Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}</td></tr>
+                        <tr><td colspan="6"></td></tr>
+                    </table>
+
+                    <table>
+                        <tr><th colspan="2" class="kpi-th">RINGKASAN ANGGARAN SEKOLAH</th></tr>
+                        <tr><td>Total Pagu Anggaran Dialokasikan</td><td class="num bold">Rp ${totalAnggaran.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>Total Realisasi Pengeluaran (${periodLabel})</td><td class="num bold">Rp ${realisasi.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>Sisa Saldo Anggaran</td><td class="num bold">Rp ${sisa.toLocaleString('id-ID')}</td></tr>
+                        <tr><td>Persentase Serapan Anggaran</td><td class="num bold">${persen}%</td></tr>
+                    </table>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px; text-align: center;">NO</th>
+                                <th style="width: 120px;">TANGGAL</th>
+                                <th>DESKRIPSI PROPOSAL / PEKERJAAN</th>
+                                <th>KATEGORI</th>
+                                <th>STATUS</th>
+                                <th style="text-align: right;">JUMLAH (RP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            if (data && data.length > 0) {
+                data.forEach((item, index) => {
+                    html += `
+                        <tr>
+                            <td style="text-align: center;">${index + 1}</td>
+                            <td>${item.tanggal}</td>
+                            <td>${item.deskripsi}</td>
+                            <td>${item.kategori}</td>
+                            <td>${item.status}</td>
+                            <td class="num">Rp ${Number(item.jumlah).toLocaleString('id-ID')}</td>
+                        </tr>`;
+                });
+                html += `
+                        <tr>
+                            <td colspan="5" class="bold" style="text-align: right; background-color: #f1f5f9;">TOTAL REALISASI</td>
+                            <td class="num bold" style="background-color: #f1f5f9;">Rp ${realisasi.toLocaleString('id-ID')}</td>
+                        </tr>`;
+            } else {
+                html += `<tr><td colspan="6" style="text-align: center;">Tidak ada data transaksi pada periode ini.</td></tr>`;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>`;
+
+            const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
             const downloadLink = document.createElement('a');
-            downloadLink.setAttribute('href', csvContent);
-            downloadLink.setAttribute('download', 'Laporan_Keuangan_Sarpras_' + new Date().toISOString().slice(0, 10) + '.csv');
+            downloadLink.href = url;
+            downloadLink.download = 'Laporan_Keuangan_Sarpras_' + new Date().toISOString().slice(0, 10) + '.xls';
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
