@@ -166,7 +166,7 @@
 
         <!-- 1. HEADER RESMI -->
         <tr>
-            <td colspan="6" class="header-instansi">SIPERFAS &bull; SISTEM INFORMASI PENGELOLAAN FASILITAS & SARPRAS</td>
+            <td colspan="6" class="header-instansi">SIPERFAS &bull; SISTEM INFORMASI PELAPORAN FASILITAS SEKOLAH</td>
         </tr>
         <tr>
             <td colspan="6" class="header-title">LAPORAN REALISASI ANGGARAN & PEMELIHARAAN SARPRAS</td>

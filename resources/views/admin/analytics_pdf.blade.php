@@ -214,7 +214,7 @@
                 </svg>
             </td>
             <td class="kop-text">
-                <div class="kop-instansi">Sistem Informasi Pengelolaan Fasilitas & Sarana Prasarana</div>
+                <div class="kop-instansi">Sistem Informasi Pelaporan Fasilitas Sekolah</div>
                 <div class="kop-title">Laporan Pertanggungjawaban Realisasi Anggaran</div>
                 <div class="kop-sub">Badan Pengelola Sarana, Prasarana & Manajemen Aset Sekolah &bull; Dokumen Resmi Otentik</div>
             </td>
@@ -316,21 +316,17 @@
                 Mengetahui,<br>
                 <strong>Kepala Sekolah</strong>
                 <div class="signature-space"></div>
-                <div class="signature-name">Drs. H. Mulyadi, M.Pd.</div>
-                <div class="signature-title">NIP. 19680512 199403 1 004</div>
             </td>
             <td>
                 Disahkan di Bandung, {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}<br>
                 <strong>Koordinator Sarana & Prasarana</strong>
                 <div class="signature-space"></div>
-                <div class="signature-name">{{ auth()->user()->nama ?? 'Admin Sarpras' }}</div>
-                <div class="signature-title">NIP. 19820719 200801 1 009</div>
             </td>
         </tr>
     </table>
 
     <div class="footer-note">
-        Dokumen ini dibuat otomatis oleh Sistem Informasi Pengelolaan Fasilitas (SIPERFAS) pada {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y H:i:s') }} dan diakui secara sah sebagai laporan pertanggungjawaban internal sekolah.
+        Dokumen ini dibuat otomatis oleh Sistem Informasi Pelaporan Fasilitas Sekolah (SIPERFAS) pada {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y H:i:s') }} dan diakui secara sah sebagai laporan pertanggungjawaban internal sekolah.
     </div>
 
 </body>

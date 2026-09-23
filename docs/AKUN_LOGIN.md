@@ -33,6 +33,7 @@ Setiap teknisi memiliki **spesialisasi kategori** masing-masing. Ketika pelapor 
 | 2 | **Budi Pratama** | `budi.petugas@sekolah.com` | `password123` | **Air (Plumbing)** | `2` |
 | 3 | **Joko Susilo** | `joko.petugas@sekolah.com` | `password123` | **Bangunan (Fasilitas Fisik)** | `3` |
 | 4 | **Deni Kurniawan** | `deni.petugas@sekolah.com` | `password123` | **IT & Elektronik** | `4` |
+dan bisa tambah petugas lainnya
 
 **Akses & Alur Kerja Teknisi:**
 - Dashboard Tugas: `/petugas/dashboard`
